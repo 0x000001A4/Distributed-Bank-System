@@ -1,6 +1,6 @@
 ﻿namespace BoneyBank
 {
-    partial class Form1
+    partial class ClientForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,220 +28,284 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.label9 = new System.Windows.Forms.Label();
+            this.ClientIdLabelStatic = new System.Windows.Forms.Label();
+            this.BalanceLabelStatic = new System.Windows.Forms.Label();
+            this.TransactionLogTxtBox = new System.Windows.Forms.RichTextBox();
+            this.TransactionLogLabel = new System.Windows.Forms.Label();
+            this.FrozenRadioBtn = new System.Windows.Forms.RadioButton();
+            this.Withdrawgroup = new System.Windows.Forms.GroupBox();
+            this.WithdrawAmountTxtBox = new System.Windows.Forms.TextBox();
+            this.WithdrawAmountLabel = new System.Windows.Forms.Label();
+            this.TransactionGroup = new System.Windows.Forms.GroupBox();
+            this.TransactionAmountTxtBox = new System.Windows.Forms.TextBox();
+            this.DestBankIdTxtBox = new System.Windows.Forms.TextBox();
+            this.TransactionAmountLabel = new System.Windows.Forms.Label();
+            this.DestBankIdLabel = new System.Windows.Forms.Label();
+            this.TransactionBtn = new System.Windows.Forms.Button();
+            this.AccountGroup = new System.Windows.Forms.GroupBox();
+            this.DepositGroup = new System.Windows.Forms.GroupBox();
+            this.DepositAmountTxtBox = new System.Windows.Forms.TextBox();
+            this.DepositAmountLabel = new System.Windows.Forms.Label();
+            this.DepositBtn = new System.Windows.Forms.Button();
+            this.LoginGroup = new System.Windows.Forms.GroupBox();
+            this.LoginBankIdTxtBox = new System.Windows.Forms.TextBox();
+            this.LoginBankIdLabel = new System.Windows.Forms.Label();
+            this.LoginBtn = new System.Windows.Forms.Button();
+            this.WithdrawBtn = new System.Windows.Forms.Button();
+            this.Withdrawgroup.SuspendLayout();
+            this.TransactionGroup.SuspendLayout();
+            this.AccountGroup.SuspendLayout();
+            this.DepositGroup.SuspendLayout();
+            this.LoginGroup.SuspendLayout();
             this.SuspendLayout();
             // 
-            // label1
+            // ClientIdLabelStatic
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(22, 21);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(50, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Client ID:";
+            this.ClientIdLabelStatic.AutoSize = true;
+            this.ClientIdLabelStatic.Location = new System.Drawing.Point(15, 21);
+            this.ClientIdLabelStatic.Name = "ClientIdLabelStatic";
+            this.ClientIdLabelStatic.Size = new System.Drawing.Size(50, 13);
+            this.ClientIdLabelStatic.TabIndex = 0;
+            this.ClientIdLabelStatic.Text = "Client ID:";
             // 
-            // label2
+            // BalanceLabelStatic
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(22, 55);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(49, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Balance:";
+            this.BalanceLabelStatic.AutoSize = true;
+            this.BalanceLabelStatic.Location = new System.Drawing.Point(16, 43);
+            this.BalanceLabelStatic.Name = "BalanceLabelStatic";
+            this.BalanceLabelStatic.Size = new System.Drawing.Size(49, 13);
+            this.BalanceLabelStatic.TabIndex = 1;
+            this.BalanceLabelStatic.Text = "Balance:";
             // 
-            // label3
+            // TransactionLogTxtBox
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(437, 21);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(260, 13);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Insert the address of the bank you want to connect to";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
+            this.TransactionLogTxtBox.Location = new System.Drawing.Point(532, 59);
+            this.TransactionLogTxtBox.Name = "TransactionLogTxtBox";
+            this.TransactionLogTxtBox.Size = new System.Drawing.Size(258, 321);
+            this.TransactionLogTxtBox.TabIndex = 5;
+            this.TransactionLogTxtBox.Text = "";
             // 
-            // textBox1
+            // TransactionLogLabel
             // 
-            this.textBox1.Location = new System.Drawing.Point(440, 48);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(247, 20);
-            this.textBox1.TabIndex = 3;
+            this.TransactionLogLabel.AutoSize = true;
+            this.TransactionLogLabel.Location = new System.Drawing.Point(529, 34);
+            this.TransactionLogLabel.Name = "TransactionLogLabel";
+            this.TransactionLogLabel.Size = new System.Drawing.Size(92, 13);
+            this.TransactionLogLabel.TabIndex = 6;
+            this.TransactionLogLabel.Text = "Transactions Log:";
             // 
-            // button1
+            // FrozenRadioBtn
             // 
-            this.button1.Location = new System.Drawing.Point(693, 46);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(86, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Connect";
-            this.button1.UseVisualStyleBackColor = true;
+            this.FrozenRadioBtn.AutoSize = true;
+            this.FrozenRadioBtn.Location = new System.Drawing.Point(18, 71);
+            this.FrozenRadioBtn.Name = "FrozenRadioBtn";
+            this.FrozenRadioBtn.Size = new System.Drawing.Size(57, 17);
+            this.FrozenRadioBtn.TabIndex = 13;
+            this.FrozenRadioBtn.TabStop = true;
+            this.FrozenRadioBtn.Text = "Frozen";
+            this.FrozenRadioBtn.UseVisualStyleBackColor = true;
             // 
-            // richTextBox1
+            // Withdrawgroup
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(440, 175);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(327, 245);
-            this.richTextBox1.TabIndex = 5;
-            this.richTextBox1.Text = "";
+            this.Withdrawgroup.Controls.Add(this.WithdrawBtn);
+            this.Withdrawgroup.Controls.Add(this.WithdrawAmountTxtBox);
+            this.Withdrawgroup.Controls.Add(this.WithdrawAmountLabel);
+            this.Withdrawgroup.Location = new System.Drawing.Point(29, 274);
+            this.Withdrawgroup.Name = "Withdrawgroup";
+            this.Withdrawgroup.Size = new System.Drawing.Size(199, 106);
+            this.Withdrawgroup.TabIndex = 20;
+            this.Withdrawgroup.TabStop = false;
+            this.Withdrawgroup.Text = "Withdraw";
             // 
-            // label4
+            // WithdrawAmountTxtBox
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(437, 139);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(92, 13);
-            this.label4.TabIndex = 6;
-            this.label4.Text = "Transactions Log:";
+            this.WithdrawAmountTxtBox.Location = new System.Drawing.Point(67, 24);
+            this.WithdrawAmountTxtBox.Name = "WithdrawAmountTxtBox";
+            this.WithdrawAmountTxtBox.Size = new System.Drawing.Size(108, 20);
+            this.WithdrawAmountTxtBox.TabIndex = 14;
             // 
-            // label5
+            // WithdrawAmountLabel
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(151, 277);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(98, 13);
-            this.label5.TabIndex = 7;
-            this.label5.Text = "Make a transaction";
+            this.WithdrawAmountLabel.AutoSize = true;
+            this.WithdrawAmountLabel.Location = new System.Drawing.Point(15, 27);
+            this.WithdrawAmountLabel.Name = "WithdrawAmountLabel";
+            this.WithdrawAmountLabel.Size = new System.Drawing.Size(46, 13);
+            this.WithdrawAmountLabel.TabIndex = 15;
+            this.WithdrawAmountLabel.Text = "Amount:";
             // 
-            // label6
+            // TransactionGroup
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 309);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(105, 13);
-            this.label6.TabIndex = 8;
-            this.label6.Text = "Destination Bank ID:";
+            this.TransactionGroup.Controls.Add(this.TransactionAmountTxtBox);
+            this.TransactionGroup.Controls.Add(this.DestBankIdTxtBox);
+            this.TransactionGroup.Controls.Add(this.TransactionAmountLabel);
+            this.TransactionGroup.Controls.Add(this.DestBankIdLabel);
+            this.TransactionGroup.Controls.Add(this.TransactionBtn);
+            this.TransactionGroup.Location = new System.Drawing.Point(250, 151);
+            this.TransactionGroup.Name = "TransactionGroup";
+            this.TransactionGroup.Size = new System.Drawing.Size(264, 134);
+            this.TransactionGroup.TabIndex = 21;
+            this.TransactionGroup.TabStop = false;
+            this.TransactionGroup.Text = "Transaction";
             // 
-            // textBox2
+            // TransactionAmountTxtBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(133, 306);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(216, 20);
-            this.textBox2.TabIndex = 9;
+            this.TransactionAmountTxtBox.Location = new System.Drawing.Point(134, 56);
+            this.TransactionAmountTxtBox.Name = "TransactionAmountTxtBox";
+            this.TransactionAmountTxtBox.Size = new System.Drawing.Size(110, 20);
+            this.TransactionAmountTxtBox.TabIndex = 18;
             // 
-            // textBox3
+            // DestBankIdTxtBox
             // 
-            this.textBox3.Location = new System.Drawing.Point(133, 346);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(216, 20);
-            this.textBox3.TabIndex = 10;
+            this.DestBankIdTxtBox.Location = new System.Drawing.Point(134, 24);
+            this.DestBankIdTxtBox.Name = "DestBankIdTxtBox";
+            this.DestBankIdTxtBox.Size = new System.Drawing.Size(110, 20);
+            this.DestBankIdTxtBox.TabIndex = 14;
             // 
-            // label7
+            // TransactionAmountLabel
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(71, 346);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(46, 13);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "Amount:";
+            this.TransactionAmountLabel.AutoSize = true;
+            this.TransactionAmountLabel.Location = new System.Drawing.Point(64, 59);
+            this.TransactionAmountLabel.Name = "TransactionAmountLabel";
+            this.TransactionAmountLabel.Size = new System.Drawing.Size(46, 13);
+            this.TransactionAmountLabel.TabIndex = 17;
+            this.TransactionAmountLabel.Text = "Amount:";
             // 
-            // button2
+            // DestBankIdLabel
             // 
-            this.button2.Location = new System.Drawing.Point(247, 382);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(102, 23);
-            this.button2.TabIndex = 12;
-            this.button2.Text = "Transfer";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.DestBankIdLabel.AutoSize = true;
+            this.DestBankIdLabel.Location = new System.Drawing.Point(6, 27);
+            this.DestBankIdLabel.Name = "DestBankIdLabel";
+            this.DestBankIdLabel.Size = new System.Drawing.Size(105, 13);
+            this.DestBankIdLabel.TabIndex = 15;
+            this.DestBankIdLabel.Text = "Destination Bank ID:";
             // 
-            // radioButton1
+            // TransactionBtn
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(440, 84);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(57, 17);
-            this.radioButton1.TabIndex = 13;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Frozen";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.TransactionBtn.Location = new System.Drawing.Point(134, 92);
+            this.TransactionBtn.Name = "TransactionBtn";
+            this.TransactionBtn.Size = new System.Drawing.Size(110, 23);
+            this.TransactionBtn.TabIndex = 16;
+            this.TransactionBtn.Text = "Transfer";
+            this.TransactionBtn.UseVisualStyleBackColor = true;
             // 
-            // textBox4
+            // AccountGroup
             // 
-            this.textBox4.Location = new System.Drawing.Point(96, 171);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(253, 20);
-            this.textBox4.TabIndex = 14;
+            this.AccountGroup.Controls.Add(this.BalanceLabelStatic);
+            this.AccountGroup.Controls.Add(this.FrozenRadioBtn);
+            this.AccountGroup.Controls.Add(this.ClientIdLabelStatic);
+            this.AccountGroup.Location = new System.Drawing.Point(250, 31);
+            this.AccountGroup.Name = "AccountGroup";
+            this.AccountGroup.Size = new System.Drawing.Size(264, 110);
+            this.AccountGroup.TabIndex = 23;
+            this.AccountGroup.TabStop = false;
+            this.AccountGroup.Text = "Account info:";
             // 
-            // label8
+            // DepositGroup
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(22, 174);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(46, 13);
-            this.label8.TabIndex = 15;
-            this.label8.Text = "Amount:";
+            this.DepositGroup.Controls.Add(this.DepositAmountTxtBox);
+            this.DepositGroup.Controls.Add(this.DepositAmountLabel);
+            this.DepositGroup.Controls.Add(this.DepositBtn);
+            this.DepositGroup.Location = new System.Drawing.Point(29, 151);
+            this.DepositGroup.Name = "DepositGroup";
+            this.DepositGroup.Size = new System.Drawing.Size(199, 106);
+            this.DepositGroup.TabIndex = 21;
+            this.DepositGroup.TabStop = false;
+            this.DepositGroup.Text = "Deposit";
             // 
-            // button3
+            // DepositAmountTxtBox
             // 
-            this.button3.Location = new System.Drawing.Point(96, 206);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(104, 23);
-            this.button3.TabIndex = 16;
-            this.button3.Text = "Deposit";
-            this.button3.UseVisualStyleBackColor = true;
+            this.DepositAmountTxtBox.Location = new System.Drawing.Point(67, 24);
+            this.DepositAmountTxtBox.Name = "DepositAmountTxtBox";
+            this.DepositAmountTxtBox.Size = new System.Drawing.Size(108, 20);
+            this.DepositAmountTxtBox.TabIndex = 14;
             // 
-            // button4
+            // DepositAmountLabel
             // 
-            this.button4.Location = new System.Drawing.Point(241, 206);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(108, 23);
-            this.button4.TabIndex = 17;
-            this.button4.Text = "Withdraw";
-            this.button4.UseVisualStyleBackColor = true;
+            this.DepositAmountLabel.AutoSize = true;
+            this.DepositAmountLabel.Location = new System.Drawing.Point(15, 27);
+            this.DepositAmountLabel.Name = "DepositAmountLabel";
+            this.DepositAmountLabel.Size = new System.Drawing.Size(46, 13);
+            this.DepositAmountLabel.TabIndex = 15;
+            this.DepositAmountLabel.Text = "Amount:";
             // 
-            // label9
+            // DepositBtn
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(151, 139);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(121, 13);
-            this.label9.TabIndex = 18;
-            this.label9.Text = "Modify account balance";
+            this.DepositBtn.Location = new System.Drawing.Point(68, 50);
+            this.DepositBtn.Name = "DepositBtn";
+            this.DepositBtn.Size = new System.Drawing.Size(104, 23);
+            this.DepositBtn.TabIndex = 16;
+            this.DepositBtn.Text = "Deposit";
+            this.DepositBtn.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // LoginGroup
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.label8);
-            this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.radioButton1);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.richTextBox1);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Name = "Form1";
-            this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.LoginGroup.Controls.Add(this.LoginBankIdTxtBox);
+            this.LoginGroup.Controls.Add(this.LoginBankIdLabel);
+            this.LoginGroup.Controls.Add(this.LoginBtn);
+            this.LoginGroup.Location = new System.Drawing.Point(29, 31);
+            this.LoginGroup.Name = "LoginGroup";
+            this.LoginGroup.Size = new System.Drawing.Size(199, 106);
+            this.LoginGroup.TabIndex = 21;
+            this.LoginGroup.TabStop = false;
+            this.LoginGroup.Text = "Login";
+            // 
+            // LoginBankIdTxtBox
+            // 
+            this.LoginBankIdTxtBox.Location = new System.Drawing.Point(67, 24);
+            this.LoginBankIdTxtBox.Name = "LoginBankIdTxtBox";
+            this.LoginBankIdTxtBox.Size = new System.Drawing.Size(108, 20);
+            this.LoginBankIdTxtBox.TabIndex = 14;
+            // 
+            // LoginBankIdLabel
+            // 
+            this.LoginBankIdLabel.AutoSize = true;
+            this.LoginBankIdLabel.Location = new System.Drawing.Point(15, 27);
+            this.LoginBankIdLabel.Name = "LoginBankIdLabel";
+            this.LoginBankIdLabel.Size = new System.Drawing.Size(49, 13);
+            this.LoginBankIdLabel.TabIndex = 15;
+            this.LoginBankIdLabel.Text = "Bank ID:";
+            // 
+            // LoginBtn
+            // 
+            this.LoginBtn.Location = new System.Drawing.Point(68, 50);
+            this.LoginBtn.Name = "LoginBtn";
+            this.LoginBtn.Size = new System.Drawing.Size(104, 23);
+            this.LoginBtn.TabIndex = 16;
+            this.LoginBtn.Text = "Connect";
+            this.LoginBtn.UseVisualStyleBackColor = true;
+            // 
+            // WithdrawBtn
+            // 
+            this.WithdrawBtn.Location = new System.Drawing.Point(68, 59);
+            this.WithdrawBtn.Name = "WithdrawBtn";
+            this.WithdrawBtn.Size = new System.Drawing.Size(104, 23);
+            this.WithdrawBtn.TabIndex = 17;
+            this.WithdrawBtn.Text = "Withdraw";
+            this.WithdrawBtn.UseVisualStyleBackColor = true;
+            // 
+            // ClientForm
+            // 
+            this.ClientSize = new System.Drawing.Size(820, 412);
+            this.Controls.Add(this.LoginGroup);
+            this.Controls.Add(this.DepositGroup);
+            this.Controls.Add(this.Withdrawgroup);
+            this.Controls.Add(this.TransactionGroup);
+            this.Controls.Add(this.AccountGroup);
+            this.Controls.Add(this.TransactionLogLabel);
+            this.Controls.Add(this.TransactionLogTxtBox);
+            this.Name = "ClientForm";
+            this.Text = "Boney Bank";
+            this.Load += new System.EventHandler(this.ClientForm_Load);
+            this.Withdrawgroup.ResumeLayout(false);
+            this.Withdrawgroup.PerformLayout();
+            this.TransactionGroup.ResumeLayout(false);
+            this.TransactionGroup.PerformLayout();
+            this.AccountGroup.ResumeLayout(false);
+            this.AccountGroup.PerformLayout();
+            this.DepositGroup.ResumeLayout(false);
+            this.DepositGroup.PerformLayout();
+            this.LoginGroup.ResumeLayout(false);
+            this.LoginGroup.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -249,25 +313,30 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.RichTextBox richTextBox1;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label ClientIdLabelStatic;
+        private System.Windows.Forms.Label BalanceLabelStatic;
+        private System.Windows.Forms.RichTextBox TransactionLogTxtBox;
+        private System.Windows.Forms.Label TransactionLogLabel;
+        private System.Windows.Forms.RadioButton FrozenRadioBtn;
+        private System.Windows.Forms.GroupBox Withdrawgroup;
+        private System.Windows.Forms.Label WithdrawAmountLabel;
+        private System.Windows.Forms.TextBox WithdrawAmountTxtBox;
+        private System.Windows.Forms.GroupBox TransactionGroup;
+        private System.Windows.Forms.TextBox TransactionAmountTxtBox;
+        private System.Windows.Forms.Label TransactionAmountLabel;
+        private System.Windows.Forms.Label DestBankIdLabel;
+        private System.Windows.Forms.TextBox DestBankIdTxtBox;
+        private System.Windows.Forms.Button TransactionBtn;
+        private System.Windows.Forms.GroupBox AccountGroup;
+        private System.Windows.Forms.GroupBox DepositGroup;
+        private System.Windows.Forms.TextBox DepositAmountTxtBox;
+        private System.Windows.Forms.Label DepositAmountLabel;
+        private System.Windows.Forms.Button DepositBtn;
+        private System.Windows.Forms.GroupBox LoginGroup;
+        private System.Windows.Forms.TextBox LoginBankIdTxtBox;
+        private System.Windows.Forms.Label LoginBankIdLabel;
+        private System.Windows.Forms.Button LoginBtn;
+        private System.Windows.Forms.Button WithdrawBtn;
     }
 }
 
