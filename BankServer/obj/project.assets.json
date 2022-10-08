@@ -17,10 +17,14 @@
           "System.Memory": "4.5.3"
         },
         "compile": {
-          "lib/netstandard2.1/Grpc.Core.Api.dll": {}
+          "lib/netstandard2.1/Grpc.Core.Api.dll": {
+            "related": ".pdb;.xml"
+          }
         },
         "runtime": {
-          "lib/netstandard2.1/Grpc.Core.Api.dll": {}
+          "lib/netstandard2.1/Grpc.Core.Api.dll": {
+            "related": ".pdb;.xml"
+          }
         }
       },
       "Grpc.Net.Client/2.49.0": {
@@ -30,10 +34,14 @@
           "Microsoft.Extensions.Logging.Abstractions": "3.0.3"
         },
         "compile": {
-          "lib/net6.0/Grpc.Net.Client.dll": {}
+          "lib/net6.0/Grpc.Net.Client.dll": {
+            "related": ".pdb;.xml"
+          }
         },
         "runtime": {
-          "lib/net6.0/Grpc.Net.Client.dll": {}
+          "lib/net6.0/Grpc.Net.Client.dll": {
+            "related": ".pdb;.xml"
+          }
         }
       },
       "Grpc.Net.Common/2.49.0": {
@@ -42,10 +50,14 @@
           "Grpc.Core.Api": "2.49.0"
         },
         "compile": {
-          "lib/net6.0/Grpc.Net.Common.dll": {}
+          "lib/net6.0/Grpc.Net.Common.dll": {
+            "related": ".pdb;.xml"
+          }
         },
         "runtime": {
-          "lib/net6.0/Grpc.Net.Common.dll": {}
+          "lib/net6.0/Grpc.Net.Common.dll": {
+            "related": ".pdb;.xml"
+          }
         }
       },
       "Grpc.Tools/2.49.1": {
@@ -58,10 +70,14 @@
       "Microsoft.Extensions.Logging.Abstractions/3.0.3": {
         "type": "package",
         "compile": {
-          "lib/netstandard2.0/Microsoft.Extensions.Logging.Abstractions.dll": {}
+          "lib/netstandard2.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/netstandard2.0/Microsoft.Extensions.Logging.Abstractions.dll": {}
+          "lib/netstandard2.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "related": ".xml"
+          }
         }
       },
       "System.Memory/4.5.3": {
@@ -280,19 +296,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\sidne\\.nuget\\packages\\": {}
+    "C:\\Users\\afons\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\BankServer.csproj",
+      "projectUniqueName": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\BankServer.csproj",
       "projectName": "BankServer",
-      "projectPath": "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\BankServer.csproj",
-      "packagesPath": "C:\\Users\\sidne\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\obj\\",
+      "projectPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\BankServer.csproj",
+      "packagesPath": "C:\\Users\\afons\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\sidne\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\afons\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -343,7 +359,8 @@
           "net47",
           "net471",
           "net472",
-          "net48"
+          "net48",
+          "net481"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -352,7 +369,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
       }
     }
   }

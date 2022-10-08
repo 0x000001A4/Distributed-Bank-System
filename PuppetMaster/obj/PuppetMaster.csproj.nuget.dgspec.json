@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\BoneyServer.csproj": {}
+    "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\PuppetMaster\\PuppetMaster.csproj": {}
   },
   "projects": {
-    "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\BoneyServer.csproj": {
+    "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\PuppetMaster\\PuppetMaster.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\BoneyServer.csproj",
-        "projectName": "BoneyServer",
-        "projectPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\BoneyServer.csproj",
+        "projectUniqueName": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\PuppetMaster\\PuppetMaster.csproj",
+        "projectName": "PuppetMaster",
+        "projectPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\PuppetMaster\\PuppetMaster.csproj",
         "packagesPath": "C:\\Users\\afons\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\obj\\",
+        "outputPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\PuppetMaster\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\afons\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -39,26 +39,6 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
-          "dependencies": {
-            "Google.Protobuf": {
-              "target": "Package",
-              "version": "[3.18.0, )"
-            },
-            "Grpc.Core": {
-              "target": "Package",
-              "version": "[2.46.5, )"
-            },
-            "Grpc.Net.Client": {
-              "target": "Package",
-              "version": "[2.49.0, )"
-            },
-            "Grpc.Tools": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[2.49.1, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",

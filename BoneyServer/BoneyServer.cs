@@ -1,7 +1,10 @@
 ﻿
 using BoneyServer.domain;
+using System;
 using BoneyServer.services;
+using BoneyServer.utils;
 using Grpc.Core;
+using System.Diagnostics;
 
 namespace BoneyServer
 {
@@ -10,6 +13,10 @@ namespace BoneyServer
 
         public static void Main(string[] args)
         {
+            (Dictionary<int, string>, Dictionary<int, string>, string[,], string[,], List<int>, string, int, int) tuplo;
+            //Console.WriteLine(args[0]);
+
+            Input.input(args[0]);
             // Will be passed as args from pupetmaster
             const int port = 8001;
             const string hostname = "localhost";
@@ -29,6 +36,7 @@ namespace BoneyServer
             };
 
             server.Start();
+
 
             Console.WriteLine(startupMessage);
             //Configuring HTTP for client connections in Register method

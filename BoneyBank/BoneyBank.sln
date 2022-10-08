@@ -5,9 +5,11 @@ VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankClient", "BankClient.csproj", "{35E92E41-C815-4635-AA96-76F921D41228}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankServer", "..\BankServer\BankServer.csproj", "{65FFB92B-34A6-4ADE-A03F-0FC28CE038DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BankServer", "..\BankServer\BankServer.csproj", "{65FFB92B-34A6-4ADE-A03F-0FC28CE038DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoneyServer", "..\BoneyServer\BoneyServer.csproj", "{F87BFD4B-CD8C-4210-AE21-8954EB994E91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoneyServer", "..\BoneyServer\BoneyServer.csproj", "{F87BFD4B-CD8C-4210-AE21-8954EB994E91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuppetMaster", "..\PuppetMaster\PuppetMaster.csproj", "{D1749C97-F7AB-4CE4-85F9-16745F2501C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{F87BFD4B-CD8C-4210-AE21-8954EB994E91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F87BFD4B-CD8C-4210-AE21-8954EB994E91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F87BFD4B-CD8C-4210-AE21-8954EB994E91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1749C97-F7AB-4CE4-85F9-16745F2501C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1749C97-F7AB-4CE4-85F9-16745F2501C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1749C97-F7AB-4CE4-85F9-16745F2501C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1749C97-F7AB-4CE4-85F9-16745F2501C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

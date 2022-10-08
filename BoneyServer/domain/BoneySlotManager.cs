@@ -10,6 +10,11 @@ namespace BoneyServer.domain
     {
         private Slots<uint> _slots;
 
+
+
+
+
+
         public BoneySlotManager(uint maxNumOfSlots)
         {
             _slots = new Slots<uint>(maxNumOfSlots);
