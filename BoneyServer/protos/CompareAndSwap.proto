@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+
+service CompareAndSwapService {
+  rpc CompareAndSwap (CompareAndSwapRequest) returns (CompareAndSwapResponse);
+}
+
+message CompareAndSwapRequest {
+	uint32 leader = 1;
+	uint32 slot = 2;
+}
+message CompareAndSwapResponse {
+	bool ok = 1;
+}

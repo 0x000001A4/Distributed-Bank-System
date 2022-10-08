@@ -1,0 +1,11 @@
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\bin\Debug\BoneyBank.exe.config
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\bin\Debug\BoneyBank.exe
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\bin\Debug\BoneyBank.pdb
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.csproj.AssemblyReference.cache
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.csproj.SuggestedBindingRedirects.cache
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.ClientForm.resources
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.Properties.Resources.resources
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.csproj.GenerateResource.cache
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.csproj.CoreCompileInputs.cache
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.exe
+C:\Users\sidne\OneDrive\Ambiente de Trabalho\ResumosLEIC\MEIC-1ano\DAD -  Aplicacoes Distribuidas\Projeto\meic-dad\BoneyBank\obj\Debug\BoneyBank.pdb
