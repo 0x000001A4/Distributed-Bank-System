@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="protos\PaxosAcceptor.proto" />
+    <None Remove="protos\PaxosLearner.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<PackageReference Include="Google.Protobuf" Version="3.18.0" />
     <PackageReference Include="Grpc.Core" Version="2.46.5" />
     <PackageReference Include="Grpc.Net.Client" Version="2.49.0" />
@@ -15,7 +20,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-	<Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Server" />
+    <Protobuf Include="protos\PaxosLearner.proto" GrpcServices="Server" ProtoRoot="protos"/>
+    <Protobuf Include="protos\PaxosAcceptor.proto" GrpcServices="Server" ProtoRoot="protos"/>
+	<Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Server" ProtoRoot="protos"/>
   </ItemGroup>
 
 </Project>

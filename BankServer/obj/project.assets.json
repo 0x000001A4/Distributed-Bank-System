@@ -2,13 +2,48 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "Google.Protobuf.Tools/3.21.7": {
+      "Google.Protobuf/3.21.7": {
         "type": "package",
-        "build": {
-          "build/Google.Protobuf.Tools.targets": {}
+        "compile": {
+          "lib/net5.0/Google.Protobuf.dll": {}
         },
-        "buildMultiTargeting": {
-          "buildCrossTargeting/Google.Protobuf.Tools.targets": {}
+        "runtime": {
+          "lib/net5.0/Google.Protobuf.dll": {}
+        }
+      },
+      "Grpc.Core/2.46.5": {
+        "type": "package",
+        "dependencies": {
+          "Grpc.Core.Api": "2.46.5",
+          "System.Memory": "4.5.3"
+        },
+        "compile": {
+          "lib/netstandard2.0/Grpc.Core.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Grpc.Core.dll": {}
+        },
+        "runtimeTargets": {
+          "runtimes/linux-arm64/native/libgrpc_csharp_ext.arm64.so": {
+            "assetType": "native",
+            "rid": "linux-arm64"
+          },
+          "runtimes/linux-x64/native/libgrpc_csharp_ext.x64.so": {
+            "assetType": "native",
+            "rid": "linux-x64"
+          },
+          "runtimes/osx-x64/native/libgrpc_csharp_ext.x64.dylib": {
+            "assetType": "native",
+            "rid": "osx-x64"
+          },
+          "runtimes/win-x64/native/grpc_csharp_ext.x64.dll": {
+            "assetType": "native",
+            "rid": "win-x64"
+          },
+          "runtimes/win-x86/native/grpc_csharp_ext.x86.dll": {
+            "assetType": "native",
+            "rid": "win-x86"
+          }
         }
       },
       "Grpc.Core.Api/2.49.0": {
@@ -92,34 +127,55 @@
     }
   },
   "libraries": {
-    "Google.Protobuf.Tools/3.21.7": {
-      "sha512": "INl5EZVJAUz5nuPKwX85GHSFeTgKBlN+mL7hKcN7tLjHGhiJCUaWgpUcQ9GBXKJ3LsXdB169euS4aN2KW10wnA==",
+    "Google.Protobuf/3.21.7": {
+      "sha512": "0Q+wYqtEVjRxVbtfxXzTUzwLGMZJKqhmIgdDpwWyg8J4ykYqfPn0M60FPBcZkjiGgtJqvZp+8t2van9rxTCLWQ==",
       "type": "package",
-      "path": "google.protobuf.tools/3.21.7",
-      "hasTools": true,
+      "path": "google.protobuf/3.21.7",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "build/Google.Protobuf.Tools.targets",
-        "buildCrossTargeting/Google.Protobuf.Tools.targets",
-        "google.protobuf.tools.3.21.7.nupkg.sha512",
-        "google.protobuf.tools.nuspec",
-        "tools/google/protobuf/any.proto",
-        "tools/google/protobuf/api.proto",
-        "tools/google/protobuf/descriptor.proto",
-        "tools/google/protobuf/duration.proto",
-        "tools/google/protobuf/empty.proto",
-        "tools/google/protobuf/field_mask.proto",
-        "tools/google/protobuf/source_context.proto",
-        "tools/google/protobuf/struct.proto",
-        "tools/google/protobuf/timestamp.proto",
-        "tools/google/protobuf/type.proto",
-        "tools/google/protobuf/wrappers.proto",
-        "tools/linux_x64/protoc",
-        "tools/linux_x86/protoc",
-        "tools/macosx_x64/protoc",
-        "tools/windows_x64/protoc.exe",
-        "tools/windows_x86/protoc.exe"
+        "google.protobuf.3.21.7.nupkg.sha512",
+        "google.protobuf.nuspec",
+        "lib/net45/Google.Protobuf.dll",
+        "lib/net45/Google.Protobuf.pdb",
+        "lib/net45/Google.Protobuf.xml",
+        "lib/net5.0/Google.Protobuf.dll",
+        "lib/net5.0/Google.Protobuf.pdb",
+        "lib/net5.0/Google.Protobuf.xml",
+        "lib/netstandard1.1/Google.Protobuf.dll",
+        "lib/netstandard1.1/Google.Protobuf.pdb",
+        "lib/netstandard1.1/Google.Protobuf.xml",
+        "lib/netstandard2.0/Google.Protobuf.dll",
+        "lib/netstandard2.0/Google.Protobuf.pdb",
+        "lib/netstandard2.0/Google.Protobuf.xml"
+      ]
+    },
+    "Grpc.Core/2.46.5": {
+      "sha512": "bD35LTppXYmRvymX6rV+mqc2wZcZf8o0fYkEJ414cul1RiGRWTeVWOtDC94CaTGG2Ie/XoLTd347bnBB5vHaGQ==",
+      "type": "package",
+      "path": "grpc.core/2.46.5",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/net45/Grpc.Core.targets",
+        "buildTransitive/net45/Grpc.Core.targets",
+        "grpc.core.2.46.5.nupkg.sha512",
+        "grpc.core.nuspec",
+        "lib/net45/Grpc.Core.dll",
+        "lib/net45/Grpc.Core.pdb",
+        "lib/net45/Grpc.Core.xml",
+        "lib/netstandard1.5/Grpc.Core.dll",
+        "lib/netstandard1.5/Grpc.Core.pdb",
+        "lib/netstandard1.5/Grpc.Core.xml",
+        "lib/netstandard2.0/Grpc.Core.dll",
+        "lib/netstandard2.0/Grpc.Core.pdb",
+        "lib/netstandard2.0/Grpc.Core.xml",
+        "packageIcon.png",
+        "runtimes/linux-arm64/native/libgrpc_csharp_ext.arm64.so",
+        "runtimes/linux-x64/native/libgrpc_csharp_ext.x64.so",
+        "runtimes/osx-x64/native/libgrpc_csharp_ext.x64.dylib",
+        "runtimes/win-x64/native/grpc_csharp_ext.x64.dll",
+        "runtimes/win-x86/native/grpc_csharp_ext.x86.dll"
       ]
     },
     "Grpc.Core.Api/2.49.0": {
@@ -289,8 +345,8 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "Google.Protobuf.Tools >= 3.21.7",
-      "Grpc.Core.Api >= 2.49.0",
+      "Google.Protobuf >= 3.21.7",
+      "Grpc.Core >= 2.46.5",
       "Grpc.Net.Client >= 2.49.0",
       "Grpc.Tools >= 2.49.1"
     ]
@@ -334,13 +390,13 @@
       "net6.0": {
         "targetAlias": "net6.0",
         "dependencies": {
-          "Google.Protobuf.Tools": {
+          "Google.Protobuf": {
             "target": "Package",
             "version": "[3.21.7, )"
           },
-          "Grpc.Core.Api": {
+          "Grpc.Core": {
             "target": "Package",
-            "version": "[2.49.0, )"
+            "version": "[2.46.5, )"
           },
           "Grpc.Net.Client": {
             "target": "Package",

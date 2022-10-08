@@ -19,7 +19,7 @@ namespace BoneyServer.services
         public override Task<CompareAndSwapResponse> CompareAndSwap(CompareAndSwapRequest request, ServerCallContext context)
         {
             Console.WriteLine("received msg");
-            return base.CompareAndSwap(request, context);
+            return Task.FromResult(new CompareAndSwapResponse { Ok = true });
         }
     }
 }
