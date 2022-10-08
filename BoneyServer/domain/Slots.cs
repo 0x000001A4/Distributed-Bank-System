@@ -11,6 +11,8 @@ namespace BoneyServer.domain
         private T[] _slots;
         private uint _maxNumOfSlots;
 
+        public uint size { get => _maxNumOfSlots; }
+
         public Slots(uint maxNumOfSlots){
             _slots = new T[maxNumOfSlots];
             _maxNumOfSlots = maxNumOfSlots;

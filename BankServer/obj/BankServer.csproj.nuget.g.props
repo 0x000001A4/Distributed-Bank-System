@@ -17,6 +17,5 @@
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgGrpc_Tools Condition=" '$(PkgGrpc_Tools)' == '' ">C:\Users\sidne\.nuget\packages\grpc.tools\2.49.1</PkgGrpc_Tools>
-    <PkgGoogle_Protobuf_Tools Condition=" '$(PkgGoogle_Protobuf_Tools)' == '' ">C:\Users\sidne\.nuget\packages\google.protobuf.tools\3.21.7</PkgGoogle_Protobuf_Tools>
   </PropertyGroup>
 </Project>
