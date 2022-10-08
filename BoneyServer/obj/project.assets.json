@@ -360,19 +360,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\afons\\.nuget\\packages\\": {}
+    "C:\\Users\\ricky\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\BoneyServer.csproj",
+      "projectUniqueName": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BoneyServer\\BoneyServer.csproj",
       "projectName": "BoneyServer",
-      "projectPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\BoneyServer.csproj",
-      "packagesPath": "C:\\Users\\afons\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BoneyServer\\obj\\",
+      "projectPath": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BoneyServer\\BoneyServer.csproj",
+      "packagesPath": "C:\\Users\\ricky\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BoneyServer\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\afons\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ricky\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [

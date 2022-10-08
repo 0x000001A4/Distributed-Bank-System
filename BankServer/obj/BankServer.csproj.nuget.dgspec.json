@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\BankServer.csproj": {}
+    "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj": {}
   },
   "projects": {
-    "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\BankServer.csproj": {
+    "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\BankServer.csproj",
+        "projectUniqueName": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj",
         "projectName": "BankServer",
-        "projectPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\BankServer.csproj",
-        "packagesPath": "C:\\Users\\afons\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\projectoDAD\\meic-dad\\BankServer\\obj\\",
+        "projectPath": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj",
+        "packagesPath": "C:\\Users\\ricky\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\afons\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ricky\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
