@@ -5,8 +5,8 @@ service CompareAndSwapService {
 }
 
 message CompareAndSwapRequest {
-	uint32 leader = 1;
-	uint32 slot = 2;
+	uint32 slot = 1;
+	uint32 leader = 2;
 }
 message CompareAndSwapResponse {
 	bool ok = 1;

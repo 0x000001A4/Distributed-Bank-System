@@ -6,30 +6,15 @@ using System.Threading.Tasks;
 
 namespace BoneyServer.domain
 {
-    internal class Paxos
-    {
+    internal class Paxos {
 
-        private uint _paxosInstance;
+        public static int Id { get; set; }
 
-
-
-        public Paxos()
-        {
-            _paxosInstance = 0;
+        public Paxos() {
+            Id++;
         }
 
-        public uint StartNewInstance()
-        {
-            return ++_paxosInstance;
-        }
-
-        public uint getInstance()
-        {
-            return _paxosInstance;
-        }
-
-        public void Start()
-        {
+        public void Start() {
             // Start proposer thread
         }
     }

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\BankServer.csproj": {}
+    "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\BankServer.csproj": {
+    "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\BankServer.csproj",
+        "projectUniqueName": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj",
         "projectName": "BankServer",
-        "projectPath": "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\BankServer.csproj",
-        "packagesPath": "C:\\Users\\sidne\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sidne\\OneDrive\\Ambiente de Trabalho\\ResumosLEIC\\MEIC-1ano\\DAD -  Aplicacoes Distribuidas\\Projeto\\meic-dad\\BankServer\\obj\\",
+        "projectPath": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\BankServer.csproj",
+        "packagesPath": "C:\\Users\\ricky\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ricky\\Personal\\School\\MEIC\\DAD\\Project\\meic-dad\\BankServer\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\sidne\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ricky\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -65,7 +65,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -74,7 +75,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

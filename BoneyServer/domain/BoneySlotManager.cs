@@ -8,22 +8,20 @@ namespace BoneyServer.domain
 {
     internal class BoneySlotManager
     {
-        private Slots<uint> _processSlots;
-        private Paxos _paxos;
+        private Slots<Slot> _processSlots;
 
         public BoneySlotManager(uint maxNumOfSlots)
         {
-            _processSlots = new Slots<uint>(maxNumOfSlots);
-            _paxos = new Paxos();
+            _processSlots = new Slots<Slot>(maxNumOfSlots);
         }
 
-        public uint FillSlot(uint slotNum, uint slotVal)
+        public Slot FillSlot(uint slotNum, Slot slotVal)
         {
             _processSlots[slotNum] = slotVal;
             return slotVal;
         }
 
-        public uint GetSlotValue(uint slotNum, uint slotVal)
+        public Slot GetSlotValue(uint slotNum)
         {
             return _processSlots[slotNum];
         }
