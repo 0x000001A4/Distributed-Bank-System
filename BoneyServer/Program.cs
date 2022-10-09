@@ -5,6 +5,7 @@ using BoneyServer.services;
 using BoneyServer.utils;
 using Grpc.Core;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace BoneyServer
 {
@@ -17,10 +18,12 @@ namespace BoneyServer
             //Console.WriteLine(args[0]);
 
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
+            int processID = int.Parse(args[1]);
+            (string hostname, int port) = config.GetBankHostnameAndPortByProcess(processID);
+            //var expression = new Regex(@"(?<localhost>[^:]+):(?<portnumber>[0-9]+)");
+            //var match = expression.Match(config.GetBoneyHostnameByProcess(processID));
             // Will be passed as args from pupetmaster
-            const int port = 8001;
-            const string hostname = "localhost";
-            const uint maxSlots = 3;
+            const uint maxSlots = config.GetNumberOfSlots();
 
             BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
             string startupMessage;
