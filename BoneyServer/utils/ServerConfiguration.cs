@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BoneyServer.utils
@@ -47,8 +48,21 @@ namespace BoneyServer.utils
                 words = line.Split(' ');
                 if (words[0] == "P")
                 {
-                    if (words[2] == "boney") _boneyMap.Add(int.Parse(words[1]), words[3]);
-                    if (words[2] == "bank") _bankMap.Add(int.Parse(words[1]), words[3]);
+                    var expression = new Regex(@"http://(?<hostname>[^\n]+)");
+                    if (words[2] == "boney")
+                    {
+
+                        var match = expression.Match(words[3]);
+                        _boneyMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
+
+
+                    }
+
+                    if (words[2] == "bank")
+                    {
+                        var match = expression.Match(words[3]);
+                        _bankMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
+                    }
                     if (words[2] == "client") clientList.Add(int.Parse(words[1]));
                 }
                 else if (words[0] == "S")
@@ -125,6 +139,8 @@ namespace BoneyServer.utils
                 .SetTimeOfFirstSlot(_timeOfFirstSlot)
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
+
+
             return config;
 
         }
@@ -177,17 +193,61 @@ namespace BoneyServer.utils
             return this;
         }
 
-        public string? GetBoneyHostnameByProcess(int p)
+
+        public int GetNumberofSlots()
         {
-            return _boneyServersHostnames.GetValueOrDefault(p);
+            return _numberOfSlots;
         }
-        public string? GetBankHostnameByProcess(int p)
+
+        public int GetSlotDuration()
         {
-            return _bankServersHostnames.GetValueOrDefault(p);
+            return _slotDuration;
+        }
+
+        public string GetSlotFisrtTime()
+        {
+            return _timeOfFirstSlot;
+        }
+
+
+        public List<int> GetClientList()
+        {
+            return this._clientList;
+        }
+
+        public (string, int) GetBoneyHostnameAndPortByProcess(int p)
+        {
+            var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
+            var match = expression.Match(_boneyServersHostnames.GetValueOrDefault(p));
+            string hostname = match.Groups["hostname"].Value;
+            int port = int.Parse(match.Groups["portnumber"].Value);
+            return (hostname, port);
+        }
+        public (string, int) GetBankHostnameAndPortByProcess(int p)
+        {
+
+            var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
+
+            var match = expression.Match(_bankServersHostnames.GetValueOrDefault(p));
+
+            string hostname = match.Groups["hostname"].Value;
+
+            int port = int.Parse(match.Groups["portnumber"].Value);
+            return (hostname, port);
         }
         public string GetServerStateInSlot(int serverID, int slotNumber)
         {
-            return _serverStatePerSlot[serverID, slotNumber];
+            return _serverStatePerSlot[slotNumber, serverID];
+        }
+
+        public Dictionary<int, string> GetDic()
+        {
+            return _bankServersHostnames;
+        }
+
+        public string GetServerSuspetInSlot(int serverID, int slotNumber)
+        {
+            return _serverSuspectedPerSlot[slotNumber, serverID];
         }
         public int GetNumberOfBoneyServers()
         {
@@ -198,5 +258,13 @@ namespace BoneyServer.utils
         {
             return _bankServersHostnames.Count();
         }
+
+        public bool CheckClientExists(int id)
+        {
+            return _clientList.Contains(id);
+        }
+
+
     }
 }
+

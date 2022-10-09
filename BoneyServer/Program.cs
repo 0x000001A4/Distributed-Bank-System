@@ -42,7 +42,7 @@ namespace BoneyServer
             server.Start();
 
 
-            Console.WriteLine(startupMessage);
+            //Console.WriteLine(startupMessage);
             //Configuring HTTP for client connections in Register method
             AppContext.SetSwitch(
   "System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
