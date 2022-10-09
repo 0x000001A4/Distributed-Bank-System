@@ -1,4 +1,6 @@
-﻿namespace PuppetMaster.utils
+﻿using System.Text.RegularExpressions;
+
+namespace PuppetMaster.utils
 {
 
     /// <summary>
@@ -40,8 +42,19 @@
                 words = line.Split(' ');
                 if (words[0] == "P")
                 {
-                    if (words[2] == "boney") _boneyMap.Add(int.Parse(words[1]), words[3]);
-                    if (words[2] == "bank") _bankMap.Add(int.Parse(words[1]), words[3]);
+                    var expression = new Regex(@"http://(?<hostname>[^\n]+)");
+                    if (words[2] == "boney")
+                    {
+                        var match = expression.Match(words[3]);
+                        _boneyMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
+                    }
+                    
+                    if (words[2] == "bank")
+                    {
+                        var match = expression.Match(words[3]);
+                        _bankMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
+                    }
+                   
                     if (words[2] == "client") clientList.Add(int.Parse(words[1]));
                 }
                 else if (words[0] == "S")
