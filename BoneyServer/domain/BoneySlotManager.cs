@@ -14,7 +14,6 @@ namespace BoneyServer.domain
 
 
 
-
         public BoneySlotManager(uint maxNumOfSlots)
         {
             _processSlots = new Slots<Slot>(maxNumOfSlots);

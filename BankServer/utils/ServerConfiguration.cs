@@ -1,4 +1,4 @@
-﻿using PuppetMaster.utils;
+﻿using BankServer.utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace PuppetMaster.utils
+namespace BankServer.utils
 {
 
     /// <summary>
@@ -51,10 +51,10 @@ namespace PuppetMaster.utils
                     var expression = new Regex(@"http://(?<hostname>[^\n]+)");
                     if (words[2] == "boney")
                     {
-                        
+
                         var match = expression.Match(words[3]);
                         _boneyMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
-                      
+
 
                     }
 
@@ -140,7 +140,7 @@ namespace PuppetMaster.utils
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
 
-            
+
             return config;
 
         }
@@ -223,15 +223,15 @@ namespace PuppetMaster.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
-        public (string,int) GetBankHostnameAndPortByProcess(int p)
+        public (string, int) GetBankHostnameAndPortByProcess(int p)
         {
-           
+
             var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
-         
+
             var match = expression.Match(_bankServersHostnames.GetValueOrDefault(p));
-          
+
             string hostname = match.Groups["hostname"].Value;
-            
+
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }

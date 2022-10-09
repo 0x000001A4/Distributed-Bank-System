@@ -22,7 +22,7 @@ namespace PuppetMaster
                 Process p;
                 ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(configFilePath);
                 int numberOfBoneyServers = config.GetNumberOfBoneyServers();
-                Console.WriteLine(numberOfBoneyServers);
+                
 
                 for (int i=0; i < numberOfBoneyServers; i++)
                 {
