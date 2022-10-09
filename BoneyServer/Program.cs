@@ -16,23 +16,11 @@ namespace BoneyServer
             (Dictionary<int, string>, Dictionary<int, string>, string[,], string[,], List<int>, string, int, int) tuplo;
             //Console.WriteLine(args[0]);
 
-            Input.input(args[0]);
+            ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             // Will be passed as args from pupetmaster
             const int port = 8001;
             const string hostname = "localhost";
             const uint maxSlots = 3;
-
-
-
-            string path = "..\\..\\..\\..\\BankServer\\bin\\Debug\\net6.0\\";
-            string appName = "BankServer.exe";
-            string arg1 = "bloblo";
-            string title = "Bank";
-            Process p = new Process();
-            p.StartInfo.FileName = "cmd.exe";
-            p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {arg1}";
-            p.Start();
-
 
             BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
             string startupMessage;

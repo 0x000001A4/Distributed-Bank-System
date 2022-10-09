@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PuppetMaster.utils;
+using System;
 
 
 using System.Diagnostics;
@@ -10,45 +11,36 @@ namespace PuppetMaster
 
         public static void Main(string[] args)
         {
-
             try
             {
-
-
-                string folder = "BoneyServer";
-                string path = $"..\\..\\..\\..\\{folder}\\bin\\Debug\\net6.0";
-                string appName = $"{folder}.exe";
-                string arg1 = $"..\\..\\..\\..\\{folder}\\configuration_sample.txt";
-                Process p;
-                string title = "";
+                string title      = "";
+                string serverType = "BoneyServer";
+                string appName    = $"{serverType}.exe";
+                string path           = $"..\\..\\..\\..\\{serverType}\\bin\\Debug\\net6.0";
+                string configFilePath = $"..\\..\\..\\..\\{serverType}\\configuration_sample.txt";
                 
-                for (int i=0; i < 3; i++)
+                Process p;
+                ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(configFilePath);
+                int numberOfBoneyServers = config.GetNumberOfBoneyServers();
+                Console.WriteLine(numberOfBoneyServers);
+
+                for (int i=0; i < numberOfBoneyServers; i++)
                 {
                     title = $"Boney{i + 1}";
                     p = new Process();
                     p.StartInfo.FileName = "cmd.exe";
-                    p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {arg1}";
-
+                    p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath}";
 
                     p.Start();
-
                 }
 
-                folder = "BankServer";
+                serverType = "BankServer";
                 title = $"Bank1";
                 p = new Process();
                 p.StartInfo.FileName = "cmd.exe";
-                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {arg1}";
-
+                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath}";
 
                 p.Start();
-
-
-
-
-
-
-
 
             }
             catch (Exception ex)

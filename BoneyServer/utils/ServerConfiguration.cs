@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BoneyServer.utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,12 +7,25 @@ using System.Threading.Tasks;
 
 namespace BoneyServer.utils
 {
-    static class Input
+
+    /// <summary>
+    /// Stores any information needed for any type of server
+    /// </summary>
+    public class ServerConfiguration
     {
+        private Dictionary<int, string> _boneyServersHostnames;
+        private Dictionary<int, string> _bankServersHostnames;
+        private string[,] _serverStatePerSlot;
+        private string[,] _serverSuspectedPerSlot;
+        private List<int> _clientList;
+        private string _timeOfFirstSlot;
+        private int _numberOfSlots;
+        private int _slotDuration;
 
-        public static (Dictionary<int, string>, Dictionary<int, string>, string[,], string[,], List<int>, string, int, int) input(string arg)
+        public ServerConfiguration() { }
+
+        public static ServerConfiguration ReadConfigFromFile(string arg)
         {
-
             Dictionary<int, string> _boneyMap = new Dictionary<int, string>();
             Dictionary<int, string> _bankMap = new Dictionary<int, string>();
             string[,] _serverState;
@@ -101,39 +115,88 @@ namespace BoneyServer.utils
                 }
 
             }
-            return (_boneyMap, _bankMap, _serverState, _serverSuspect, clientList, _timeOfFirstSlot, _numberSlots, _slotDuration);
+            ServerConfiguration config = new ServerConfiguration();
+            config
+                .SetBoneyServersHostnames(_boneyMap)
+                .SetBankServersHostnames(_bankMap)
+                .SetServerStatePerSlot(_serverState)
+                .SetServerSuspectedPerSlot(_serverSuspect)
+                .SetClientList(clientList)
+                .SetTimeOfFirstSlot(_timeOfFirstSlot)
+                .SetNumberOfSlots(_numberSlots)
+                .SetSlotDuration(_slotDuration);
+            return config;
 
+        }
 
+        public ServerConfiguration SetBoneyServersHostnames(Dictionary<int, string> boneyServersHostnames)
+        {
+            _boneyServersHostnames = boneyServersHostnames;
+            return this;
+        }
 
-            /*foreach (KeyValuePair<int, String> entry in _bankMap)
-            {
-                Console.WriteLine("Bank: " + entry.Key + "URL: " + entry.Value);
+        public ServerConfiguration SetBankServersHostnames(Dictionary<int, string> bankServersHostnames)
+        {
+            _bankServersHostnames = bankServersHostnames;
+            return this;
+        }
 
-            }
+        public ServerConfiguration SetServerStatePerSlot(string[,] serverStatePerSlot)
+        {
+            this._serverStatePerSlot = serverStatePerSlot;
+            return this;
+        }
 
-            foreach (KeyValuePair<int, String> entry in _boneyMap)
-            {
-                Console.WriteLine("Bank: " + entry.Key + "URL: " + entry.Value);
+        public ServerConfiguration SetServerSuspectedPerSlot(string[,] serverSuspectedPerSlot)
+        {
+            this._serverSuspectedPerSlot = serverSuspectedPerSlot;
+            return this;
+        }
 
-            }
+        public ServerConfiguration SetClientList(List<int> clientList)
+        {
+            this._clientList = clientList;
+            return this;
+        }
 
-            Console.WriteLine("Number of slots: " + _numberSlots);
+        public ServerConfiguration SetTimeOfFirstSlot(string timeOfFirstSlot)
+        {
+            this._timeOfFirstSlot = timeOfFirstSlot;
+            return this;
+        }
 
-            Console.WriteLine("time " + _timeOfFirstSlot);
-            Console.WriteLine("Duration: " + _slotDuration);
+        public ServerConfiguration SetNumberOfSlots(int numberOfSlots)
+        {
+            this._numberOfSlots = numberOfSlots;
+            return this;
+        }
 
-            int loko = 1;
-            for (int i = 1; i <= _numberSlots; i++)
-            {
-                for (int l = 1; l <= _bankMap.Count + _boneyMap.Count; l++)
-                {
-                    Console.WriteLine("In slot :" + i + "Process: " + l + "= " + _serverSuspect[i, l]);
-                }
-            }*/
+        public ServerConfiguration SetSlotDuration(int slotDuration)
+        {
+            this._slotDuration = slotDuration;
+            return this;
+        }
 
+        public string? GetBoneyHostnameByProcess(int p)
+        {
+            return _boneyServersHostnames.GetValueOrDefault(p);
+        }
+        public string? GetBankHostnameByProcess(int p)
+        {
+            return _bankServersHostnames.GetValueOrDefault(p);
+        }
+        public string GetServerStateInSlot(int serverID, int slotNumber)
+        {
+            return _serverStatePerSlot[serverID, slotNumber];
+        }
+        public int GetNumberOfBoneyServers()
+        {
+            return _boneyServersHostnames.Count();
+        }
 
-
-
+        public int GetNumberOfBankServers()
+        {
+            return _bankServersHostnames.Count();
         }
     }
 }
