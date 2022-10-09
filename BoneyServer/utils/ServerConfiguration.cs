@@ -194,7 +194,7 @@ namespace BoneyServer.utils
         }
 
 
-        public int GetNumberofSlots()
+        public int GetNumberOfSlots()
         {
             return _numberOfSlots;
         }
@@ -262,6 +262,11 @@ namespace BoneyServer.utils
         public bool CheckClientExists(int id)
         {
             return _clientList.Contains(id);
+        }
+
+        public List<int> GetBoneyServerIDs()
+        {
+            return _boneyServersHostnames.Keys.ToList();
         }
 
 

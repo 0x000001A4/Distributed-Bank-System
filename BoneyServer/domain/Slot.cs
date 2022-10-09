@@ -8,8 +8,8 @@ namespace BoneyServer.domain
 {
     internal class Slot {
 
-        //private uint leaderId;
-        //private uint primaryId;
+        private uint leaderId;
+        private uint primaryId;
         private Paxos _paxos;
 
         public Slot() { 

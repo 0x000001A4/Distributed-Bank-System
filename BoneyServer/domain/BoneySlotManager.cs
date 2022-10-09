@@ -6,28 +6,50 @@ using System.Threading.Tasks;
 
 namespace BoneyServer.domain
 {
+    /// <summary>
+    /// Stores the value of a process to a slot
+    /// </summary>
     internal class BoneySlotManager
     {
-        private Slots<Slot> _processSlots;
-
-
-
-
+        private Slots<BoneySlotState> _processSlots;
 
         public BoneySlotManager(uint maxNumOfSlots)
         {
-            _processSlots = new Slots<Slot>(maxNumOfSlots);
+            _processSlots = new Slots<uint>(maxNumOfSlots);
         }
 
-        public Slot FillSlot(uint slotNum, Slot slotVal)
+        public uint FillSlot(uint slotNum, uint slotVal)
         {
-            _processSlots[slotNum] = slotVal;
-            return slotVal;
+            uint value;
+            lock(this)
+            {
+                if (_processSlots[slotNum] == 0)
+                {
+                    value = _processSlots[slotNum] = slotVal;
+                }
+                else
+                {
+                    value = _processSlots[slotNum];
+                }
+            }
+            return value;
         }
 
-        public Slot GetSlotValue(uint slotNum)
+        public uint GetSlotValue(uint slotNum)
         {
             return _processSlots[slotNum];
+        }
+    }
+
+    internal class BoneySlotState
+    {
+        private Queue<uint> _waitingClientsList;
+        private uint? _slotValue;
+
+        public BoneySlotState()
+        {
+            _waitingClientsList = new Queue<uint>();
+            _slotValue = null;
         }
     }
 }
