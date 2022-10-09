@@ -35,7 +35,10 @@ namespace PuppetMaster
                 }
 
                 serverType = "BankServer";
+                path = $"..\\..\\..\\..\\{serverType}\\bin\\Debug\\net6.0";
+                appName = $"{serverType}.exe";
                 title = $"Bank1";
+                configFilePath = $"..\\..\\..\\..\\{serverType}\\configuration_sample.txt";
                 p = new Process();
                 p.StartInfo.FileName = "cmd.exe";
                 p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath}";
