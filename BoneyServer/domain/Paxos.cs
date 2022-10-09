@@ -60,7 +60,7 @@ namespace BoneyServer.domain
             {
                 lock(this)
                 {
-                    _readTimeStamp = value
+                    _readTimeStamp = value;
                 }
             }
         }

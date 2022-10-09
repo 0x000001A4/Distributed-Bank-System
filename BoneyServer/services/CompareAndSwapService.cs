@@ -10,16 +10,21 @@ namespace BoneyServer.services
 {
     internal class CompareAndSwapServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
     {
-        private BoneySlotManager _slotManager;
+        private BoneyServerState _serverState;
 
-        public CompareAndSwapServiceImpl(BoneySlotManager slotManager)
+        public CompareAndSwapServiceImpl(BoneyServerState serverState)
         {
-            _slotManager = slotManager;
+            _serverState = serverState;
         }
         public override Task<CompareAndSwapResponse> CompareAndSwap(CompareAndSwapRequest request, ServerCallContext context)
         {
-            Console.WriteLine("received msg");
+            if (_serverState.isFrozen()) return Task.FromResult(new CompareAndSwapResponse { Ok = false });
+            doCompareAndSwap(request);
             return Task.FromResult(new CompareAndSwapResponse { Ok = true });
+        }
+
+        public void doCompareAndSwap(CompareAndSwapRequest request) {
+            Console.WriteLine("received msg");
         }
     }
 }
