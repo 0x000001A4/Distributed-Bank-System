@@ -1,3 +1,0 @@
-obj\Debug\net6.0/PaxosAcceptor.cs \
-obj\Debug\net6.0/PaxosAcceptorGrpc.cs: protos/CompareAndSwap.proto\
- protos/PaxosAcceptor.proto
