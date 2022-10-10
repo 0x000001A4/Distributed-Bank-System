@@ -9,10 +9,10 @@ namespace BoneyServer.services
 {
     internal class PaxosAcceptorServiceImpl : PaxosAcceptorService.PaxosAcceptorServiceBase
     {
-        public override Task<Reply> Prepare(Request request, ServerCallContext context)
+        public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context)
         {
-            PrepareReq prepare = request.PrepareRequest;
-            return base.Prepare(request, context);
+            PrepareReq prepare = request;
+            return Task.FromResult(new PromiseResp());
         }
     }
 }

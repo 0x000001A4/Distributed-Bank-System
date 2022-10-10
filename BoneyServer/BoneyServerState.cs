@@ -11,12 +11,10 @@ namespace BoneyServer
     /// <summary>
     /// Stores Boney Server's state. This includes all slots information.
     /// </summary>
-    internal class BoneyServerState
+    internal class BoneyServerState // ITimerUpdateable
     {
-        private BoneySlotManager _slotManager;
-        private IMultiPaxos _multiPaxos;
         private Slots<string> _frozenSlots;
-        private Slots<string>[] _suspectedProcessesSlots;
+        private Dictionary<uint, string>[] _suspectedProcessesSlots;
 
         private uint _processId;
         private uint _numberOfBoneyProcesses;
@@ -32,8 +30,6 @@ namespace BoneyServer
         /// <param name="suspectedProcessesSlots">string[slot, suspected] -> indicates if process is suspected in slot</param>
         public BoneyServerState(uint processId, ServerConfiguration config)
         {
-            uint numberOfSlots = (uint)config.GetNumberOfSlots();
-            _slotManager = new BoneySlotManager(numberOfSlots);
             
             _processId = processId;
             _numberOfBoneyProcesses = (uint)config.GetNumberOfBoneyServers();

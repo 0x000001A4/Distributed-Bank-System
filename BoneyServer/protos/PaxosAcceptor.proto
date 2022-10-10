@@ -1,40 +1,29 @@
 ﻿syntax = "proto3";
 import "CompareAndSwap.proto";
 
-service PaxosAcceptorService {
-  rpc Prepare (Request) returns (Reply);
-  rpc Accept (Request) returns (Reply);
-}
-message Request {
-	uint32 id = 1;
-	optional PrepareReq PrepareRequest = 2;
-	optional AcceptReq AcceptRequest = 3;
-}
-
 message PrepareReq {
 	uint32 leaderNumber = 1;
 	uint32 paxosInstance = 2;
 }
 message AcceptReq {
-	CompareAndSwapRequest value = 1;
+	CompareAndSwapReq value = 1;
 	uint32 leaderNumber = 2;
 	uint32 paxosInstance = 3;
 }
 
-message Reply {
-	uint32 id = 1;
-	optional PromiseResp PromiseReply = 2;
-	optional AcceptedResp AcceptedReply = 3;
-}
-
 message PromiseResp {
-	CompareAndSwapRequest value = 1;
+	CompareAndSwapReq value = 1;
 	uint32 writeTimeStamp = 2;
 	uint32 paxosInstance = 3;
 }
 
 message AcceptedResp {
-	CompareAndSwapRequest value = 1;
+	CompareAndSwapReq value = 1;
 	uint32 leaderNumber = 2;
 	uint32 paxosInstance = 3;
+}
+
+service PaxosAcceptorService {
+  rpc Prepare (PrepareReq) returns (PromiseResp);
+  rpc Accept (AcceptReq) returns (AcceptedResp);
 }

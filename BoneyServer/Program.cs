@@ -20,16 +20,17 @@ namespace BoneyServer
             (string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
 
             BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
+            IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.);
 
 
             ServerPort serverPort;
             serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
 
-            CompareAndSwapServiceImpl compareAndSwapService = new CompareAndSwapServiceImpl(slotManager);
+            CompareAndSwapServiceImpl compareAndSwapServiceImpl = new CompareAndSwapServiceImpl(slotManager, multiPaxos);
 
             Server server = new Server
             {
-                Services = { CompareAndSwapService.BindService(compareAndSwapService) },
+                Services = { CompareAndSwapService.BindService(compareAndSwapServiceImpl) },
                 Ports = { serverPort }
             };
 
