@@ -11,6 +11,7 @@ namespace PuppetMaster
 
         public static void Main(string[] args)
         {
+            Console.WriteLine("Puppet master starting...");
             try
             {
                 string title      = "";
@@ -22,17 +23,15 @@ namespace PuppetMaster
 
                 Process p;
                 int numberOfBoneyServers = config.GetNumberOfBoneyServers();
-                Console.WriteLine("Puppet master starting...");
-
 
                 checkIfFileExists($"{path}\\{appName}");
                 checkIfFileExists(configFilePath);
 
-                Console.WriteLine($"Initializing {numberOfBoneyServers} Boney servers");
+                Console.WriteLine($"Initializing {numberOfBoneyServers} Boney servers:");
                 foreach(int processID in config.GetBoneyServerIDs())
                 {
                     title = $"Boney{processID}";
-                    Console.WriteLine(processID);
+                    Console.WriteLine($"\tBoney server {processID} initialized.");
                     p = new Process();
                     p.StartInfo.FileName = "cmd.exe";
                     p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {processID}";

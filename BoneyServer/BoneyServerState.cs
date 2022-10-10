@@ -14,11 +14,13 @@ namespace BoneyServer
     internal class BoneyServerState
     {
         private BoneySlotManager _slotManager;
+        private IMultiPaxos _multiPaxos;
         private Slots<string> _frozenSlots;
         private Slots<string>[] _suspectedProcessesSlots;
 
         private uint _processId;
-        private uint _numberOfProcesses;
+        private uint _numberOfBoneyProcesses;
+        private uint _currentSlot;
 
         /// <summary>
         /// 
@@ -28,25 +30,25 @@ namespace BoneyServer
         /// <param name="numberOfSlots">Number of slots</param>
         /// <param name="frozenSlots">string[slot, process] -> indicates if process if frozen in slot</param>
         /// <param name="suspectedProcessesSlots">string[slot, suspected] -> indicates if process is suspected in slot</param>
-        public BoneyServerState(uint processId, uint numberOfProcesses, uint numberOfSlots,
-            string[,] frozenSlots, string[,] suspectedProcessesSlots)
+        public BoneyServerState(uint processId, ServerConfiguration config)
         {
+            uint numberOfSlots = (uint)config.GetNumberOfSlots();
             _slotManager = new BoneySlotManager(numberOfSlots);
-            _frozenSlots = new Slots<string>(numberOfSlots);
-            _suspectedProcessesSlots = new Slots<string>[numberOfProcesses];
+            
             _processId = processId;
-            _numberOfProcesses = numberOfProcesses;
+            _numberOfBoneyProcesses = (uint)config.GetNumberOfBoneyServers();
+            //_multiPaxos = new Paxos(processId, )
 
-            for (uint slot = 0 ; slot < numberOfSlots; slot++ )
-            {
-                _frozenSlots[slot] = frozenSlots[slot, processId];
+            //for (uint slot = 0 ; slot < numberOfSlots; slot++ )
+            //{
+            //    _frozenSlots[slot] = frozenSlots[slot, processId];
 
-                for (uint process = 0; process < numberOfProcesses; process++)
-                {
-                    _suspectedProcessesSlots[process][slot] = suspectedProcessesSlots[slot, process];
-                }
+            //    for (uint process = 0; process < numberOfProcesses; process++)
+            //    {
+            //        _suspectedProcessesSlots[process][slot] = suspectedProcessesSlots[slot, process];
+            //    }
 
-            }
+            //}
         }
 
     }
