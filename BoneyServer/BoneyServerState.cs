@@ -12,7 +12,7 @@ namespace BoneyServer
 	/// <summary>
 	/// Stores Boney Server's state. This includes all slots information.
 	/// </summary>
-	internal class BoneyServerState {
+	public class BoneyServerState {
 
 		private BoneySlotManager _slotManager;
 		private Slots<string> _frozenSlots;
@@ -61,7 +61,7 @@ namespace BoneyServer
 		}
 
         public void handleQueuedRequest(CompareAndSwapServiceImpl service, Request request) {
-			service.doCompareAndSwap(request);
+			service.doCompareAndSwap((CompareAndSwapRequest) (object) request);
         }
 
         public void enqueue(Request req) {

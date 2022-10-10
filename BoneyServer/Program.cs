@@ -1,15 +1,14 @@
 ﻿
 using BoneyServer.domain;
-using System;
 using BoneyServer.services;
 using BoneyServer.utils;
+using System;
 using Grpc.Core;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Grpc.Core.Interceptors;
 
-namespace BoneyServer
-{
+namespace BoneyServer {
 
     public class BoneyServerMessageInterceptor : Interceptor {
 
@@ -25,8 +24,8 @@ namespace BoneyServer
 			UnaryServerMethod<TRequest, TResponse> continuation)
 		{
             try {
-                if (state.isFrozen()) {
-                    state.enqueue((Request)(object)(request));
+                if (_state.isFrozen()) {
+                    _state.enqueue((Request)(object)(request));
                 }
                 return await continuation(request, context);
 
@@ -38,8 +37,10 @@ namespace BoneyServer
 	}
 
     public class BoneyServer {
-        public static async void Main(string[] args) // TODO - edit to receive all server state through the config file
-        {
+
+        public delegate void MyDelegate();
+
+        public static async void Main(string[] args) {  // TODO - edit to receive all server state through the config file
             
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             uint processId = uint.Parse(args[1]);
