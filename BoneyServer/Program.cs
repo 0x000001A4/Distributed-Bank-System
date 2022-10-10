@@ -25,7 +25,12 @@ namespace BoneyServer {
 		{
             try {
                 if (_state.isFrozen()) {
-                    _state.enqueue((Request)(object)(request));
+                    Type requestType = typeof(request);
+
+                    if (requestType == typeof(CompareAndSwapRequest)) {
+                        Message<CompareAndSwapRequest> _msg = new Message<CompareAndSwapRequest>(request);
+                        _state.enqueue(_msg);
+                    }
                 }
                 return await continuation(request, context);
 

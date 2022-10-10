@@ -24,11 +24,11 @@ namespace BoneyServer.domain
 
     internal class PaxosInstance
     {
-        private Request _value;
+        private Message<TRequest> _value;
         private uint _writeTimeStamp;
         private uint _readTimeStamp;
 
-        public Request Value 
+        public Message<TRequest> Value 
         {
             get { return _value; }
             set

@@ -2,19 +2,8 @@
 import "CompareAndSwap.proto";
 
 service PaxosAcceptorService {
-  rpc Prepare (Request) returns (Response);
-  rpc Accept (Request) returns (Response);
-}
-message Request {
-	uint32 id = 1;
-	optional PrepareRequest PrepareRequest = 2;
-	optional AcceptRequest AcceptRequest = 3;
-}
-
-message Response {
-	uint32 id = 1;
-	optional PromiseResponse PromiseResponse = 2;
-	optional AcceptedResponse AcceptedResponse = 3;
+  rpc Prepare (PrepareRequest) returns (PromiseResponse);
+  rpc Accept (AcceptRequest) returns (AcceptedResponse);
 }
 
 message PrepareRequest {

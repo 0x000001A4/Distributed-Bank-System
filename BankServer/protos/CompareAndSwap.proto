@@ -1,17 +1,7 @@
 ﻿syntax = "proto3";
 
 service CompareAndSwapService {
-  rpc CompareAndSwap (Request) returns (Response);
-}
-
-message Request {
-	uint32 id = 1;
-	CompareAndSwapRequest CompareAndSwapRequest = 2;
-}
-
-message Response {
-	uint32 id = 1;
-	CompareAndSwapResponse CompareAndSwapResponse = 2;
+  rpc CompareAndSwap (CompareAndSwapRequest) returns (CompareAndSwapResponse);
 }
 
 message CompareAndSwapRequest {

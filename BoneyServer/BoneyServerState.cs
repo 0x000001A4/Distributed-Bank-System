@@ -22,7 +22,7 @@ namespace BoneyServer
 		private uint _numberOfProcesses;
 
 		private string _frozen;
-		private Queue<Request> _queue { get; set; } = new Queue<Request>();
+		private Queue<Message> _queue { get; set; } = new Queue<Message>();
 
 		/// <summary>
 		/// 
@@ -60,12 +60,19 @@ namespace BoneyServer
 			}
 		}
 
-        public void handleQueuedRequest(CompareAndSwapServiceImpl service, Request request) {
-			service.doCompareAndSwap((CompareAndSwapRequest) (object) request);
+        public void handleQueuedMessage(CompareAndSwapServiceImpl service, Message<TRequest> message) {
+
+			Type requestType = typeof(TRequest);
+
+            if (requestType == typeof(CompareAndSwapRequest)) { 
+				service.doCompareAndSwap((CompareAndSwapRequest) (object) message.getRequest());
+			}
+
+
         }
 
-        public void enqueue(Request req) {
-			_queue.Enqueue(req);
+        public void enqueue(Message<TRequest> _msg) {
+			_queue.Enqueue(_msg);
 		}
 
 		public bool isFrozen() {
