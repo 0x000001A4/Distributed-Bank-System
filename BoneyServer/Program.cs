@@ -20,7 +20,7 @@ namespace BoneyServer
             (string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
 
             BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
-            IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.);
+            IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyPortsAndAdress());
 
 
             ServerPort serverPort;

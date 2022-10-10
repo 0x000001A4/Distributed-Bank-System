@@ -25,16 +25,17 @@ namespace BoneyServer.domain
         private uint _sourceProcessID;                    // The process ID executing Paxos
         private uint _sourceLeaderNumber;
         private uint? _leaderProcessID;                   // The process it suspects to be the leader
-
+        private List<String> _boneyAdress;
         public static int Instance { get; set; }
 
-        public Paxos(uint sourceProcessID, uint numOfSlots) {
+        public Paxos(uint sourceProcessID, uint numOfSlots,List<String> boneysAdress) {
             Instance = 0;
             _sourceLeaderNumber = sourceProcessID;
             _sourceProcessID = sourceProcessID;
             _leaderProcessID = null;
             _paxosInstances = new List<PaxosInstance>();
             _paxosSlotState = new Slots<PaxosSlotState>(numOfSlots);
+            _boneyAdress = boneysAdress;
         }
 
         public void Start(PaxosValue value) {
@@ -43,7 +44,7 @@ namespace BoneyServer.domain
             if (slotState.NotStarted() && iAmLeader())
             {
                 Console.WriteLine("BONEY Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => proposerWork(value, _sourceLeaderNumber, Instance)));
+                Thread proposer = new Thread(new ThreadStart(() => Proposer.proposeWork(_sourceLeaderNumber, Instance,_boneyAdress)));  /*value como input ???????*SIDNEI???*/
                 proposer.Start();
                 Instance++;
             }
