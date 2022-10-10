@@ -23,7 +23,7 @@ namespace BoneyServer
             //var expression = new Regex(@"(?<localhost>[^:]+):(?<portnumber>[0-9]+)");
             //var match = expression.Match(config.GetBoneyHostnameByProcess(processID));
             // Will be passed as args from pupetmaster
-            const uint maxSlots = config.GetNumberOfSlots();
+            const uint maxSlots = config.GetNumberofSlots();
 
             BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
             string startupMessage;

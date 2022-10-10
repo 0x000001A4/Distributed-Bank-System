@@ -36,7 +36,6 @@ namespace PuppetMaster
                 }
 
                 serverType = "BankServer";
-
                 Console.WriteLine($"Initializing {1} Bank servers");
                 title = $"Bank1";
                 appName = $"{serverType}.exe";
@@ -44,7 +43,7 @@ namespace PuppetMaster
                 configFilePath = $"..\\..\\..\\..\\{serverType}\\configuration_sample.txt";
                 p = new Process();
                 p.StartInfo.FileName = "cmd.exe";
-                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath}";
+                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {4}";
 
                 p.Start();
 
