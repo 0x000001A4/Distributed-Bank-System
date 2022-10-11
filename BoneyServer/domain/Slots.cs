@@ -18,7 +18,7 @@ namespace BoneyServer.domain
             _maxNumOfSlots = maxNumOfSlots;
         }
 
-        public T this[uint i]
+        public T this[int i]
         {
             get => _slots[i];
             set {

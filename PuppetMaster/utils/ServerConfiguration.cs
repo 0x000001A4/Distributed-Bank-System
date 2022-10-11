@@ -270,6 +270,22 @@ namespace PuppetMaster.utils
         }
 
 
+        public List<String> GetBoneyPortsAndAdress()
+        {
+            List<String> lista = new List<string>();
+            int number_boneys = GetNumberOfBoneyServers();
+            string final;
+            for (int i = 0; i < number_boneys; i++)
+            {
+              (string,int) tuplo  = GetBoneyHostnameAndPortByProcess(i + 1);
+                final = tuplo.Item1 + ":" + tuplo.Item2;
+                lista.Add(final);
+            }
+            
+            return lista;
+        }
+
+
     }
 }
 

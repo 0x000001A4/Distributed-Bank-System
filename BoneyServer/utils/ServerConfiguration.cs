@@ -16,8 +16,8 @@ namespace BoneyServer.utils
     {
         private Dictionary<int, string> _boneyServersHostnames;
         private Dictionary<int, string> _bankServersHostnames;
-        private string[,] _serverStatePerSlot;
-        private string[,] _serverSuspectedPerSlot;
+        private string[,] _serverStatePerSlot;      // TODO - edit to dynamic structure
+        private string[,] _serverSuspectedPerSlot;  // 
         private List<int> _clientList;
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
@@ -268,6 +268,31 @@ namespace BoneyServer.utils
         {
             return _boneyServersHostnames.Keys.ToList();
         }
+
+        public List<String> GetBoneyPortsAndAdress()
+        {
+            List<String> lista = new List<string>();
+            int number_boneys = GetNumberOfBoneyServers();
+            string final;
+            for (int i = 0; i < number_boneys; i++)
+            {
+                (string, int) tuplo = GetBoneyHostnameAndPortByProcess(i + 1);
+                final = tuplo.Item1 + ":" + tuplo.Item2;
+                lista.Add(final);
+            }
+
+            return lista;
+        }
+
+        //public Dictionary<uint, string> GetBoneySuspectedForSlot(uint slot)
+        //{
+        //    Dictionary<uint, string> dict = new Dictionary<uint, string>();
+        //    int count = GetNumberOfBoneyServers();
+        //    for (int i = 0; i < count; i++)
+        //    {
+        //        dict.Add(_serverSuspectedPerSlot[slot, i]);
+        //    }
+        //}
 
 
     }

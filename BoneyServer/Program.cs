@@ -23,21 +23,21 @@ namespace BoneyServer {
 			ServerCallContext context,
 			UnaryServerMethod<TRequest, TResponse> continuation) {
 			try {
-				if (_state.isFrozen()) {
+				if (_state.IsFrozen()) {
 					Type requestType = typeof(TRequest);
 					Message? _msg = null;
 
-                    if (requestType == typeof(CompareAndSwapRequest)) {
-						_msg = new Message((CompareAndSwapRequest)(object) request, 1);
+                    if (requestType == typeof(CompareAndSwapReq)) {
+						_msg = new Message((CompareAndSwapReq)(object) request, 1);
 					}
-                    if (requestType == typeof(PrepareRequest)) {
-                        _msg = new Message((PrepareRequest)(object)request, 2);
+                    if (requestType == typeof(PrepareReq)) {
+                        _msg = new Message((PrepareReq)(object)request, 2);
                     }
-                    if (requestType == typeof(AcceptRequest)) {
-                        _msg = new Message((AcceptRequest)(object)request, 3);
+                    if (requestType == typeof(AcceptReq)) {
+                        _msg = new Message((AcceptReq)(object)request, 3);
                     }
 
-					if (_msg != null) _state.enqueue(_msg);
+					if (_msg != null) _state.Enqueue(_msg);
 					else Console.WriteLine("Error: Can't queue message because it does not belong to any of specified types.");
 				}
 
@@ -49,27 +49,34 @@ namespace BoneyServer {
 			}
 		}
 	}
+	public class BoneyServer
+	{
 
-	public class BoneyServer {
-  
-		public static void Main(string[] args) {  // TODO - edit to receive all server state through the config file
-			
+		public static void Main(string[] args) // TODO - edit to receive all server state through the config file
+		{
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
-			uint processId = uint.Parse(args[1]);
+			uint processID = uint.Parse(args[1]);
 			uint maxSlots = (uint)config.GetNumberOfSlots();
-			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processId);
+			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
 
-			BoneyServerState boneyServerState = new BoneyServerState(processId, config);
-			CompareAndSwapServiceImpl compareAndSwapService = new CompareAndSwapServiceImpl(boneyServerState);
+			BoneyServerState boneyServerState = new BoneyServerState();
+			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
+            IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyPortsAndAdress());
+
+
+            ServerPort serverPort;
+            serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
+
+            CompareAndSwapServiceImpl compareAndSwapServiceImpl = new CompareAndSwapServiceImpl(slotManager, multiPaxos);
 
 			Server server = new Server {
-				Services = { CompareAndSwapService.BindService(compareAndSwapService).Intercept(new BoneyServerMessageInterceptor(boneyServerState)) },
-				Ports = { new ServerPort(hostname, port, ServerCredentials.Insecure) }
+				Services = { CompareAndSwapService.BindService(compareAndSwapServiceImpl).Intercept(new BoneyServerMessageInterceptor(boneyServerState)) },
+				Ports = { serverPort }
 			};
 
 			server.Start();
 
-			string startupMessage = $"Started Boney server {processId} at hostname {hostname}:{port}";
+			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";
 			Console.WriteLine(startupMessage);
 
 			//Configuring HTTP for client connections in Register method
