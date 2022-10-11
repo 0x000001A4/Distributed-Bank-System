@@ -63,7 +63,7 @@ namespace BoneyServer
         public void handleQueuedMessage(CompareAndSwapServiceImpl service, Message _msg) {
 
             if (_msg.getRequestId() == 1) { 
-				service.doCompareAndSwap((CompareAndSwapRequest)(object)_msg.getRequestId());
+				service.doCompareAndSwap(_msg.getCompareAndSwapRequest());
 			}
 
 
