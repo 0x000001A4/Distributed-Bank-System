@@ -23,7 +23,7 @@ namespace BoneyServer {
 			ServerCallContext context,
 			UnaryServerMethod<TRequest, TResponse> continuation) {
 			try {
-				if (_state.IsFrozen()) {
+				if (_state.isFrozen()) {
 					Type requestType = typeof(TRequest);
 					Message? _msg = null;
 
@@ -37,7 +37,7 @@ namespace BoneyServer {
                         _msg = new Message((AcceptReq)(object)request, 3);
                     }
 
-					if (_msg != null) _state.Enqueue(_msg);
+					if (_msg != null) _state.enqueue(_msg);
 					else Console.WriteLine("Error: Can't queue message because it does not belong to any of specified types.");
 				}
 
@@ -59,15 +59,14 @@ namespace BoneyServer {
 			uint maxSlots = (uint)config.GetNumberOfSlots();
 			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
 
-			BoneyServerState boneyServerState = new BoneyServerState();
-			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
+			BoneyServerState boneyServerState = new BoneyServerState(processID, config);
             IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyPortsAndAdress());
 
 
             ServerPort serverPort;
             serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
 
-            CompareAndSwapServiceImpl compareAndSwapServiceImpl = new CompareAndSwapServiceImpl(slotManager, multiPaxos);
+            CompareAndSwapServiceImpl compareAndSwapServiceImpl = new CompareAndSwapServiceImpl(boneyServerState, multiPaxos);
 
 			Server server = new Server {
 				Services = { CompareAndSwapService.BindService(compareAndSwapServiceImpl).Intercept(new BoneyServerMessageInterceptor(boneyServerState)) },

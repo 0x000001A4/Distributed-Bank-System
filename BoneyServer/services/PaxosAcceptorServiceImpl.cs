@@ -14,5 +14,11 @@ namespace BoneyServer.services
             PrepareReq prepare = request;
             return Task.FromResult(new PromiseResp());
         }
+
+        public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context)
+        {
+            AcceptReq accept = request;
+            return Task.FromResult(new AcceptedResp());
+        }
     }
 }

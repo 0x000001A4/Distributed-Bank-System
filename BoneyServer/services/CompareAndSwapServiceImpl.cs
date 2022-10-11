@@ -8,22 +8,28 @@ using System.Threading.Tasks;
 
 namespace BoneyServer.services
 {
-    internal class CompareAndSwapServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
+    public class CompareAndSwapServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
     {
-        private BoneySlotManager _slotManager;
+        private BoneyServerState _serverState;
         private IMultiPaxos _multiPaxos;
 
-        public CompareAndSwapServiceImpl(BoneySlotManager slotManager, IMultiPaxos multiPaxos)
-        {
-            _slotManager = slotManager;
+
+        public CompareAndSwapServiceImpl(BoneyServerState serverState, IMultiPaxos multiPaxos) {
+            _serverState = serverState;
             _multiPaxos = multiPaxos;
         }
-        public override Task<CompareAndSwapResp> CompareAndSwap(CompareAndSwapReq request, ServerCallContext context)
-        {
+
+        public override Task<CompareAndSwapResp> CompareAndSwap(CompareAndSwapReq request, ServerCallContext context) {
+           /* if (_serverState.isFrozen()) return Task.FromResult(new CompareAndSwapResp { Ok = false }); */
+            doCompareAndSwap(request);
+            return Task.FromResult(new CompareAndSwapResp());
+        }
+
+
+        public void doCompareAndSwap(CompareAndSwapReq request) {
             Console.WriteLine("BONEY CompareAndSwapServiceImpl: Received CompareAndSwap message request");
             PaxosValue value = new PaxosValue(request.Leader, request.Slot);
             _multiPaxos.Start(value);
-            return Task.FromResult(new CompareAndSwapResp());
         }
     }
 }

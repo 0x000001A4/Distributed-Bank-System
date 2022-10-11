@@ -21,7 +21,7 @@ namespace BankServer.domain
             DateTime dateTime = DateTime.ParseExact(initialTime, "HH:mm:ss",
                                         CultureInfo.InvariantCulture);
             var span = dateTime - DateTime.Now;
-            _clock = new System.Timers.Timer() { Interval = span.TotalMilliseconds, AutoReset = false };
+            _clock = new System.Timers.Timer() { Interval = _slotDuration, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
             
