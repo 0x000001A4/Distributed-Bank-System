@@ -18,21 +18,13 @@ namespace BoneyServer
 
         private uint _processId;
         private uint _numberOfBoneyProcesses;
-        private uint _currentSlot;
+        private int _currentSlot;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="processId">Process ID</param>
-        /// <param name="numberOfProcesses">Number of Boney Servers</param>
-        /// <param name="numberOfSlots">Number of slots</param>
-        /// <param name="frozenSlots">string[slot, process] -> indicates if process if frozen in slot</param>
-        /// <param name="suspectedProcessesSlots">string[slot, suspected] -> indicates if process is suspected in slot</param>
         public BoneyServerState(uint processId, ServerConfiguration config)
         {
             
-            _processId = processId;
-            _numberOfBoneyProcesses = (uint)config.GetNumberOfBoneyServers();
+            //_processId = processId;
+            //_numberOfBoneyProcesses = (uint)config.GetNumberOfBoneyServers();
             //_multiPaxos = new Paxos(processId, )
 
             //for (uint slot = 0 ; slot < numberOfSlots; slot++ )
@@ -45,6 +37,11 @@ namespace BoneyServer
             //    }
 
             //}
+        }
+
+        public bool IsFrozen()
+        {
+            return _frozenSlots[_currentSlot].Equals(FrozenState.FROZEN);
         }
 
     }
