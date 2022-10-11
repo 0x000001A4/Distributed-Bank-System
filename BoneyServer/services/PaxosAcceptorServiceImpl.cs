@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using BoneyServer.domain;
+using Grpc.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,14 @@ namespace BoneyServer.services
     {
         public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context)
         {
-            PrepareReq prepare = request;
-            return Task.FromResult(new PromiseResp());
+            Proposer.ProposeWork(request);
+            return Task.FromResult(new PromiseResp(/* Send promise information */));
         }
 
         public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context)
         {
-            AcceptReq accept = request;
-            return Task.FromResult(new AcceptedResp());
+            Acceptor.LearnWork(request);
+            return Task.FromResult(new AcceptedResp(/* Send accepted information */));
         }
     }
 }

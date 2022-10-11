@@ -21,20 +21,59 @@ namespace BoneyServer.domain {
 			}
 		}
 
-		public static void ProposeWork(uint sourceLeaderNumber, uint instance)
+		// Proposer: Sends the Prepares and waits for majority of promises
+		// After getting majority of promises sends the accepts (AcceptWork function)
+		public static void ProposeWork(PrepareReq request)
 		{
-			List<PromisseValue> promisses = new List<PromisseValue>();
+			uint sourceLeaderNumber = request.LeaderNumber;
+			uint instance = request.PaxosInstance;
+
+            List<PromisseValue> promisses = new List<PromisseValue>();
 
 			foreach (var channel in _boneyChannels) {
 				Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses);
 			}
 
 			while (promisses.Count() < Math.Ceiling((decimal)_boneyChannels.Count() / 2));
-		
-			
+
+			AcceptWork(promisses, instance);
+        }
+
+        // Proposer: Sends the Accepts.
+        public static void AcceptWork(List<PromisseValue> promisses, uint instance)
+		{
+			uint max_timestamp = 0;
+            PaxosValue? paxosValue = null;
+            foreach (PromisseValue promisseValue in promisses) {
+				uint write_timestamp = promisseValue.GetWriteTimestamp();
+				if (write_timestamp > max_timestamp) {
+					max_timestamp = write_timestamp;
+					paxosValue = promisseValue.GetPaxosValue();
+				}
+			}
+			if (paxosValue != null) {
+				foreach(var channel in _boneyChannels) {
+					Accept(
+						channel,
+						new CompareAndSwapReq { Slot = paxosValue.Slot, Leader = paxosValue.ProcessID },
+						max_timestamp,
+						instance
+						);
+				}
+			}
+			else { 
+				/* Think of this ? */
+			}
+
 		}
 
-
+		public static void Accept(GrpcChannel channel, CompareAndSwapReq compareAndSwapReq, uint leaderNumber, uint instance)
+		{
+            PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
+            AcceptedResp reply = client.Accept(
+                new AcceptReq { Value = compareAndSwapReq, LeaderNumber = leaderNumber, PaxosInstance = instance }
+            );
+        }
 
 
 		public static async Task PrepareAsync(GrpcChannel channel, uint sourceLeaderNumber, uint instance, List<PromisseValue> promisses)
@@ -57,6 +96,16 @@ namespace BoneyServer.domain {
 				_value = value;
 				_writeTimeStamp = writeStamp;
 				_instance = instance;
+			}
+			
+			public PaxosValue GetPaxosValue()
+			{
+				return _value;
+			}
+
+			public uint GetWriteTimestamp()
+			{
+				return _writeTimeStamp;
 			}
 		}
 

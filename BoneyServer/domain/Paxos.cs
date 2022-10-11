@@ -41,6 +41,7 @@ namespace BoneyServer.domain
             _paxosSlotState = new Slots<PaxosSlotState>(numOfSlots);
             _boneyAdress = boneysAdress;
             Proposer.SetServers(boneysAdress);
+            Acceptor.SetServers(boneysAdress);
         }
 
         public void Start(PaxosValue value) {

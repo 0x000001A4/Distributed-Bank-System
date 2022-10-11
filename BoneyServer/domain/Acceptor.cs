@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static BoneyServer.domain.Proposer;
+using static BoneyServer.domain.Acceptor;
 
 namespace BoneyServer.domain
 {
@@ -20,8 +20,14 @@ namespace BoneyServer.domain
             }
         }
 
-        public async static void AcceptCommand(CompareAndSwapReq compareAndSwapReq,
-            uint leaderNumber, uint instance, List<PromisseValue> promisses)
+        public static void LearnWork(AcceptReq request) {
+            Task ret = AcceptCommand(
+                   new CompareAndSwapReq(request.Value),
+                   request.LeaderNumber,
+                   request.PaxosInstance);
+        }
+
+        public async static Task AcceptCommand(CompareAndSwapReq compareAndSwapReq, uint leaderNumber, uint instance)
         {
             foreach (var channel in _boneyChannels) {
                 PaxosLearnerService.PaxosLearnerServiceClient client = new PaxosLearnerService.PaxosLearnerServiceClient(channel);
@@ -29,7 +35,6 @@ namespace BoneyServer.domain
                     new LearnCommandReq { Value = compareAndSwapReq, LeaderNumber = leaderNumber, PaxosInstance = instance }
                 );
             }
-
         }
     }
 
