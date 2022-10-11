@@ -29,7 +29,7 @@ namespace BoneyServer.domain
         private uint? _leaderProcessID;                   // The process it suspects to be the leader
         private List<String> _boneyAdress;
 
-        public static int Instance { get; set; }
+        public static uint Instance { get; set; }
 
         public Paxos(uint sourceProcessID, uint numOfSlots,List<String> boneysAdress) {
             Instance = 0;
@@ -38,9 +38,9 @@ namespace BoneyServer.domain
             _sourceProcessID = sourceProcessID;
             _leaderProcessID = null;
             _paxosInstances = new List<PaxosInstance>();
-            
             _paxosSlotState = new Slots<PaxosSlotState>(numOfSlots);
             _boneyAdress = boneysAdress;
+            Proposer.SetServers(boneysAdress);
         }
 
         public void Start(PaxosValue value) {
@@ -49,7 +49,7 @@ namespace BoneyServer.domain
             if (slotState.NotStarted() && iAmLeader())
             {
                 Console.WriteLine("BONEY Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.proposeWork(_sourceLeaderNumber, Instance,_boneyAdress)));  /*value como input ???????*SIDNEI???*/
+                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposeWork(_sourceLeaderNumber, Instance)));  /*value como input ???????*SIDNEI???*/
                 proposer.Start();
                 Instance++;
             }
@@ -214,26 +214,5 @@ namespace BoneyServer.domain
             Slot = slot;
         }
     }
-
-
-
-    public class PromisseValue
-    {
-        int _writeTimeStamp;
-        PaxosValue _value;
-        int _instance;
-        public PromisseValue(PaxosValue value, int writeStamp, int instance)
-        {
-
-            _value = value;
-            _writeTimeStamp = writeStamp;
-            _instance = instance;
-        }
-    }
-
-
-
-
-
 
 }

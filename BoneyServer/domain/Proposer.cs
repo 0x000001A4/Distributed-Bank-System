@@ -13,28 +13,29 @@ namespace BoneyServer.domain
     public class Proposer
     {
         
-        static uint _sourceLeaderNumber;
-        static int _instance;
-        static List<String> _boneyAdress;
-        public static void proposeWork(uint sourceLeaderNumber,
-            int instance,List<String> boneyAdress)
+        static List<GrpcChannel> _boneyChannels;
+
+
+        public static void SetServers(List<String> boneyAdress)
         {
-            List<PromisseValue> _promisseInstances;
-            _sourceLeaderNumber = sourceLeaderNumber;
-            _instance = instance;
-            _boneyAdress = boneyAdress;
-            _promisseInstances = new List<PromisseValue>();
-
-
-            foreach (String address in _boneyAdress)
+            _boneyChannels = new List<GrpcChannel>();
+            foreach (string address in boneyAdress)
             {
-                GrpcChannel channel = GrpcChannel.ForAddress(address);
-                PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
-                client.Prepare(new PrepareReq { LeaderNumber = _sourceLeaderNumber, PaxosInstance = (uint)_instance });
-                PromisseValue response = new PromisseValue(new PaxosValue(reply.Value.Leader, reply.Value.Slot),
-                    (int) reply.WriteTimeStamp, (int) reply.PaxosInstance);
-                _promisseInstances.Add(response);
+                _boneyChannels.Add(GrpcChannel.ForAddress(address));
+            }
 
+        }
+        public static void ProposeWork(uint sourceLeaderNumber, uint instance)
+        {
+            List<PromisseValue> promisses = new List<PromisseValue>();
+
+            foreach (var channel in _boneyChannels)
+            {
+                Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses);
+            }
+
+            while (promisses.Count() < Math.Ceiling((decimal) _boneyChannels.Count() / 2) )
+            {
 
             }
 
@@ -43,26 +44,28 @@ namespace BoneyServer.domain
 
 
 
-        public static async Task ProposeAsync()
+        public static async Task PrepareAsync(GrpcChannel channel, uint sourceLeaderNumber, uint instance, List<PromisseValue> promisses)
+        {
+            PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
+            PromiseResp reply = await client.PrepareAsync(new PrepareReq { LeaderNumber = sourceLeaderNumber, PaxosInstance = instance });
+            uint processElected = reply.Value.Leader;
+            uint slot = reply.Value.Slot;
+            PromisseValue promisse = new PromisseValue(new PaxosValue(processElected, slot), reply.WriteTimeStamp, reply.PaxosInstance);
+            promisses.Add(promisse);
+        }
 
-
-    
-     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        public class PromisseValue
+        {
+            uint _writeTimeStamp;
+            PaxosValue _value;
+            uint _instance;
+            public PromisseValue(PaxosValue value, uint writeStamp, uint instance)
+            {
+                _value = value;
+                _writeTimeStamp = writeStamp;
+                _instance = instance;
+            }
+        }
 
     }
 }

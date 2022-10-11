@@ -18,7 +18,7 @@ namespace BoneyServer.domain
             _processSlots = new Slots<uint?>(maxNumOfSlots);
         }
 
-        public uint FillOrGetSlot(uint slotNum, uint slotVal)
+        public uint FillOrGetSlot(int slotNum, uint slotVal)
         {
             uint value;
             lock(this)
