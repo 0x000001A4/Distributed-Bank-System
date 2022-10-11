@@ -20,7 +20,7 @@ namespace BankServer
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
             BankSlotManager bankSlotManager = new BankSlotManager(config);
-            SlotTimer sloTimer = new SlotTimer(bankSlotManager,config.GetSlotDuration(),config.GetSlotFisrtTime());
+            SlotTimer sloTimer = new SlotTimer(bankSlotManager,(uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
             sloTimer.execute();
             
 
