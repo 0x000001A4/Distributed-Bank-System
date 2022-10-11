@@ -11,7 +11,7 @@ namespace BankServer.domain {
 
     internal class BankSlotManager : IUpdateState {
 
-        int _slot;
+        int _slot=1;
         ServerConfiguration _config;
 
         public BankSlotManager(ServerConfiguration config) {

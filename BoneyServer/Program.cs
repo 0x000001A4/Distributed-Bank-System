@@ -59,9 +59,15 @@ namespace BoneyServer {
 			uint maxSlots = (uint)config.GetNumberOfSlots();
 			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
 
-			BoneyServerState boneyServerState = new BoneyServerState();
+			
 			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
+
+
             IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyPortsAndAdress());
+
+            BoneyServerState boneyServerState = new BoneyServerState(multiPaxos,config);
+            SlotTimer sloTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
+            sloTimer.execute();
 
 
             ServerPort serverPort;
