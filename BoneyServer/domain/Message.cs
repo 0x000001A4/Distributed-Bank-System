@@ -9,20 +9,20 @@ namespace BoneyServer.domain {
 	public class Message {
 
 		private uint requestId;
-		private CompareAndSwapRequest? compareAndSwapRequest = null;
-		private PrepareRequest? prepareRequest = null;
-		private AcceptRequest? acceptRequest = null;
+		private CompareAndSwapReq? compareAndSwapRequest = null;
+		private PrepareReq? prepareRequest = null;
+		private AcceptReq? acceptRequest = null;
 
-        public Message(CompareAndSwapRequest _request, uint _requestId) {
+        public Message(CompareAndSwapReq _request, uint _requestId) {
 			compareAndSwapRequest = _request;
             requestId = _requestId;
 		}
-        public Message(PrepareRequest _request, uint _requestId)
+        public Message(PrepareReq _request, uint _requestId)
         {
             prepareRequest = _request;
             requestId = _requestId;
         }
-        public Message(AcceptRequest _request, uint _requestId)
+        public Message(AcceptReq _request, uint _requestId)
         {
             acceptRequest = _request;
             requestId = _requestId;
@@ -32,15 +32,15 @@ namespace BoneyServer.domain {
             return requestId;
         }
 
-        public CompareAndSwapRequest? getCompareAndSwapRequest() {
+        public CompareAndSwapReq? getCompareAndSwapRequest() {
 			return compareAndSwapRequest;
 		}
 
-        public PrepareRequest? getPrepareRequest() {
+        public PrepareReq? getPrepareRequest() {
             return prepareRequest;
         }
 
-        public AcceptRequest? getAcceptRequest() {
+        public AcceptReq? getAcceptRequest() {
             return acceptRequest;
         }
     }

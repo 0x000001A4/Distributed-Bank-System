@@ -41,23 +41,26 @@ namespace BoneyServer.domain
 
         public uint GetSlotValue(uint slotNum)
         {
-            return _processSlots[slotNum];
+            return _processSlots[(int)slotNum];
         }
     
+        // ??????????
+        /*
         public void IncrementCurrentSlot() { currentSlot++; }
 
-        public uint GetCurrentSlot() { return currentSlot; }
+        public uint GetCurrentSlot() { return currentSlot; }*/
     }
 
-    internal class BoneySlotState
-    {
-        private Queue<uint> _waitingClientsList;
-        private uint? _slotValue;
-
-        public BoneySlotState()
+         /*internal class BoneySlotState
         {
-            _waitingClientsList = new Queue<uint>();
-            _slotValue = null;
+            private Queue<uint> _waitingClientsList;
+            private uint? _slotValue;
+
+            public BoneySlotState()
+            {
+                _waitingClientsList = new Queue<uint>();
+                _slotValue = null;
+            }
         }
-    }
+        */
 }

@@ -12,7 +12,7 @@ namespace BoneyServer
     /// <summary>
     /// Stores Boney Server's state. This includes all slots information.
     /// </summary>
-    internal class BoneyServerState // ITimerUpdateable
+    public class BoneyServerState // ITimerUpdateable
     {
         private Slots<string> _frozenSlots;
         private Dictionary<uint, string>[] _suspectedProcessesSlots;
@@ -21,7 +21,10 @@ namespace BoneyServer
         private uint _numberOfBoneyProcesses;
         private int _currentSlot;
 
-        public BoneyServerState(uint processId, ServerConfiguration config)
+        private Queue<Message> _queue { get; set; } = new Queue<Message>();
+
+        public BoneyServerState(//uint processId, ServerConfiguration config
+                                )
         {
             
             //_processId = processId;
@@ -40,13 +43,30 @@ namespace BoneyServer
             //}
         }
 
+
+
         public bool IsFrozen()
         {
             return _frozenSlots[_currentSlot].Equals(FrozenState.FROZEN);
         }
 
-		public bool isFrozen() {
-			return _frozen == FrozenState.FROZEN;
-		}
-	}
+        /* TODO - Rick!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fantasmaaaa
+        public void handleQueuedMessage(CompareAndSwapServiceImpl service, Message _msg)
+        {
+
+            if (_msg.getRequestId() == 1)
+            {
+                service.CompareAndSwap(_msg.getCompareAndSwapRequest());
+            }
+
+
+        }*/
+
+        public void Enqueue(Message _msg)
+        {
+            _queue.Enqueue(_msg);
+        }
+
+    }
 }
+
