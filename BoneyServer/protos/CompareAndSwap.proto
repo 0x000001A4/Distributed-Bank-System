@@ -3,7 +3,6 @@
 service CompareAndSwapService {
   rpc CompareAndSwap (CompareAndSwapRequest) returns (CompareAndSwapResponse);
 }
-
 message CompareAndSwapRequest {
 	uint32 slot = 1;
 	uint32 leader = 2;

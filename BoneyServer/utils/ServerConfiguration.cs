@@ -194,7 +194,7 @@ namespace BoneyServer.utils
         }
 
 
-        public int GetNumberofSlots()
+        public int GetNumberOfSlots()
         {
             return _numberOfSlots;
         }
@@ -235,7 +235,7 @@ namespace BoneyServer.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
-        public string GetServerStateInSlot(int serverID, int slotNumber)
+        public string GetServerStateInSlot(uint serverID, uint slotNumber)
         {
             return _serverStatePerSlot[slotNumber, serverID];
         }
@@ -245,7 +245,7 @@ namespace BoneyServer.utils
             return _bankServersHostnames;
         }
 
-        public string GetServerSuspetInSlot(int serverID, int slotNumber)
+        public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
@@ -262,6 +262,11 @@ namespace BoneyServer.utils
         public bool CheckClientExists(int id)
         {
             return _clientList.Contains(id);
+        }
+
+        public List<int> GetBoneyServerIDs()
+        {
+            return _boneyServersHostnames.Keys.ToList();
         }
 
 
