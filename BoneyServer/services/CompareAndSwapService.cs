@@ -23,7 +23,7 @@ namespace BoneyServer.services
             return Task.FromResult(new CompareAndSwapResponse { Ok = true });
         }
 
-        public void doCompareAndSwap(CompareAndSwapRequest request) {
+        public void doCompareAndSwap(CompareAndSwapRequest? request) {
             Console.WriteLine("received msg");
         }
     }

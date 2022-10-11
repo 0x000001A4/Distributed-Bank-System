@@ -52,9 +52,6 @@ namespace BoneyServer {
 
 	public class BoneyServer {
 
-		public delegate void MyDelegate();
-
-		// WHY is this Async????
 		public static void Main(string[] args) {  // TODO - edit to receive all server state through the config file
 			
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);

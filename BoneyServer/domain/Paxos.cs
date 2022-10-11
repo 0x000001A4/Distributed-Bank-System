@@ -13,8 +13,10 @@ namespace BoneyServer.domain
 
         public static int Id { get; set; }
 
-        public Paxos() {
+        public Paxos(uint _maxNumOfSlots) {
             Id++;
+            _paxosInstances = new List<PaxosInstance>();
+            _paxosSlotState = new Slots<PaxosSlotState>(_maxNumOfSlots); /* EDIT MAX NUM OF SLOTS GIVEN IN ARGUMENT HERE */
         }
 
         public void Start() {

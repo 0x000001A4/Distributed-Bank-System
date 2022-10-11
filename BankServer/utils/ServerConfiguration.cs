@@ -245,7 +245,7 @@ namespace BankServer.utils
             return _bankServersHostnames;
         }
 
-        public string GetServerSuspetInSlot(int serverID, int slotNumber)
+        public string GetServerSuspectedInSlot(int serverID, int slotNumber)
         {
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
