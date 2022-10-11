@@ -19,21 +19,26 @@ namespace BoneyServer.domain
     internal class Paxos : IMultiPaxos
     {
         // TODO - as soon as paxos achieves consensus, it returns a list of all processes in the queue so that they all receive the same answer.
+        
         private List<PaxosInstance> _paxosInstances;      // stores <value, write_time_stamp, read_time_stamp> for each instance (each list index is a diferent instance)
         private Slots<PaxosSlotState> _paxosSlotState;    // stores the state of decision about a slot
         Dictionary<uint, string> _paxosServers; // (processID) -> [hotname, suspectedstate]
+        private int _numberOfBoneyServers;
         private uint _sourceProcessID;                    // The process ID executing Paxos
         private uint _sourceLeaderNumber;
         private uint? _leaderProcessID;                   // The process it suspects to be the leader
         private List<String> _boneyAdress;
+
         public static int Instance { get; set; }
 
         public Paxos(uint sourceProcessID, uint numOfSlots,List<String> boneysAdress) {
             Instance = 0;
+            _numberOfBoneyServers = boneysAdress.Count();
             _sourceLeaderNumber = sourceProcessID;
             _sourceProcessID = sourceProcessID;
             _leaderProcessID = null;
             _paxosInstances = new List<PaxosInstance>();
+            
             _paxosSlotState = new Slots<PaxosSlotState>(numOfSlots);
             _boneyAdress = boneysAdress;
         }
@@ -209,6 +214,25 @@ namespace BoneyServer.domain
             Slot = slot;
         }
     }
+
+
+
+    public class PromisseValue
+    {
+        int _writeTimeStamp;
+        PaxosValue _value;
+        int _instance;
+        public PromisseValue(PaxosValue value, int writeStamp, int instance)
+        {
+
+            _value = value;
+            _writeTimeStamp = writeStamp;
+            _instance = instance;
+        }
+    }
+
+
+
 
 
 
