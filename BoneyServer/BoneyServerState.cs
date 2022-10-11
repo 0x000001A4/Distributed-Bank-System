@@ -60,18 +60,16 @@ namespace BoneyServer
 			}
 		}
 
-        public void handleQueuedMessage(CompareAndSwapServiceImpl service, Message<TRequest> message) {
+        public void handleQueuedMessage(CompareAndSwapServiceImpl service, Message _msg) {
 
-			Type requestType = typeof(TRequest);
-
-            if (requestType == typeof(CompareAndSwapRequest)) { 
-				service.doCompareAndSwap((CompareAndSwapRequest) (object) message.getRequest());
+            if (_msg.getRequestId() == 1) { 
+				service.doCompareAndSwap((CompareAndSwapRequest)(object)_msg.getRequestId());
 			}
 
 
         }
 
-        public void enqueue(Message<TRequest> _msg) {
+        public void enqueue(Message _msg) {
 			_queue.Enqueue(_msg);
 		}
 

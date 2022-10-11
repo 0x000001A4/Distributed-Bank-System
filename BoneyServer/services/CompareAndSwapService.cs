@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BoneyServer.services
 {
-    internal class CompareAndSwapServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
+    public class CompareAndSwapServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
     {
         private BoneyServerState _serverState;
 

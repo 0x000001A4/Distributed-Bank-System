@@ -6,16 +6,42 @@ using System.Threading.Tasks;
 
 namespace BoneyServer.domain {
 
-	internal class Message<TRequest> {
+	public class Message {
 
-		private TRequest request;
+		private uint requestId;
+		private CompareAndSwapRequest? compareAndSwapRequest = null;
+		private PrepareRequest? prepareRequest = null;
+		private AcceptRequest? acceptRequest = null;
 
-		public Message(TRequest _request) {
-			this.request = _request;
+        public Message(CompareAndSwapRequest _request, uint _requestId) {
+			compareAndSwapRequest = _request;
+            requestId = _requestId;
+		}
+        public Message(PrepareRequest _request, uint _requestId)
+        {
+            prepareRequest = _request;
+            requestId = _requestId;
+        }
+        public Message(AcceptRequest _request, uint _requestId)
+        {
+            acceptRequest = _request;
+            requestId = _requestId;
+        }
+
+        public uint getRequestId() {
+            return requestId;
+        }
+
+        public CompareAndSwapRequest? getCompareAndSwapRequest() {
+			return compareAndSwapRequest;
 		}
 
-		public TRequest getRequest() {
-			return request;
-		}
-	}
+        public PrepareRequest? getPrepareRequest() {
+            return prepareRequest;
+        }
+
+        public AcceptRequest? getAcceptRequest() {
+            return acceptRequest;
+        }
+    }
 }
