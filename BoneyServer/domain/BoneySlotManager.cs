@@ -22,18 +22,18 @@ namespace BoneyServer.domain
             currentSlot = 0;
         }
 
-        public uint FillSlot(uint slotNum, uint slotVal)
+        public uint FillOrGetSlot(int slotNum, uint slotVal)
         {
             uint value;
             lock(this)
             {
-                if (_processSlots[slotNum] == 0)
+                if (_processSlots[slotNum] == null)
                 {
-                    value = _processSlots[slotNum] = slotVal;
+                    _processSlots[slotNum] = value = slotVal;
                 }
                 else
                 {
-                    value = _processSlots[slotNum];
+                    value = (uint)_processSlots[slotNum];
                 }
             }
             return value;

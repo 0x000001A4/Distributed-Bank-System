@@ -49,22 +49,27 @@ namespace BoneyServer {
 			}
 		}
 	}
+	public class BoneyServer
+	{
 
-	public class BoneyServer {
-  
-		public static void Main(string[] args) {  // TODO - edit to receive all server state through the config file
-			
+		public static void Main(string[] args) // TODO - edit to receive all server state through the config file
+		{
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
-			uint processId = uint.Parse(args[1]);
+			uint processID = uint.Parse(args[1]);
 			uint maxSlots = (uint)config.GetNumberOfSlots();
-			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processId);
+			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
+			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
+            IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyPortsAndAdress());
 
-			BoneyServerState boneyServerState = new BoneyServerState(processId, config);
-			CompareAndSwapServiceImpl compareAndSwapService = new CompareAndSwapServiceImpl(boneyServerState);
+
+            ServerPort serverPort;
+            serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
+
+            CompareAndSwapServiceImpl compareAndSwapServiceImpl = new CompareAndSwapServiceImpl(slotManager, multiPaxos);
 
 			Server server = new Server {
-				Services = { CompareAndSwapService.BindService(compareAndSwapService).Intercept(new BoneyServerMessageInterceptor(boneyServerState)) },
-				Ports = { new ServerPort(hostname, port, ServerCredentials.Insecure) }
+				Services = { CompareAndSwapService.BindService(compareAndSwapServiceImpl).Intercept(new BoneyServerMessageInterceptor(boneyServerState)) },
+				Ports = { serverPort }
 			};
 
 			server.Start();

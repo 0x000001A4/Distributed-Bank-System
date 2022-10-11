@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="protos\Interceptor.proto" />
     <None Remove="protos\PaxosAcceptor.proto" />
     <None Remove="protos\PaxosLearner.proto" />
   </ItemGroup>
@@ -20,9 +21,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <Protobuf Include="protos\PaxosLearner.proto" GrpcServices="Server" ProtoRoot="protos"/>
-    <Protobuf Include="protos\PaxosAcceptor.proto" GrpcServices="Server" ProtoRoot="protos"/>
-	<Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Server" ProtoRoot="protos"/>
+    <Protobuf Include="protos\Interceptor.proto" GrpcServices="Server">
+      <ProtoRoot>protos</ProtoRoot>
+    </Protobuf>
+    <Protobuf Include="protos\PaxosLearner.proto" GrpcServices="Server" ProtoRoot="protos" />
+    <Protobuf Include="protos\PaxosAcceptor.proto" GrpcServices="Both" ProtoRoot="protos" />
+	<Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Server" ProtoRoot="protos" />
+	<Protobuf Include="protos\Interceptor.proto" GrpcServices="Client" ProtoRoot="protos" />
   </ItemGroup>
 
 </Project>
