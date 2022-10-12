@@ -11,7 +11,7 @@ namespace BoneyServer.domain
 
     public class SlotTimer
     {
-        private static System.Timers.Timer _clock;
+        private static System.Timers.Timer? _clock;
         IUpdateState _updatable;
         uint _slotDuration;
 
@@ -30,14 +30,13 @@ namespace BoneyServer.domain
 
         }
 
-        public void execute()
-        {
+        public void execute() {
+            if (_clock == null) Environment.Exit(-1);
             _clock.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-            _clock.Interval = _slotDuration;
             _clock.Start();
         }
 
-        private void OnTimedEvent(object source, ElapsedEventArgs e)
+        private void OnTimedEvent(object? source, ElapsedEventArgs e)
         {
             _updatable.update();
         }

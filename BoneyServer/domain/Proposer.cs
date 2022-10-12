@@ -23,30 +23,30 @@ namespace BoneyServer.domain
 		/// <param name="value">Paxos value to propose</param>
 		/// <param name="sourceLeaderNumber">Write timestamp</param>
 		/// <param name="instance">Paxos instance</param>
-		public static void ProposerWork(PaxosValue value, uint sourceLeaderNumber, uint instance, Thread proposeThread)
+		public static void ProposerWork(PaxosValue value, uint sourceLeaderNumber, uint instance)
 		{
 			List<ProposerVector> promisses = new List<ProposerVector>();
-			sendPrepareAsync(sourceLeaderNumber, instance, promisses,proposeThread);
+			sendPrepareAsync(sourceLeaderNumber, instance, promisses);
 			waitForMajority(promisses);
 			ProposerVector valueToSend = selectValueToSend(value, sourceLeaderNumber, instance, promisses);
 			sendAccept(valueToSend);
         }
 
-		private static void sendPrepareAsync(uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses, Thread proposeThread)
+		private static void sendPrepareAsync(uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)
         {
 			foreach (var channel in _boneyChannels)
 			{
-				Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses,proposeThread);
+				Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses);
 			}
 		}
 
-		public static async Task PrepareAsync(GrpcChannel channel, uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses, Thread proposeThread)
+		public static async Task PrepareAsync(GrpcChannel channel, uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)
 		{
 			PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
 			PromiseResp reply = await client.PrepareAsync(new PrepareReq { LeaderNumber = sourceLeaderNumber, PaxosInstance = instance });
 			uint processElected = reply.Value.Leader;
 			uint slot			= reply.Value.Slot;
-			if (!reply.PromisseFlag) proposeThread.Interrupt();
+			if (!reply.PromisseFlag) Thread.CurrentThread.Interrupt();
 			ProposerVector promisse = new ProposerVector(new PaxosValue(processElected, slot), reply.WriteTimeStamp, reply.PaxosInstance);
 			promisses.Add(promisse);
 		}

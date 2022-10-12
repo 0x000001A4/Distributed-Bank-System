@@ -12,12 +12,10 @@ namespace BoneyServer.services
 
     internal class PaxosAcceptorServiceImpl : PaxosAcceptorService.PaxosAcceptorServiceBase
     {
-        private BoneyServerState _serverState;
         private IMultiPaxos _multiPaxos;
 
-        public PaxosAcceptorServiceImpl(BoneyServerState serverState, IMultiPaxos multiPaxos)
+        public PaxosAcceptorServiceImpl(IMultiPaxos multiPaxos)
         {
-            _serverState = serverState;
             _multiPaxos = multiPaxos;
         }
 

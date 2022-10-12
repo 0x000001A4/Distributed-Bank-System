@@ -48,7 +48,7 @@ namespace BoneyServer.domain
             if (slotState.NotStarted() && iAmLeader())
             {
                 Console.WriteLine("BONEY Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));  /*value como input ???????*SIDNEI???*/
+                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
                 _paxosInstances.Add(new PaxosInstance());
                 proposer.Start();
                 Instance++;
