@@ -72,8 +72,13 @@ namespace BoneyServer
         }
 
 
+        public uint GetNumberOfBoneyProcesses() {
+            return _numberOfProcesses;
+        }
 
-
-
+        public List<string> GetBankServersHostnameAndPort()
+        {
+            return _config.GetBankServersPortsAndAddresses();
+        }
     }
 }

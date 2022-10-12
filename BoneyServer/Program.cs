@@ -60,24 +60,27 @@ namespace BoneyServer
 			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
 
 
-            IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyPortsAndAdress());
+            IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyServersPortsAndAddresses());
 
             BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos,config);
-            SlotTimer sloTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
-            sloTimer.execute();
+            SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
+            slotTimer.execute();
 
 
             ServerPort serverPort;
             serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
+			BoneyServerMessageInterceptor _interceptor = new BoneyServerMessageInterceptor(boneyServerState);
 
-            CompareAndSwapServiceImpl compareAndSwapServiceImpl = new CompareAndSwapServiceImpl(boneyServerState, multiPaxos);
+            Server server = new Server {
+                Services = {
+					CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(multiPaxos)).Intercept(_interceptor),
+                    PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl()).Intercept(_interceptor),
+					PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
+				},
+                Ports = { serverPort }
+            };
 
-			Server server = new Server {
-				Services = { CompareAndSwapService.BindService(compareAndSwapServiceImpl).Intercept(new BoneyServerMessageInterceptor(boneyServerState)) },
-				Ports = { serverPort }
-			};
-
-			server.Start();
+            server.Start();
 
 			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";
 			Console.WriteLine(startupMessage);

@@ -268,7 +268,7 @@ namespace BoneyServer.utils
             return _boneyServersHostnames.Keys.ToList();
         }
 
-        public List<String> GetBoneyPortsAndAdress()
+        public List<String> GetBoneyServersPortsAndAddresses()
         {
             List<String> lista = new List<string>();
             int number_boneys = GetNumberOfBoneyServers();
@@ -281,6 +281,20 @@ namespace BoneyServer.utils
             }
 
             return lista;
+        }
+    
+        public List<String> GetBankServersPortsAndAddresses()
+        {
+            List<String> banksInfo = new List<string>();
+            int numberOfBankServers = GetNumberOfBankServers();
+            string _banksInfo;
+            for (int i = 0; i < numberOfBankServers; i++)
+            {
+                (string, int) info = GetBankHostnameAndPortByProcess(i + 1);
+                _banksInfo = info.Item1 + info.Item2;
+                banksInfo.Add(_banksInfo);
+            }
+            return banksInfo;
         }
     }
 }
