@@ -24,7 +24,7 @@
     <Protobuf Include="protos\Interceptor.proto" GrpcServices="Server">
       <ProtoRoot>protos</ProtoRoot>
     </Protobuf>
-    <Protobuf Include="protos\PaxosLearner.proto" GrpcServices="Server" ProtoRoot="protos" />
+    <Protobuf Include="protos\PaxosLearner.proto" GrpcServices="Both" ProtoRoot="protos" />
     <Protobuf Include="protos\PaxosAcceptor.proto" GrpcServices="Both" ProtoRoot="protos" />
 	<Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Server" ProtoRoot="protos" />
 	<Protobuf Include="protos\Interceptor.proto" GrpcServices="Client" ProtoRoot="protos" />

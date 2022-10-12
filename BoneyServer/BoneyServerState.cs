@@ -16,7 +16,7 @@ namespace BoneyServer
     public class BoneyServerState : IUpdateState{
         private int _slot;
         private Slots<string> _frozenSlots;
-        private Dictionary<uint, string>[] _suspectedProcessesSlots;
+        private Slots<string>[] _suspectedProcessesSlots;
 
         private uint _processId;
         private uint _numberOfBoneyProcesses;
@@ -24,6 +24,7 @@ namespace BoneyServer
         private IMultiPaxos _paxos;
         private ServerConfiguration _config;
 
+        private string _frozen;
         private Queue<Message> _queue { get; set; } = new Queue<Message>();
 
         public BoneyServerState(IMultiPaxos paxos /*uint processId*/, ServerConfiguration config
@@ -37,38 +38,38 @@ namespace BoneyServer
             //_numberOfBoneyProcesses = (uint)config.GetNumberOfBoneyServers();
             //_multiPaxos = new Paxos(processId, )
 
-            //for (uint slot = 0 ; slot < numberOfSlots; slot++ )
-            //{
-            //    _frozenSlots[slot] = frozenSlots[slot, processId];
-
-            //    for (uint process = 0; process < numberOfProcesses; process++)
-            //    {
-            //        _suspectedProcessesSlots[process][slot] = suspectedProcessesSlots[slot, process];
-            //    }
-
-            //}
-        }
-
-
-
-        public bool IsFrozen()
-        {
-            return _frozenSlots[_currentSlot].Equals(FrozenState.FROZEN);
-        }
-
-        /* TODO - Rick!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fantasmaaaa
-        public void handleQueuedMessage(CompareAndSwapServiceImpl service, Message _msg)
-        {
-
-            if (_msg.getRequestId() == 1)
+            for (int slot = 0; slot < numberOfSlots; slot++)
             {
-                service.CompareAndSwap(_msg.getCompareAndSwapRequest());
+                _frozenSlots[slot] = config.GetServerStateInSlot(_processId, (uint)slot);
+                for (uint process = 0; process < _numberOfProcesses; process++)
+                {
+                    _suspectedProcessesSlots[process][slot] = config.GetServerSuspectedInSlot(_processId,(uint)slot);
+                }
+            }
+            _frozen = _frozenSlots[(int)_slotManager.GetCurrentSlot()];
+        }
+
+        public void updateState()
+        {
+            int slotId = (int)_slotManager.GetCurrentSlot();
+            _frozen = _frozenSlots[slotId];
+            // Check if prozen unfroze in this slot
+            if (_frozenSlots[slotId] == FrozenState.UNFROZEN && _frozenSlots[slotId - 1] == FrozenState.FROZEN)
+            {
+                // Handle Queued requests
+            }
+        }
+
+        public void handleQueuedMessage(CompareAndSwapServiceImpl service, Message _msg) {
+
+            if (_msg.getRequestId() == 1) {
+                service.doCompareAndSwap(_msg.getCompareAndSwapRequest());
             }
 
 
-        }*/
+        }
 
-        public void Enqueue(Message _msg)
+        public void enqueue(Message _msg)
         {
             _queue.Enqueue(_msg);
         }
@@ -99,4 +100,3 @@ namespace BoneyServer
 
     }
 }
-

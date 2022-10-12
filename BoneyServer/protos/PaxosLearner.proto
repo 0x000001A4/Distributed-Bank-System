@@ -1,2 +1,16 @@
 ﻿syntax = "proto3";
-// TODO
+import "CompareAndSwap.proto";
+
+message LearnCommandReq {
+	CompareAndSwapReq value = 1;
+	uint32 leaderNumber = 2;
+	uint32 paxosInstance = 3;
+}
+
+message LearnCommandResp {
+
+}
+
+service PaxosLearnerService {
+	rpc LearnCommand (LearnCommandReq) returns (LearnCommandResp);
+}
