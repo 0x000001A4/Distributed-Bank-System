@@ -1,16 +1,13 @@
-﻿
-using BoneyServer.domain;
+﻿using BoneyServer.domain;
 using BoneyServer.services;
 using BoneyServer.utils;
-using System;
 using Grpc.Core;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
 using Grpc.Core.Interceptors;
 
-namespace BoneyServer {
+namespace BoneyServer
+{
 
-	public class BoneyServerMessageInterceptor : Interceptor {
+    public class BoneyServerMessageInterceptor : Interceptor {
 
 		public BoneyServerState _state;
 
@@ -65,7 +62,7 @@ namespace BoneyServer {
 
             IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyPortsAndAdress());
 
-            BoneyServerState boneyServerState = new BoneyServerState(multiPaxos,config);
+            BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos,config);
             SlotTimer sloTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
             sloTimer.execute();
 

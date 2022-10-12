@@ -1,10 +1,4 @@
-﻿using BoneyServer.utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace BoneyServer.utils
 {
@@ -249,6 +243,11 @@ namespace BoneyServer.utils
         {
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
+
+        public string GetFrozenStateOfProcessInSlot(uint processId, uint slot)
+        {
+            return _serverStatePerSlot[slot, processId];
+        }
         public int GetNumberOfBoneyServers()
         {
             return _boneyServersHostnames.Count();
@@ -283,18 +282,6 @@ namespace BoneyServer.utils
 
             return lista;
         }
-
-        //public Dictionary<uint, string> GetBoneySuspectedForSlot(uint slot)
-        //{
-        //    Dictionary<uint, string> dict = new Dictionary<uint, string>();
-        //    int count = GetNumberOfBoneyServers();
-        //    for (int i = 0; i < count; i++)
-        //    {
-        //        dict.Add(_serverSuspectedPerSlot[slot, i]);
-        //    }
-        //}
-
-
     }
 }
 
