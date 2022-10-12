@@ -12,7 +12,6 @@ namespace BoneyServer.services
     {
         public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context)
         {
-            Proposer.ProposeWork(request);
             return Task.FromResult(new PromiseResp(/* Send promise information */));
         }
 
