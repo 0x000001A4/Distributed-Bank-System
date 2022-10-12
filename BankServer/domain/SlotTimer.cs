@@ -30,7 +30,6 @@ namespace BankServer.domain
         /* AFonso pintarolas*/
         public void execute() {
             _clock.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-            _clock.Interval = _slotDuration;
             _clock.Start();
         }
 

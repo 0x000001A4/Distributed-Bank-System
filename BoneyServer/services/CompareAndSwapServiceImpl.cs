@@ -10,12 +10,10 @@ namespace BoneyServer.services
 {
     public class CompareAndSwapServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
     {
-        private BoneyServerState _serverState;
         private IMultiPaxos _multiPaxos;
 
 
-        public CompareAndSwapServiceImpl(BoneyServerState serverState, IMultiPaxos multiPaxos) {
-            _serverState = serverState;
+        public CompareAndSwapServiceImpl(IMultiPaxos multiPaxos) {
             _multiPaxos = multiPaxos;
         }
 

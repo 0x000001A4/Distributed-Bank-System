@@ -6,6 +6,7 @@ namespace BoneyServer.domain
     {
         void Start(PaxosValue value);
         void UpdateServers(Dictionary<uint, string> servers);
+        PaxosInstance GetPaxosInstance(uint instanceId);
 
         (PaxosValue, uint, uint, bool) Promisse(uint leaderNumber, uint instance);
     }
@@ -47,7 +48,8 @@ namespace BoneyServer.domain
             if (slotState.NotStarted() && iAmLeader())
             {
                 Console.WriteLine("BONEY Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance,proposer)));  /*value como input ???????*SIDNEI???*/
+                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));  /*value como input ???????*SIDNEI???*/
+                _paxosInstances.Add(new PaxosInstance());
                 proposer.Start();
                 Instance++;
             }
@@ -79,6 +81,15 @@ namespace BoneyServer.domain
             if (servers.Count == 0) throw new Exception("Paxos must be composed of at least 1 server!");
             _paxosServers = servers;
             updateLeader();
+        }
+
+        public PaxosInstance GetPaxosInstance(uint instanceId) {
+            if (instanceId > Instance)
+            {
+                Console.WriteLine("Call to GetPaxosInstance(instanceId) with instanceId > current instance (Line 74: Paxos.cs)");
+                Environment.Exit(-1);
+            }
+            return _paxosInstances[(int)instanceId];
         }
 
         private void updateLeader()
@@ -126,14 +137,15 @@ namespace BoneyServer.domain
     }
 
 
-    /// <summary>
-    /// Represents an Instance of paxos <value, write_ts , read_ts>
+/// <summary>
+    /// Represents an Instance of paxos <value, write_ts , read_ts> and an auxiliary variable _acceptedCommands
     /// </summary>
-    internal class PaxosInstance
+    public class PaxosInstance
     {
         private PaxosValue? _value;
         private uint _writeTimeStamp;
         private uint _readTimeStamp;
+        private uint _acceptedCommands;
 
         public PaxosValue? Value 
         {
@@ -153,11 +165,17 @@ namespace BoneyServer.domain
             set { _readTimeStamp = value; }
         }
 
+        public uint AcceptedCommands {
+            get { return _acceptedCommands;  }
+            set { _acceptedCommands = value; }
+        }
+
         public PaxosInstance()
         {
             _value = null;
             _writeTimeStamp = 0;
             _readTimeStamp = 0;
+            _acceptedCommands = 0;
         }
     }
 

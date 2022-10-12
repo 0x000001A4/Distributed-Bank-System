@@ -78,8 +78,7 @@ namespace BoneyServer.domain
 
 		private static void sendAccept(ProposerVector value)
         {
-			foreach (var channel in _boneyChannels)
-            {
+			foreach (var channel in _boneyChannels) {
 				accept(channel, value);
             }
 

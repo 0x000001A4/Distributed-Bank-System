@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+
+service PaxosResultHandlerService {
+  rpc HandlePaxosResult (PaxosResultRequest) returns (PaxosResultResponse);
+}
+
+message PaxosResultRequest {
+	uint32 slot = 1;
+	uint32 primary = 2;
+}
+message PaxosResultResponse {
+
+}
