@@ -1,12 +1,4 @@
-﻿using BoneyServer.domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-namespace BoneyServer.domain
+﻿namespace BoneyServer.domain
 {
     /// <summary>
     /// Stores the value of a process to a slot
@@ -47,17 +39,5 @@ namespace BoneyServer.domain
         public void IncrementCurrentSlot() { currentSlot++; }
 
         public uint GetCurrentSlot() { return currentSlot; }
-    }
-
-    internal class BoneySlotState
-    {
-        private Queue<uint> _waitingClientsList;
-        private uint? _slotValue;
-
-        public BoneySlotState()
-        {
-            _waitingClientsList = new Queue<uint>();
-            _slotValue = null;
-        }
     }
 }

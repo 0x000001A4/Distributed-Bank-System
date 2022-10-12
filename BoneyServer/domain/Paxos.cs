@@ -1,9 +1,4 @@
 ﻿using BoneyServer.utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoneyServer.domain
 {
@@ -164,9 +159,6 @@ namespace BoneyServer.domain
             _writeTimeStamp = 0;
             _readTimeStamp = 0;
         }
-
-
-
     }
 
 
