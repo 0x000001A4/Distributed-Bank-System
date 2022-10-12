@@ -74,9 +74,12 @@ namespace BoneyServer {
             serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
 
             CompareAndSwapServiceImpl compareAndSwapServiceImpl = new CompareAndSwapServiceImpl(boneyServerState, multiPaxos);
+            PaxosAcceptorServiceImpl paxosAcceptorServiceImpl = new PaxosAcceptorServiceImpl(boneyServerState, multiPaxos);
 
 			Server server = new Server {
-				Services = { CompareAndSwapService.BindService(compareAndSwapServiceImpl).Intercept(new BoneyServerMessageInterceptor(boneyServerState)) },
+				Services = { CompareAndSwapService.BindService(compareAndSwapServiceImpl).Intercept(new BoneyServerMessageInterceptor(boneyServerState)),
+
+                             PaxosAcceptorService.BindService(paxosAcceptorServiceImpl).Intercept(new BoneyServerMessageInterceptor(boneyServerState))  },
 				Ports = { serverPort }
 			};
 

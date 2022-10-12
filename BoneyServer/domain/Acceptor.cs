@@ -1,4 +1,5 @@
-﻿using Grpc.Net.Client;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,16 @@ namespace BoneyServer.domain
                 _boneyChannels.Add(GrpcChannel.ForAddress(address));
             }
         }
+
+
+        public static bool PromisseWork(uint leaderNumber,uint readTimeStamp)
+        {
+            if (leaderNumber >= readTimeStamp) return true;
+            else return false;
+        }
+
+       
+
 
         public static void LearnWork(AcceptReq request) {
             Task ret = AcceptCommand(

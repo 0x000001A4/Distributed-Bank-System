@@ -11,6 +11,8 @@ namespace BoneyServer.domain
     {
         void Start(PaxosValue value);
         void UpdateServers(Dictionary<uint, string> servers);
+
+        (PaxosValue, uint, uint, bool) Promisse(uint leaderNumber, uint instance);
     }
     /// <summary>
     /// Solves Consensus issue in the context of BoneyServers (optimized to work with slots).
@@ -50,7 +52,7 @@ namespace BoneyServer.domain
             if (slotState.NotStarted() && iAmLeader())
             {
                 Console.WriteLine("BONEY Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));  /*value como input ???????*SIDNEI???*/
+                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance,proposer)));  /*value como input ???????*SIDNEI???*/
                 proposer.Start();
                 Instance++;
             }
@@ -63,6 +65,19 @@ namespace BoneyServer.domain
             {
 
             }
+        }
+        public (PaxosValue,uint,uint,bool) Promisse(uint leaderNumber,uint instance)
+        {
+            PaxosInstance instancia = _paxosInstances[(int) instance];
+            PaxosValue? value = instancia.Value;
+            uint writeTimeStamp = instancia.WriteTimeStamp;
+            uint readTimeStamp = instancia.ReadTimeStamp;
+
+            bool needReadUpdate = Acceptor.PromisseWork(leaderNumber,readTimeStamp);
+            if (needReadUpdate) _paxosInstances[(int)instance].ReadTimeStamp = leaderNumber;
+
+            return (value, leaderNumber, writeTimeStamp, needReadUpdate);
+
         }
 
         public void UpdateServers(Dictionary<uint, string> servers) {
