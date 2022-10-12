@@ -31,7 +31,7 @@ namespace BoneyServer.domain
 
         public static uint Instance { get; set; }
 
-        public Paxos(uint sourceProcessID, uint numOfSlots,List<String> boneysAdress) {
+        public Paxos(uint sourceProcessID, uint numOfSlots, List<String> boneysAdress) {
             Instance = 0;
             _numberOfBoneyServers = boneysAdress.Count();
             _sourceLeaderNumber = sourceProcessID;
@@ -50,7 +50,7 @@ namespace BoneyServer.domain
             if (slotState.NotStarted() && iAmLeader())
             {
                 Console.WriteLine("BONEY Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposeWork(_sourceLeaderNumber, Instance)));  /*value como input ???????*SIDNEI???*/
+                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));  /*value como input ???????*SIDNEI???*/
                 proposer.Start();
                 Instance++;
             }
