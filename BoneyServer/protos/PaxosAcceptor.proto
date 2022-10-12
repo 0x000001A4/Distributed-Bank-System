@@ -15,6 +15,7 @@ message PromiseResp {
 	CompareAndSwapReq value = 1;
 	uint32 writeTimeStamp = 2;
 	uint32 paxosInstance = 3;
+	bool promisseFlag = 4;
 }
 
 message AcceptedResp {

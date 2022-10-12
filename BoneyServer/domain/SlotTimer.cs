@@ -26,7 +26,7 @@ namespace BoneyServer.domain
             _clock = new System.Timers.Timer() { Interval = span.TotalMilliseconds, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
-
+            
 
         }
 

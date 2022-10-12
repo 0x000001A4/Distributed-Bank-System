@@ -69,14 +69,15 @@ namespace BoneyServer
 
             ServerPort serverPort;
             serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
+
 			BoneyServerMessageInterceptor _interceptor = new BoneyServerMessageInterceptor(boneyServerState);
 
             Server server = new Server {
                 Services = {
-					CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(multiPaxos)).Intercept(_interceptor),
+					          CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(multiPaxos)).Intercept(_interceptor),
                     PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl()).Intercept(_interceptor),
-					PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
-				},
+					          PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
+				        },
                 Ports = { serverPort }
             };
 
