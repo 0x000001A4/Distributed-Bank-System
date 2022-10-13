@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <None Remove="protos\CompareAndSwap.proto" />
-    <None Remove="protos\PaxosResultHandler.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,8 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="protos\PaxosResultHandler.proto" GrpcServices="Server" />
-    <Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Client" />
+    <Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Both" />
   </ItemGroup>
 
 </Project>

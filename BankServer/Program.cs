@@ -19,8 +19,8 @@ namespace BankServer
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
             BankSlotManager bankSlotManager = new BankSlotManager(config);
-            SlotTimer sloTimer = new SlotTimer(bankSlotManager,(uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
-            sloTimer.Execute();
+            SlotTimer slotTimer = new SlotTimer(bankSlotManager,(uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
+            slotTimer.Execute();
             
 
             string serverHostname = "localhost";
@@ -28,10 +28,13 @@ namespace BankServer
             GrpcChannel channel = GrpcChannel.ForAddress("http://" + serverHostname + ":" + serverPort.ToString());
 
             CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-            while (true)
-            {
+            while (true) {
                 Console.ReadKey();
-                client.CompareAndSwap(new CompareAndSwapRequest { Leader = 1, Slot = 0 }) ;
+                try {
+                    client.CompareAndSwap(new CompareAndSwapReq { Leader = 1, Slot = 0 });
+                } catch (Exception e) {
+                    Console.WriteLine(e);
+                }
             }
         }
     }

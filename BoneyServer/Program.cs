@@ -26,14 +26,17 @@ namespace BoneyServer
 					Message? _msg = null;
 
                     if (requestType == typeof(CompareAndSwapReq)) {
-						_msg = new Message((CompareAndSwapReq)(object) request, 1);
+						_msg = new Message((CompareAndSwapReq)(object) request, context);
 					}
                     if (requestType == typeof(PrepareReq)) {
-                        _msg = new Message((PrepareReq)(object)request, 2);
+                        _msg = new Message((PrepareReq)(object) request, context);
                     }
                     if (requestType == typeof(AcceptReq)) {
-                        _msg = new Message((AcceptReq)(object)request, 3);
+                        _msg = new Message((AcceptReq)(object) request, context);
                     }
+					if (requestType == typeof(LearnCommandReq)) {
+						_msg = new Message((LearnCommandReq)(object) request, context);
+					}
 
 					if (_msg != null) _state.Enqueue(_msg);
 					else Console.WriteLine("Error: Can't queue message because it does not belong to any of specified types.");
@@ -47,34 +50,43 @@ namespace BoneyServer
 			}
 		}
 	}
-	public class BoneyServer
-	{
+	public class BoneyServer {
 
-		public static void Main(string[] args) // TODO - edit to receive all server state through the config file
+        public static void Main(string[] args) // TODO - edit to receive all server state through the config file
 		{
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
 			uint processID = uint.Parse(args[1]);
 			uint maxSlots = (uint)config.GetNumberOfSlots();
 			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
-			
+
+
+            ServerPort serverPort;
+            serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
 			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
 
             IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyServersPortsAndAddresses());
 
-            BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos,config);
+			QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
+            BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos, config, cmdHandler);
+
+			CompareAndSwapServiceImpl _casService = new CompareAndSwapServiceImpl(multiPaxos, boneyServerState);
+			PaxosAcceptorServiceImpl _paxosAcceptorService = new PaxosAcceptorServiceImpl(multiPaxos, boneyServerState);
+			PaxosLearnerServiceImpl _paxosLearnerService = new PaxosLearnerServiceImpl(config.GetBankServersPortsAndAddresses(),
+				multiPaxos, (uint)config.GetNumberOfBoneyServers(), boneyServerState);
+
+			cmdHandler.AddCompareAndSwapService(_casService);
+			cmdHandler.AddPaxosAcceptorService(_paxosAcceptorService);
+			cmdHandler.AddPaxosLearnerService(_paxosLearnerService);
+
             SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
             slotTimer.Execute();
-
-            ServerPort serverPort;
-            serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
 
 			BoneyServerMessageInterceptor _interceptor = new BoneyServerMessageInterceptor(boneyServerState);
 
             Server server = new Server {
                 Services = {
-					CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(multiPaxos)).Intercept(_interceptor),
-					PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl(multiPaxos)).Intercept(_interceptor),
-					PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
+					CompareAndSwapService.BindService(_casService).Intercept(_interceptor),
+					PaxosAcceptorService.BindService(_paxosAcceptorService).Intercept(_interceptor)
 				        },
                 Ports = { serverPort }
             };
@@ -86,8 +98,7 @@ namespace BoneyServer
 
 			//Configuring HTTP for client connections in Register method
 			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-			while (true) ;
-
+			while (true);
 			//server.ShutdownAsync().Wait();
 		}
 

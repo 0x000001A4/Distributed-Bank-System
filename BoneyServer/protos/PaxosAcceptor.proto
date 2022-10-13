@@ -27,4 +27,6 @@ message AcceptedResp {
 service PaxosAcceptorService {
   rpc Prepare (PrepareReq) returns (PromiseResp);
   rpc Accept (AcceptReq) returns (AcceptedResp);
+  rpc SendPromise (PromiseResp) returns (PromiseResp);
+  rpc SendAccepted (AcceptedResp) returns (AcceptedResp);
 }

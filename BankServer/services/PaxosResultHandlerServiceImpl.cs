@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace BankServer.services
 {
-    internal class PaxosResultHandlerServiceImpl : PaxosResultHandlerService.PaxosResultHandlerServiceBase
+    internal class PaxosResultHandlerServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
     {
-        public override Task<PaxosResultResponse> HandlePaxosResult(PaxosResultRequest request, ServerCallContext context)
+        public override Task<CompareAndSwapResp> HandlePaxosResult(CompareAndSwapResp request, ServerCallContext context)
         {
             // Use request.primary to chose a primary for request.slot
-            return Task.FromResult(new PaxosResultResponse());
+            Console.WriteLine($"Bank Server HandlePaxosResult(request) called:  Elected Primary: {request.Primary} | Slot: {request.Slot}");
+            return Task.FromResult(request);
         }
     }
 }
