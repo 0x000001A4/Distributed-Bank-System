@@ -22,6 +22,7 @@ namespace BoneyServer.utils
             _clock = new System.Timers.Timer() { Interval = 1/*span.TotalMilliseconds*/, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
+
         }
 
         public void Execute()

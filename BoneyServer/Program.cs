@@ -73,9 +73,9 @@ namespace BoneyServer
 
             Server server = new Server {
                 Services = {
-					CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(multiPaxos))/*.Intercept(_interceptor)*/,
-					PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl(multiPaxos))/*.Intercept(_interceptor)*/,
-					PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos))/*.Intercept(_interceptor)*/
+					CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(boneyServerState,multiPaxos)).Intercept(_interceptor),
+					PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl(multiPaxos)).Intercept(_interceptor),
+					PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
 				        },
                 Ports = { serverPort }
             };

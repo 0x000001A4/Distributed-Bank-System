@@ -16,16 +16,11 @@ namespace BankServer.domain
 
         uint _slot=1;
         ServerConfiguration _config;
-        List<GrpcChannel> _channels;
+        int _processID;
 
-        public BankSlotManager(ServerConfiguration config) {
+        public BankSlotManager(ServerConfiguration config,int processId) {
             _config = config;
-            _channels = new List<GrpcChannel>();
-            var servers = config.GetBoneyServersPortsAndAddresses();
-            foreach(var server in servers)
-            {
-                _channels.Add(GrpcChannel.ForAddress("https://" + server));
-            }
+            _processID = processId;
         }
 
         public uint ChooseLeader() {
@@ -45,10 +40,19 @@ namespace BankServer.domain
         }
 
         public void BroadcastCompareAndSwap() {
-            foreach (var channel in _channels) {
-                CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() });
-            }
+
+            List<int> boneyAdresses = _config.GetBoneyServerIDs();
+
+                foreach (int id in boneyAdresses) {
+                    (string, int) tuplo = _config.GetBoneyHostnameAndPortByProcess(id);
+                    Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
+                    GrpcChannel channel = GrpcChannel.ForAddress(tuplo.Item1 + ":" + tuplo.Item2);
+                    CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+                
+                (string,int) tuplo2 = _config.GetBankHostnameAndPortByProcess(_processID);
+                string address = "http://" + tuplo2.Item1 + ":" + tuplo2.Item2;
+                client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() , Address = address});
+                }
             Logger.LogDebug("CompareAndSwap sent");
         }
 

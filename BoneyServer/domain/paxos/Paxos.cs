@@ -1,14 +1,20 @@
 ﻿using BoneyServer.utils;
+using static BoneyServer.domain.paxos.Paxos;
 
 namespace BoneyServer.domain.paxos
 {
     public interface IMultiPaxos
     {
-        void Start(PaxosValue value);
+        public void Start(PaxosValue value, string address, uint finalValue);
         void UpdateServers(Dictionary<uint, string> servers);
         PaxosInstance GetPaxosInstance(uint instanceId);
 
+        public void updateAccept(PaxosValue value, uint leaderNumber, uint instance);
+
         (PaxosValue, bool) Promisse(uint leaderNumber, uint instance);
+
+
+        public PaxosSlotState getSlotState(int slot);
     }
     /// <summary>
     /// Solves Consensus issue in the context of BoneyServers (optimized to work with slots).
@@ -52,7 +58,7 @@ namespace BoneyServer.domain.paxos
             Acceptor.SetServers(boneysAdress);
         }
 
-        public void Start(PaxosValue value)
+        public void Start(PaxosValue value, string address,uint finalValue)
         {
             uint slot = value.Slot;
             PaxosSlotState slotState = _paxosSlotState[(int)slot];
@@ -60,20 +66,25 @@ namespace BoneyServer.domain.paxos
             {
                 Logger.LogDebug("Paxos: New consensus instance started");
                 _paxosInstances.Add(new PaxosInstance());
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
                 proposer.Start();
+                slotState.StartConsensus();
                 Instance++;
+
+                // If an isntance for slot has already begun, enqueue the request not to start a new instance
+
             }
-            // If an isntance for slot has already begun, enqueue the request not to start a new instance
             else if (slotState.IsWaiting())
             {
                 _paxosSlotState[(int)slot].Enqueue(value.ProcessID);
+                
             }
             else if (slotState.IsFinished())
             {
-
+                consensusFinalValue.doWork(address, slot, finalValue);
             }
-        }
+               
+        
+       }
         public (PaxosValue?, bool) Promisse(uint leaderNumber, uint instance)
         {
             PaxosInstance instancia = _paxosInstances[(int)instance];
@@ -86,6 +97,18 @@ namespace BoneyServer.domain.paxos
 
             return (value, needReadUpdate);
 
+        }
+
+
+
+        public void updateAccept(PaxosValue value, uint leaderNumber, uint instance)
+        {
+            PaxosInstance instancia = _paxosInstances[(int)instance];
+            if (leaderNumber >= instancia.WriteTimeStamp)
+            {
+                instancia.WriteTimeStamp = leaderNumber;
+                instancia.Value = value;
+            }
         }
 
         public void UpdateServers(Dictionary<uint, string> servers)
@@ -106,9 +129,10 @@ namespace BoneyServer.domain.paxos
             return _paxosInstances[(int)instanceId];
         }
 
-        public void AddInstancesUpTo(uint instance)
+
+       public PaxosSlotState getSlotState(int slot)
         {
-            //int currentLength = _paxosInstances.Count();
+            return _paxosSlotState[slot];
         }
 
         private void updateLeader()
@@ -195,7 +219,7 @@ namespace BoneyServer.domain.paxos
 
 
 
-    internal class PaxosSlotState
+    public class PaxosSlotState
     {
         enum ConsensusState
         {
