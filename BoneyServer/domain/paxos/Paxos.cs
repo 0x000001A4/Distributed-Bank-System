@@ -82,6 +82,7 @@ namespace BoneyServer.domain.paxos
         public void UpdateServers(Dictionary<uint, string> servers)
         {
             if (servers.Count == 0) throw new Exception("Paxos must be composed of at least 1 server!");
+            
             _paxosServers = servers;
             updateLeader();
         }
@@ -98,11 +99,12 @@ namespace BoneyServer.domain.paxos
 
         private void updateLeader()
         {
-            uint minProcID = 0;
+            uint minProcID = int.MaxValue;
             foreach (var server in _paxosServers)
             {
                 string serverSuspectedState = server.Value;
-                if (serverSuspectedState.Equals(SuspectState.NOTSUSPECTED))
+                bool res;
+                if (res = serverSuspectedState.Equals(SuspectState.NOTSUSPECTED))
                 {
                     if (server.Key < minProcID) minProcID = server.Key;
                 }

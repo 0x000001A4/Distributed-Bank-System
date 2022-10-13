@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace BoneyServer.utils
 {
@@ -87,7 +88,7 @@ namespace BoneyServer.utils
                     }
                     foreach (string word in data_final)
                     {
-                        string[] final = word.Split(',');
+                        string[] final = word.Split(", ");
                         foreach (string palavra in final)
                         {
                             if (count == 1)
@@ -241,6 +242,11 @@ namespace BoneyServer.utils
 
         public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
+            if (slotNumber > _numberOfSlots)
+            {
+                Console.WriteLine("SERVER CONFIG: Max number of slots reached. Freezing process.");
+                Process.GetCurrentProcess().WaitForExit();
+            } 
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 

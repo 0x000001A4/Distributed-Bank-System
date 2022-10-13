@@ -2,7 +2,7 @@
   "profiles": {
     "BoneyServer": {
       "commandName": "Project",
-      "commandLineArgs": "..\\\\..\\\\..\\\\..\\\\BoneyServer\\\\configuration_sample.txt\r\n1"
+      "commandLineArgs": "..\\\\..\\\\..\\\\..\\\\BoneyServer\\\\configuration_sample.txt\r\n2"
     }
   }
 }
