@@ -1,4 +1,5 @@
 ﻿using BoneyServer.domain.paxos;
+using BoneyServer.utils;
 using Grpc.Core;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace BoneyServer.services
 
         public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context)
         {
-            Console.WriteLine("BONEY CompareAndSwapServiceImpl: Received CompareAndSwap message request");
+            Logger.LogDebug("BONEY CompareAndSwapServiceImpl: Received CompareAndSwap message request");
             uint leaderNumber = request.LeaderNumber;
             uint instance = request.PaxosInstance;
             (PaxosValue, uint, uint, bool)  tuplo = _multiPaxos.Promisse(leaderNumber,instance);

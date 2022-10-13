@@ -49,7 +49,7 @@ namespace BoneyServer.domain.paxos
             PaxosSlotState slotState = _paxosSlotState[(int)slot];
             if (slotState.NotStarted() && iAmLeader())
             {
-                Console.WriteLine("BONEY Paxos: New consensus instance started");
+                Logger.LogDebug("Paxos: New consensus instance started");
                 Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
                 _paxosInstances.Add(new PaxosInstance());
                 proposer.Start();
@@ -91,7 +91,7 @@ namespace BoneyServer.domain.paxos
         {
             if (instanceId > Instance)
             {
-                Console.WriteLine("PAXOS: Call to GetPaxosInstance(instanceId) with instanceId > current instance");
+                Logger.LogDebug("PAXOS: Call to GetPaxosInstance(instanceId) with instanceId > current instance");
                 Environment.Exit(-1);
             }
             return _paxosInstances[(int)instanceId];
@@ -112,18 +112,18 @@ namespace BoneyServer.domain.paxos
 
             if (_leaderProcessID == minProcID)
             {
-                Console.WriteLine("PAXOS: Leader hasn't changed.");
+                Logger.LogDebug("PAXOS: Leader hasn't changed.");
             }
             // if was not already leader and is elected as leader
             else if (_leaderProcessID != _sourceProcessID && minProcID == _sourceProcessID)
             {
                 _sourceLeaderNumber += (uint)_paxosServers.Count();
-                Console.WriteLine($"PAXOS: I was elected leader, updating LeaderNumber to {_sourceLeaderNumber}.");
+                Logger.LogDebug($"PAXOS: I was elected leader, updating LeaderNumber to {_sourceLeaderNumber}.");
             }
-            // if was not already leader and another process is elected leader
-            else if (_leaderProcessID != _sourceProcessID && minProcID != _sourceProcessID)
+            // another process is elected leader
+            else if (minProcID != _sourceProcessID)
             {
-                Console.WriteLine($"PAXOS: Process {minProcID} was elected Leader.");
+                Logger.LogDebug($"PAXOS: Process {minProcID} was elected Leader.");
             }
 
             _leaderProcessID = minProcID;

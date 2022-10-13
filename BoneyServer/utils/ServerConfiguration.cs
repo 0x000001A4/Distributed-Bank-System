@@ -102,15 +102,11 @@ namespace BoneyServer.utils
                                 if (bit == 2) pal2 = palavra;
                                 if (bit == 1) bit = 2;
                                 else bit = 1;
-                                //Console.WriteLine(palavra);
                             }
 
                         }
                         if (aux % 2 == 0)
                         {
-
-                            //Console.WriteLine(end);
-
                             _serverState[global, end] = pal1;
                             _serverSuspect[global, end] = pal2;
 
@@ -240,19 +236,18 @@ namespace BoneyServer.utils
             return _bankServersHostnames;
         }
 
+
+
         public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
-            if (slotNumber > _numberOfSlots)
-            {
-                Console.WriteLine("SERVER CONFIG: Max number of slots reached. Freezing process.");
-                Process.GetCurrentProcess().WaitForExit();
-            } 
+            checkIfExceededMaxSlots(slotNumber);
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 
-        public string GetFrozenStateOfProcessInSlot(uint processId, uint slot)
+        public string GetFrozenStateOfProcessInSlot(uint processId, uint slotNumber)
         {
-            return _serverStatePerSlot[slot, processId];
+            checkIfExceededMaxSlots(slotNumber);
+            return _serverStatePerSlot[slotNumber, processId];
         }
         public int GetNumberOfBoneyServers()
         {
@@ -282,6 +277,15 @@ namespace BoneyServer.utils
         public List<string> GetBankServersPortsAndAddresses()
         {
             return _bankServersHostnames.Values.ToList();
+        }
+
+        private void checkIfExceededMaxSlots(uint slot)
+        {
+            if (slot > _numberOfSlots)
+            {
+                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Freezing process.");
+                Process.GetCurrentProcess().WaitForExit();
+            }
         }
     }
 }

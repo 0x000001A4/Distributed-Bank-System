@@ -36,13 +36,13 @@ namespace BoneyServer
                     }
 
 					if (_msg != null) _state.Enqueue(_msg);
-					else Console.WriteLine("Error: Can't queue message because it does not belong to any of specified types.");
+					else Logger.LogError("Error: Can't queue message because it does not belong to any of specified types.");
 				}
 
 				return await continuation(request, context);
 
 			} catch (Exception ex) {
-				Console.WriteLine(ex);
+				Logger.LogError(ex.Message);
 				throw;
 			}
 		}
@@ -52,6 +52,7 @@ namespace BoneyServer
 
 		public static void Main(string[] args) // TODO - edit to receive all server state through the config file
 		{
+			Logger.DebugOn();
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
 			uint processID = uint.Parse(args[1]);
 			uint maxSlots = (uint)config.GetNumberOfSlots();
@@ -82,7 +83,7 @@ namespace BoneyServer
             server.Start();
 
 			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";
-			Console.WriteLine(startupMessage);
+			Logger.LogInfo(startupMessage);
 
 			//Configuring HTTP for client connections in Register method
 			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);

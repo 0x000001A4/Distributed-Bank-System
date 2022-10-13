@@ -9,9 +9,10 @@ namespace BankServer.services
 {
     internal class PaxosResultHandlerServiceImpl : PaxosResultHandlerService.PaxosResultHandlerServiceBase
     {
+        private bool _debug = false;
         public override Task<PaxosResultResponse> HandlePaxosResult(PaxosResultRequest request, ServerCallContext context)
         {
-            // Use request.primary to chose a primary for request.slot
+            
             return Task.FromResult(new PaxosResultResponse());
         }
     }

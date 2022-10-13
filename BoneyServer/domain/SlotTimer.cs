@@ -19,7 +19,6 @@ namespace BoneyServer.utils
 
         public SlotTimer(IUpdatable updatable, uint slotDuration, string initialTime)
         {
-            //Console.WriteLine("Criar o sloTimet");
             DateTime dateTime = DateTime.ParseExact(initialTime, "HH:mm:ss",
                                         CultureInfo.InvariantCulture);
             var span = dateTime - DateTime.Now;

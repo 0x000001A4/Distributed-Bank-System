@@ -1,5 +1,6 @@
 ﻿using BoneyServer.domain;
 using BoneyServer.domain.paxos;
+using BoneyServer.utils;
 using Grpc.Core;
 using Grpc.Net.Client;
 using System;
@@ -50,7 +51,7 @@ namespace BoneyServer.services
                         });
                     }
                     else {
-                        Console.WriteLine("Unexpected behaviour in LearnCommand(LearnCommandReq request, ...): requestInstanceInfo.value = null (line 44: PaxosLearnerServiceImpl.cs)");
+                        Logger.LogError("Unexpected behaviour in LearnCommand(LearnCommandReq request, ...): requestInstanceInfo.value = null (line 44: PaxosLearnerServiceImpl.cs)");
                         Environment.Exit(-1);
                     }
                 }

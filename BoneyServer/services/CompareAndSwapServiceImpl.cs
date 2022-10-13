@@ -1,4 +1,5 @@
 ﻿using BoneyServer.domain.paxos;
+using BoneyServer.utils;
 using Grpc.Core;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace BoneyServer.services
 
 
         public void doCompareAndSwap(CompareAndSwapReq request) {
-            Console.WriteLine("BONEY CompareAndSwapServiceImpl: Received CompareAndSwap message request");
+            Logger.LogDebug("CompareAndSwapServiceImpl: CompareAndSwap received");
             PaxosValue value = new PaxosValue(request.Leader, request.Slot);
             _multiPaxos.Start(value);
         }

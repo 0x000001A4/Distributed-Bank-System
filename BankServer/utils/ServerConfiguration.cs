@@ -1,6 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
-namespace BankServer.domain
+namespace BankServer.utils
 {
 
     /// <summary>
@@ -87,7 +88,7 @@ namespace BankServer.domain
                     }
                     foreach (string word in data_final)
                     {
-                        string[] final = word.Split(',');
+                        string[] final = word.Split(", ");
                         foreach (string palavra in final)
                         {
                             if (count == 1)
@@ -101,15 +102,11 @@ namespace BankServer.domain
                                 if (bit == 2) pal2 = palavra;
                                 if (bit == 1) bit = 2;
                                 else bit = 1;
-                                //Console.WriteLine(palavra);
                             }
 
                         }
                         if (aux % 2 == 0)
                         {
-
-                            //Console.WriteLine(end);
-
                             _serverState[global, end] = pal1;
                             _serverSuspect[global, end] = pal2;
 
@@ -239,14 +236,18 @@ namespace BankServer.domain
             return _bankServersHostnames;
         }
 
+
+
         public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
+            checkIfExceededMaxSlots(slotNumber);
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 
-        public string GetFrozenStateOfProcessInSlot(uint processId, uint slot)
+        public string GetFrozenStateOfProcessInSlot(uint processId, uint slotNumber)
         {
-            return _serverStatePerSlot[slot, processId];
+            checkIfExceededMaxSlots(slotNumber);
+            return _serverStatePerSlot[slotNumber, processId];
         }
         public int GetNumberOfBoneyServers()
         {
@@ -276,6 +277,15 @@ namespace BankServer.domain
         public List<string> GetBankServersPortsAndAddresses()
         {
             return _bankServersHostnames.Values.ToList();
+        }
+
+        private void checkIfExceededMaxSlots(uint slot)
+        {
+            if (slot > _numberOfSlots)
+            {
+                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Freezing process.");
+                Process.GetCurrentProcess().WaitForExit();
+            }
         }
     }
 }

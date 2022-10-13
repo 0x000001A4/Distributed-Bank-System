@@ -3,6 +3,7 @@ using Grpc.Net.Client;
 using BankServer.domain;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
+using BankServer.utils;
 
 namespace BankServer
 {
@@ -13,9 +14,8 @@ namespace BankServer
 
         public static void Main(string[] args) 
         {
-
-            Console.WriteLine("INITIALIZE: On");
-            Console.WriteLine(args[1]);
+            Logger.DebugOn();
+            Logger.LogInfo("Initializing Bank server ... ");
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
             BankSlotManager bankSlotManager = new BankSlotManager(config);
@@ -31,7 +31,8 @@ namespace BankServer
             while (true)
             {
                 Console.ReadKey();
-                client.CompareAndSwap(new CompareAndSwapRequest { Leader = 1, Slot = 0 }) ;
+                Logger.LogDebug("CompareAndSwap sent");
+                client.CompareAndSwapAsync(new CompareAndSwapRequest { Leader = 1, Slot = 0 }) ;
             }
         }
     }
