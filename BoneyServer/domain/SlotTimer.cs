@@ -42,7 +42,7 @@ namespace BoneyServer.utils
             var periodicTimer = new PeriodicTimer(timeSpan);
             while (await periodicTimer.WaitForNextTickAsync())
             {
-                Logger.LogEvent("New slot");
+                Logger.LogEvent("Timer Tick");
                 action();
             }
         }

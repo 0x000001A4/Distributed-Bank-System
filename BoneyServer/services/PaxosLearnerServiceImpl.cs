@@ -3,11 +3,6 @@ using BoneyServer.domain.paxos;
 using BoneyServer.utils;
 using Grpc.Core;
 using Grpc.Net.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoneyServer.services
 {
@@ -31,15 +26,18 @@ namespace BoneyServer.services
             {
                 _bankServerChannels.Add(GrpcChannel.ForAddress("http://" + address));
             }
+            Logger.LogDebugLearner($"Servers set.");
         }
 
         public override Task<LearnCommandResp> LearnCommand(LearnCommandReq request, ServerCallContext context)
         {
+            Logger.LogDebugLearner("Received Accept message");
             uint requestInstance = request.PaxosInstance;
             PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
             if (MajorityAccepted(requestInstance, requestInstanceInfo)) {
+                Logger.LogDebugLearner($"Received majority of accepts for instance {requestInstance}.");
                 _state.GetSlotManager().FillSlot((int) request.Value.Slot, request.Value.Leader);
-                _multiPaxos.getSlotState((int)request.Value.Slot).EndConsensus();
+                _multiPaxos.GetSlotState((int)request.Value.Slot).EndConsensus();
                 foreach(var channel in _bankServerChannels) {
                     PaxosResultHandlerService.PaxosResultHandlerServiceClient _client = 
                         new PaxosResultHandlerService.PaxosResultHandlerServiceClient(channel);
@@ -57,6 +55,7 @@ namespace BoneyServer.services
                         Environment.Exit(-1);
                     }
                 }
+                Logger.LogDebugLearner($"Response sent to all bank clients: (slot: {requestInstanceInfo.Value.Slot}, leader: {requestInstanceInfo.Value.ProcessID})");
             }
             return Task.FromResult(new LearnCommandResp());
         }

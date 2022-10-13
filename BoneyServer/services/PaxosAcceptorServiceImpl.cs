@@ -44,7 +44,7 @@ namespace BoneyServer.services
 		public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context)
 		{
             Logger.LogDebug("PaxosAcceptorServiceImpl: Received ACCEPT! request");
-            _multiPaxos.updateAccept(new PaxosValue(request.Value.Leader,request.Value.Slot),
+            _multiPaxos.UpdateAccept(new PaxosValue(request.Value.Leader,request.Value.Slot),
                 request.LeaderNumber,request.PaxosInstance);
 			Acceptor.LearnWork(request);
 			return Task.FromResult(new AcceptedResp(/* Send accepted information */));

@@ -100,9 +100,9 @@ namespace BoneyServer.utils
             {
                 if (_debug)
                 {
-                    setColors(ConsoleColor.DarkBlue, ConsoleColor.White);
+                    setColors(ConsoleColor.Magenta, ConsoleColor.White);
                     Console.Write(LEARNER);
-                    setColors(ConsoleColor.Black, ConsoleColor.DarkBlue);
+                    setColors(ConsoleColor.Black, ConsoleColor.Magenta);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
                 }

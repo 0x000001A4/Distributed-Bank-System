@@ -1,4 +1,5 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using BoneyServer.utils;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace BoneyServer.domain.paxos
 
         public static void SetServers(List<string> boneyAdress)
         {
+            Logger.LogDebugAcceptor("Servers set.");
             _boneyChannels = new List<GrpcChannel>();
             foreach (string address in boneyAdress)
             {
@@ -51,6 +53,7 @@ namespace BoneyServer.domain.paxos
                     new LearnCommandReq { Value = compareAndSwapReq, LeaderNumber = leaderNumber, PaxosInstance = instance }
                 );
             }
+            Logger.LogDebugAcceptor($"Accepted sent to all Learners: < (slot: {compareAndSwapReq.Slot}, leader: {compareAndSwapReq.Leader}), w_ts: {leaderNumber}, instance: {instance} >");
         }
     }
 
