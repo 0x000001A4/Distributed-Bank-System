@@ -22,27 +22,28 @@ namespace BoneyServer.services
 
         public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context)
         {
-            Logger.LogDebug("BONEY CompareAndSwapServiceImpl: Received CompareAndSwap message request");
+            Logger.LogDebug("PaxosAcceptorServiceImpl: Received PROMISE request");
             uint leaderNumber = request.LeaderNumber;
             uint instance = request.PaxosInstance;
-            (PaxosValue, uint, uint, bool)  tuplo = _multiPaxos.Promisse(leaderNumber,instance);
-            if (tuplo.Item4)
+            (PaxosValue value, bool ack) = _multiPaxos.Promisse(leaderNumber,instance);
+
+            if (value == null) // if no value was chosen yet
             {
-                uint ProcessID = tuplo.Item1.ProcessID;
-                uint Slot = tuplo.Item1.Slot;
-                CompareAndSwapReq value = new CompareAndSwapReq() { Leader = ProcessID, Slot = Slot };
-                return Task.FromResult(new PromiseResp() { Value = value, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = true });
+                return Task.FromResult(new PromiseResp() { WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack });
             }
             else
             {
-                return Task.FromResult(new PromiseResp() { PromisseFlag = false });
+                uint processID = value.ProcessID;
+                uint Slot = value.Slot;
+                CompareAndSwapReq valueToSend = new CompareAndSwapReq() { Leader = processID, Slot = Slot };
+                return Task.FromResult(new PromiseResp() { Value = valueToSend, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack });
             }
 
-            
         }
 
 		public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context)
 		{
+            Logger.LogDebug("PaxosAcceptorServiceImpl: Received ACCEPT! request");
 			Acceptor.LearnWork(request);
 			return Task.FromResult(new AcceptedResp(/* Send accepted information */));
 		}

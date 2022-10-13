@@ -1,4 +1,5 @@
-﻿using Grpc.Net.Client;
+﻿using BoneyServer.utils;
+using Grpc.Net.Client;
 
 namespace BoneyServer.domain.paxos
 {
@@ -16,6 +17,7 @@ namespace BoneyServer.domain.paxos
             {
                 _boneyChannels.Add(GrpcChannel.ForAddress("http://" + address));
             }
+            Logger.LogDebugProposer("Proposer servers set.");
         }
 
         /// <summary>
@@ -27,7 +29,8 @@ namespace BoneyServer.domain.paxos
         /// <param name="instance">Paxos instance</param>
         public static void ProposerWork(PaxosValue value, uint sourceLeaderNumber, uint instance)
         {
-            List<ProposerVector> promisses = new List<ProposerVector>();
+            Logger.LogDebugProposer("New proposer for instance " + instance);
+            List<ProposerVector> promisses = new List<ProposerVector>(); // used to store all promisses received
             sendPrepareAsync(sourceLeaderNumber, instance, promisses);
             waitForMajority(promisses);
             ProposerVector valueToSend = selectValueToSend(value, sourceLeaderNumber, instance, promisses);
@@ -46,20 +49,37 @@ namespace BoneyServer.domain.paxos
         {
             PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
             PromiseResp reply = await client.PrepareAsync(new PrepareReq { LeaderNumber = sourceLeaderNumber, PaxosInstance = instance });
-            uint processElected = reply.Value.Leader;
-            uint slot = reply.Value.Slot;
-            if (!reply.PromisseFlag) Thread.CurrentThread.Interrupt();
-            ProposerVector promisse = new ProposerVector(new PaxosValue(processElected, slot), reply.WriteTimeStamp, reply.PaxosInstance);
-            promisses.Add(promisse);
-        }
+            ProposerVector promisse = new ProposerVector();
 
+            if (!reply.PromisseFlag) // promisse has greater readTS than the sent in prepare
+            {
+                Logger.LogDebugProposer("Proposer canceled proposing becuase received a NACK from " + channel.Target);
+                Thread.CurrentThread.Interrupt();
+            }
+            else if (reply.Value == null) // promisse has null value
+            {
+                Logger.LogDebugProposer("Proposer received a null value from " + channel.Target);
+                promisse = new ProposerVector(null, reply.WriteTimeStamp, reply.PaxosInstance);
+            }
+            else // promisse has value
+            {
+                Logger.LogDebugProposer("Proposer received a value from " + channel.Target);
+                uint slot = reply.Value.Slot;
+                uint processElected = reply.Value.Leader;
+                promisse = new ProposerVector(new PaxosValue(processElected, slot), reply.WriteTimeStamp, reply.PaxosInstance);
+            }
+            
+            promisses.Add(promisse);
+            Logger.LogDebugProposer($"Received {promisses.Count()}/{_boneyChannels.Count()} promisses");
+        }
 
         // TODO: it is currently actively waiting
         private static void waitForMajority(List<ProposerVector> promisses)
         {
-            while (promisses.Count() < Math.Ceiling((decimal)_boneyChannels.Count() / 2)) ;
+            Logger.LogDebugProposer("Waiting for a majority of promisses...");
+            while (promisses.Count() < Math.Ceiling((decimal)_boneyChannels.Count() / 2));
+            Logger.LogDebugProposer("Received a majority of promisses.");
         }
-
 
         private static ProposerVector selectValueToSend(PaxosValue value, uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)
         {
@@ -83,6 +103,7 @@ namespace BoneyServer.domain.paxos
             foreach (var channel in _boneyChannels)
             {
                 accept(channel, value);
+                Logger.LogDebugProposer("Accept sent to " + channel.Target);
             }
 
         }
@@ -113,6 +134,8 @@ namespace BoneyServer.domain.paxos
                 WriteTimeStamp = writeStamp;
                 Instance = instance;
             }
+
+            public ProposerVector() { }
 
             public static bool operator >(ProposerVector a, ProposerVector b)
             {

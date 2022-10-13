@@ -8,7 +8,7 @@ namespace BoneyServer.domain.paxos
         void UpdateServers(Dictionary<uint, string> servers);
         PaxosInstance GetPaxosInstance(uint instanceId);
 
-        (PaxosValue, uint, uint, bool) Promisse(uint leaderNumber, uint instance);
+        (PaxosValue, bool) Promisse(uint leaderNumber, uint instance);
     }
     /// <summary>
     /// Solves Consensus issue in the context of BoneyServers (optimized to work with slots).
@@ -36,8 +36,17 @@ namespace BoneyServer.domain.paxos
             _sourceLeaderNumber = sourceProcessID;
             _sourceProcessID = sourceProcessID;
             _leaderProcessID = null;
+
             _paxosInstances = new List<PaxosInstance>();
+            _paxosInstances.Add(new PaxosInstance());    // so that instance 1 is at index 1
+
+            // Initialize paxos slots state
             _paxosSlotState = new Slots<PaxosSlotState>(numOfSlots);
+            for (int i = 0; i < numOfSlots; i++)
+            {
+                _paxosSlotState[i] = new PaxosSlotState();
+            }
+
             _boneyAdress = boneysAdress;
             Proposer.SetServers(boneysAdress);
             Acceptor.SetServers(boneysAdress);
@@ -50,8 +59,8 @@ namespace BoneyServer.domain.paxos
             if (slotState.NotStarted() && iAmLeader())
             {
                 Logger.LogDebug("Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
                 _paxosInstances.Add(new PaxosInstance());
+                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
                 proposer.Start();
                 Instance++;
             }
@@ -65,17 +74,17 @@ namespace BoneyServer.domain.paxos
 
             }
         }
-        public (PaxosValue, uint, uint, bool) Promisse(uint leaderNumber, uint instance)
+        public (PaxosValue?, bool) Promisse(uint leaderNumber, uint instance)
         {
             PaxosInstance instancia = _paxosInstances[(int)instance];
             PaxosValue? value = instancia.Value;
-            uint writeTimeStamp = instancia.WriteTimeStamp;
+            //uint writeTimeStamp = instancia.WriteTimeStamp;
             uint readTimeStamp = instancia.ReadTimeStamp;
 
             bool needReadUpdate = Acceptor.PromisseWork(leaderNumber, readTimeStamp);
             if (needReadUpdate) _paxosInstances[(int)instance].ReadTimeStamp = leaderNumber;
 
-            return (value, leaderNumber, writeTimeStamp, needReadUpdate);
+            return (value, needReadUpdate);
 
         }
 
@@ -95,6 +104,11 @@ namespace BoneyServer.domain.paxos
                 Environment.Exit(-1);
             }
             return _paxosInstances[(int)instanceId];
+        }
+
+        public void AddInstancesUpTo(uint instance)
+        {
+            //int currentLength = _paxosInstances.Count();
         }
 
         private void updateLeader()
@@ -128,7 +142,6 @@ namespace BoneyServer.domain.paxos
 
             _leaderProcessID = minProcID;
         }
-
 
         private bool iAmLeader()
         {

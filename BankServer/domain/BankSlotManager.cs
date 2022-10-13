@@ -16,9 +16,16 @@ namespace BankServer.domain
 
         uint _slot=1;
         ServerConfiguration _config;
+        List<GrpcChannel> _channels;
 
         public BankSlotManager(ServerConfiguration config) {
             _config = config;
+            _channels = new List<GrpcChannel>();
+            var servers = config.GetBoneyServersPortsAndAddresses();
+            foreach(var server in servers)
+            {
+                _channels.Add(GrpcChannel.ForAddress("https://" + server));
+            }
         }
 
         public uint ChooseLeader() {
@@ -38,13 +45,11 @@ namespace BankServer.domain
         }
 
         public void BroadcastCompareAndSwap() {
-                for (int i = 0; i < _config.GetNumberOfBoneyServers(); i++) {
-                    (string, int) tuplo = _config.GetBoneyHostnameAndPortByProcess(i + 1);
-                    Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
-                    GrpcChannel channel = GrpcChannel.ForAddress(tuplo.Item1 + ":" + tuplo.Item2);
-                    CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                    client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() });
-                }
+            foreach (var channel in _channels) {
+                CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+                client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() });
+            }
+            Logger.LogDebug("CompareAndSwap sent");
         }
 
         public void IncrementSlot() {

@@ -36,13 +36,13 @@ namespace BoneyServer
                     }
 
 					if (_msg != null) _state.Enqueue(_msg);
-					else Logger.LogError("Error: Can't queue message because it does not belong to any of specified types.");
+					else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
 				}
 
 				return await continuation(request, context);
 
 			} catch (Exception ex) {
-				Logger.LogError(ex.Message);
+				Logger.LogError("Interceptor:" + ex.Message + " (l. 45)");
 				throw;
 			}
 		}
@@ -73,9 +73,9 @@ namespace BoneyServer
 
             Server server = new Server {
                 Services = {
-					CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(multiPaxos)).Intercept(_interceptor),
-					PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl(multiPaxos)).Intercept(_interceptor),
-					PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
+					CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(multiPaxos))/*.Intercept(_interceptor)*/,
+					PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl(multiPaxos))/*.Intercept(_interceptor)*/,
+					PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos))/*.Intercept(_interceptor)*/
 				        },
                 Ports = { serverPort }
             };
