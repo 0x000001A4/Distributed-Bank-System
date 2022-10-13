@@ -1,4 +1,4 @@
-﻿using BoneyServer.domain;
+﻿using BoneyServer.domain.paxos;
 using Grpc.Core;
 using System;
 using System.Collections.Generic;

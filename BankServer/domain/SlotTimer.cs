@@ -11,12 +11,12 @@ namespace BankServer.domain
 
     public class SlotTimer {
         private static System.Timers.Timer? _clock;
-        IUpdateState _updatable;
+        IUpdatable _updatable;
         uint _slotDuration;
         
 
 
-        public SlotTimer(IUpdateState updatable, uint slotDuration, string initialTime) {
+        public SlotTimer(IUpdatable updatable, uint slotDuration, string initialTime) {
             //Console.WriteLine("Criar o sloTimet");
             DateTime dateTime = DateTime.ParseExact(initialTime, "HH:mm:ss",
                                         CultureInfo.InvariantCulture);
@@ -28,14 +28,14 @@ namespace BankServer.domain
 
         }
         /* AFonso pintarolas*/
-        public void execute() {
+        public void Execute() {
             if (_clock == null) Environment.Exit(-1);
-            _clock.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            _clock.Elapsed += new ElapsedEventHandler(onTimedEvent);
             _clock.Start();
         }
 
-        private void OnTimedEvent(object? source, ElapsedEventArgs e) {
-            _updatable.update();
+        private void onTimedEvent(object? source, ElapsedEventArgs e) {
+            _updatable.Update();
         }
     }
 

@@ -1,10 +1,4 @@
-﻿using PuppetMaster.utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace PuppetMaster.utils
 {
@@ -16,8 +10,8 @@ namespace PuppetMaster.utils
     {
         private Dictionary<int, string> _boneyServersHostnames;
         private Dictionary<int, string> _bankServersHostnames;
-        private string[,] _serverStatePerSlot;
-        private string[,] _serverSuspectedPerSlot;
+        private string[,] _serverStatePerSlot;      // TODO - edit to dynamic structure
+        private string[,] _serverSuspectedPerSlot;  // 
         private List<int> _clientList;
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
@@ -51,10 +45,10 @@ namespace PuppetMaster.utils
                     var expression = new Regex(@"http://(?<hostname>[^\n]+)");
                     if (words[2] == "boney")
                     {
-                        
+
                         var match = expression.Match(words[3]);
                         _boneyMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
-                      
+
 
                     }
 
@@ -140,7 +134,7 @@ namespace PuppetMaster.utils
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
 
-            
+
             return config;
 
         }
@@ -159,37 +153,37 @@ namespace PuppetMaster.utils
 
         public ServerConfiguration SetServerStatePerSlot(string[,] serverStatePerSlot)
         {
-            this._serverStatePerSlot = serverStatePerSlot;
+            _serverStatePerSlot = serverStatePerSlot;
             return this;
         }
 
         public ServerConfiguration SetServerSuspectedPerSlot(string[,] serverSuspectedPerSlot)
         {
-            this._serverSuspectedPerSlot = serverSuspectedPerSlot;
+            _serverSuspectedPerSlot = serverSuspectedPerSlot;
             return this;
         }
 
         public ServerConfiguration SetClientList(List<int> clientList)
         {
-            this._clientList = clientList;
+            _clientList = clientList;
             return this;
         }
 
         public ServerConfiguration SetTimeOfFirstSlot(string timeOfFirstSlot)
         {
-            this._timeOfFirstSlot = timeOfFirstSlot;
+            _timeOfFirstSlot = timeOfFirstSlot;
             return this;
         }
 
         public ServerConfiguration SetNumberOfSlots(int numberOfSlots)
         {
-            this._numberOfSlots = numberOfSlots;
+            _numberOfSlots = numberOfSlots;
             return this;
         }
 
         public ServerConfiguration SetSlotDuration(int slotDuration)
         {
-            this._slotDuration = slotDuration;
+            _slotDuration = slotDuration;
             return this;
         }
 
@@ -212,30 +206,30 @@ namespace PuppetMaster.utils
 
         public List<int> GetClientList()
         {
-            return this._clientList;
+            return _clientList;
         }
 
         public (string, int) GetBoneyHostnameAndPortByProcess(int p)
         {
-            var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
+            var expression = new Regex(@"(?<hostname>[^:]+)\:(?<portnumber>[0-9]+)");
             var match = expression.Match(_boneyServersHostnames.GetValueOrDefault(p));
             string hostname = match.Groups["hostname"].Value;
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
-        public (string,int) GetBankHostnameAndPortByProcess(int p)
+        public (string, int) GetBankHostnameAndPortByProcess(int p)
         {
-           
+
             var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
-         
+
             var match = expression.Match(_bankServersHostnames.GetValueOrDefault(p));
-          
+
             string hostname = match.Groups["hostname"].Value;
-            
+
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
-        public string GetServerStateInSlot(int serverID, int slotNumber)
+        public string GetServerStateInSlot(uint serverID, uint slotNumber)
         {
             return _serverStatePerSlot[slotNumber, serverID];
         }
@@ -245,9 +239,14 @@ namespace PuppetMaster.utils
             return _bankServersHostnames;
         }
 
-        public string GetServerSuspetInSlot(int serverID, int slotNumber)
+        public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
             return _serverSuspectedPerSlot[slotNumber, serverID];
+        }
+
+        public string GetFrozenStateOfProcessInSlot(uint processId, uint slot)
+        {
+            return _serverStatePerSlot[slot, processId];
         }
         public int GetNumberOfBoneyServers()
         {
@@ -269,23 +268,15 @@ namespace PuppetMaster.utils
             return _boneyServersHostnames.Keys.ToList();
         }
 
-
-        public List<String> GetBoneyPortsAndAdress()
+        public List<string> GetBoneyServersPortsAndAddresses()
         {
-            List<String> lista = new List<string>();
-            int number_boneys = GetNumberOfBoneyServers();
-            string final;
-            for (int i = 0; i < number_boneys; i++)
-            {
-              (string,int) tuplo  = GetBoneyHostnameAndPortByProcess(i + 1);
-                final = tuplo.Item1 + ":" + tuplo.Item2;
-                lista.Add(final);
-            }
-            
-            return lista;
+            return _boneyServersHostnames.Values.ToList();
         }
 
-
+        public List<string> GetBankServersPortsAndAddresses()
+        {
+            return _bankServersHostnames.Values.ToList();
+        }
     }
 }
 

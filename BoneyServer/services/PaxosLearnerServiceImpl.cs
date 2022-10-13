@@ -1,4 +1,5 @@
 ﻿using BoneyServer.domain;
+using BoneyServer.domain.paxos;
 using Grpc.Core;
 using Grpc.Net.Client;
 using System;
@@ -27,7 +28,7 @@ namespace BoneyServer.services
             _bankServerChannels = new List<GrpcChannel>();
             foreach (string address in bankServers)
             {
-                _bankServerChannels.Add(GrpcChannel.ForAddress(address));
+                _bankServerChannels.Add(GrpcChannel.ForAddress("http://" + address));
             }
         }
 

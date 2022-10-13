@@ -1,4 +1,6 @@
-﻿namespace BoneyServer.domain
+﻿using BoneyServer.utils;
+
+namespace BoneyServer.domain
 {
     /// <summary>
     /// Stores the value of a process to a slot

@@ -153,37 +153,37 @@ namespace BoneyServer.utils
 
         public ServerConfiguration SetServerStatePerSlot(string[,] serverStatePerSlot)
         {
-            this._serverStatePerSlot = serverStatePerSlot;
+            _serverStatePerSlot = serverStatePerSlot;
             return this;
         }
 
         public ServerConfiguration SetServerSuspectedPerSlot(string[,] serverSuspectedPerSlot)
         {
-            this._serverSuspectedPerSlot = serverSuspectedPerSlot;
+            _serverSuspectedPerSlot = serverSuspectedPerSlot;
             return this;
         }
 
         public ServerConfiguration SetClientList(List<int> clientList)
         {
-            this._clientList = clientList;
+            _clientList = clientList;
             return this;
         }
 
         public ServerConfiguration SetTimeOfFirstSlot(string timeOfFirstSlot)
         {
-            this._timeOfFirstSlot = timeOfFirstSlot;
+            _timeOfFirstSlot = timeOfFirstSlot;
             return this;
         }
 
         public ServerConfiguration SetNumberOfSlots(int numberOfSlots)
         {
-            this._numberOfSlots = numberOfSlots;
+            _numberOfSlots = numberOfSlots;
             return this;
         }
 
         public ServerConfiguration SetSlotDuration(int slotDuration)
         {
-            this._slotDuration = slotDuration;
+            _slotDuration = slotDuration;
             return this;
         }
 
@@ -206,12 +206,12 @@ namespace BoneyServer.utils
 
         public List<int> GetClientList()
         {
-            return this._clientList;
+            return _clientList;
         }
 
         public (string, int) GetBoneyHostnameAndPortByProcess(int p)
         {
-            var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
+            var expression = new Regex(@"(?<hostname>[^:]+)\:(?<portnumber>[0-9]+)");
             var match = expression.Match(_boneyServersHostnames.GetValueOrDefault(p));
             string hostname = match.Groups["hostname"].Value;
             int port = int.Parse(match.Groups["portnumber"].Value);
@@ -268,33 +268,14 @@ namespace BoneyServer.utils
             return _boneyServersHostnames.Keys.ToList();
         }
 
-        public List<String> GetBoneyServersPortsAndAddresses()
+        public List<string> GetBoneyServersPortsAndAddresses()
         {
-            List<String> lista = new List<string>();
-            int number_boneys = GetNumberOfBoneyServers();
-            string final;
-            for (int i = 0; i < number_boneys; i++)
-            {
-                (string, int) tuplo = GetBoneyHostnameAndPortByProcess(i + 1);
-                final = tuplo.Item1 + ":" + tuplo.Item2;
-                lista.Add(final);
-            }
-
-            return lista;
+            return _boneyServersHostnames.Values.ToList();
         }
-    
-        public List<String> GetBankServersPortsAndAddresses()
+
+        public List<string> GetBankServersPortsAndAddresses()
         {
-            List<String> banksInfo = new List<string>();
-            int numberOfBankServers = GetNumberOfBankServers();
-            string _banksInfo;
-            for (int i = 0; i < numberOfBankServers; i++)
-            {
-                (string, int) info = GetBankHostnameAndPortByProcess(i + 1);
-                _banksInfo = info.Item1 + info.Item2;
-                banksInfo.Add(_banksInfo);
-            }
-            return banksInfo;
+            return _bankServersHostnames.Values.ToList();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BoneyServer.domain;
+using BoneyServer.domain.paxos;
 using BoneyServer.services;
 using BoneyServer.utils;
 using Grpc.Core;
@@ -20,7 +21,7 @@ namespace BoneyServer
 			ServerCallContext context,
 			UnaryServerMethod<TRequest, TResponse> continuation) {
 			try {
-				if (_state.isFrozen()) {
+				if (_state.IsFrozen()) {
 					Type requestType = typeof(TRequest);
 					Message? _msg = null;
 
@@ -34,7 +35,7 @@ namespace BoneyServer
                         _msg = new Message((AcceptReq)(object)request, 3);
                     }
 
-					if (_msg != null) _state.enqueue(_msg);
+					if (_msg != null) _state.Enqueue(_msg);
 					else Console.WriteLine("Error: Can't queue message because it does not belong to any of specified types.");
 				}
 
@@ -55,17 +56,14 @@ namespace BoneyServer
 			uint processID = uint.Parse(args[1]);
 			uint maxSlots = (uint)config.GetNumberOfSlots();
 			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
-
 			
 			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
-
 
             IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyServersPortsAndAddresses());
 
             BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos,config);
             SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
-            slotTimer.execute();
-
+            slotTimer.Execute();
 
             ServerPort serverPort;
             serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);

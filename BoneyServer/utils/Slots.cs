@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoneyServer.domain
+namespace BoneyServer.utils
 {
     internal class Slots<T>
     {
@@ -13,7 +13,8 @@ namespace BoneyServer.domain
 
         public uint size { get => _maxNumOfSlots; }
 
-        public Slots(uint maxNumOfSlots){
+        public Slots(uint maxNumOfSlots)
+        {
             _slots = new T[maxNumOfSlots];
             _maxNumOfSlots = maxNumOfSlots;
         }
@@ -21,11 +22,12 @@ namespace BoneyServer.domain
         public T this[int i]
         {
             get => _slots[i];
-            set {
-               if (i < _maxNumOfSlots) _slots[i] = value; 
-               else throw new ArgumentOutOfRangeException();
+            set
+            {
+                if (i < _maxNumOfSlots) _slots[i] = value;
+                else throw new ArgumentOutOfRangeException();
             }
-            
+
         }
     }
 }

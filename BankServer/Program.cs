@@ -1,6 +1,5 @@
 ﻿using System;
 using Grpc.Net.Client;
-using BankServer.utils;
 using BankServer.domain;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
@@ -21,7 +20,7 @@ namespace BankServer
             BankManager bankManager = new BankManager();
             BankSlotManager bankSlotManager = new BankSlotManager(config);
             SlotTimer sloTimer = new SlotTimer(bankSlotManager,(uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
-            sloTimer.execute();
+            sloTimer.Execute();
             
 
             string serverHostname = "localhost";

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BankServer.domain
 {
-    public interface IUpdateState {
-        void update();
+    public interface IUpdatable
+    {
+        void Update();
     }
 }

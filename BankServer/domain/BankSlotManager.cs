@@ -6,49 +6,51 @@ using System.Text;
 using System.Threading.Tasks;
 using BankServer.utils;
 
-namespace BankServer.domain {
-    
+namespace BankServer.domain
+{
 
-    internal class BankSlotManager : IUpdateState {
 
-        int _slot=1;
+    internal class BankSlotManager : IUpdatable
+    {
+
+        uint _slot=1;
         ServerConfiguration _config;
 
         public BankSlotManager(ServerConfiguration config) {
             _config = config;
         }
 
-        public uint chooseLeader() {
-            int process = _config.GetNumberOfBoneyServers()+1;
+        public uint ChooseLeader() {
+            uint process = (uint)_config.GetNumberOfBoneyServers()+1;
             uint leaderId;
             while (true)
             {
                 if (_config.GetServerSuspectedInSlot(process, _slot) == SuspectState.NOTSUSPECTED) {
-                    leaderId = (uint) process;
+                    leaderId =  process;
                     break;
                 }
                 process+=1;
             }
-            return (uint)leaderId;
+            return leaderId;
         }
 
-        public void broadcastCompareAndSwap() {
+        public void BroadcastCompareAndSwap() {
                 for (int i = 0; i < _config.GetNumberOfBoneyServers(); i++) {
                     (string, int) tuplo = _config.GetBoneyHostnameAndPortByProcess(i + 1);
                     Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
                     GrpcChannel channel = GrpcChannel.ForAddress(tuplo.Item1 + ":" + tuplo.Item2);
                     CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                    client.CompareAndSwap(new CompareAndSwapRequest { Slot = (uint)_slot, Leader = chooseLeader() });
+                    client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() });
                 }
         }
 
-        public void incrementSlot() {
+        public void IncrementSlot() {
              _slot += 1;
         }
 
-        public void update() {
-            broadcastCompareAndSwap();
-            incrementSlot();
+        public void Update() {
+            BroadcastCompareAndSwap();
+            IncrementSlot();
         }
 
 

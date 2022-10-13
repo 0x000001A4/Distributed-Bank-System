@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace BoneyServer.domain
 {
-    public interface IUpdateState
+    public interface IUpdatable
     {
-        void update();
+        void Update();
     }
 }
