@@ -45,6 +45,7 @@ namespace BoneyServer.domain.paxos
         {
             foreach (var channel in _boneyChannels)
             {
+                
                 PaxosLearnerService.PaxosLearnerServiceClient client = new PaxosLearnerService.PaxosLearnerServiceClient(channel);
                 LearnCommandResp reply = await client.LearnCommandAsync(
                     new LearnCommandReq { Value = compareAndSwapReq, LeaderNumber = leaderNumber, PaxosInstance = instance }

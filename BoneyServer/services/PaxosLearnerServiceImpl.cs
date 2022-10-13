@@ -38,6 +38,8 @@ namespace BoneyServer.services
             uint requestInstance = request.PaxosInstance;
             PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
             if (MajorityAccepted(requestInstance, requestInstanceInfo)) {
+                _state.GetSlotManager().FillSlot((int) request.Value.Slot, request.Value.Leader);
+                _multiPaxos.getSlotState((int)request.Value.Slot).EndConsensus();
                 foreach(var channel in _bankServerChannels) {
                     PaxosResultHandlerService.PaxosResultHandlerServiceClient _client = 
                         new PaxosResultHandlerService.PaxosResultHandlerServiceClient(channel);

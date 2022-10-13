@@ -26,9 +26,6 @@ namespace BoneyServer.utils
             _clock = new System.Timers.Timer() { Interval = 1/*span.TotalMilliseconds*/, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
-            var periodicTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
-
-            
 
         }
 

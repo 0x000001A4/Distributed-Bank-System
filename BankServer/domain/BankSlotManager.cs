@@ -16,9 +16,11 @@ namespace BankServer.domain
 
         uint _slot=1;
         ServerConfiguration _config;
+        int _processID;
 
-        public BankSlotManager(ServerConfiguration config) {
+        public BankSlotManager(ServerConfiguration config,int processId) {
             _config = config;
+            _processID = processId;
         }
 
         public uint ChooseLeader() {
@@ -38,12 +40,18 @@ namespace BankServer.domain
         }
 
         public void BroadcastCompareAndSwap() {
-                for (int i = 0; i < _config.GetNumberOfBoneyServers(); i++) {
-                    (string, int) tuplo = _config.GetBoneyHostnameAndPortByProcess(i + 1);
+
+            List<int> boneyAdresses = _config.GetBoneyServerIDs();
+
+                foreach (int id in boneyAdresses) {
+                    (string, int) tuplo = _config.GetBoneyHostnameAndPortByProcess(id);
                     Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
                     GrpcChannel channel = GrpcChannel.ForAddress(tuplo.Item1 + ":" + tuplo.Item2);
                     CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                    client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() });
+                
+                (string,int) tuplo2 = _config.GetBankHostnameAndPortByProcess(_processID);
+                string address = "http://" + tuplo2.Item1 + ":" + tuplo2.Item2;
+                client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() , Address = address});
                 }
         }
 
