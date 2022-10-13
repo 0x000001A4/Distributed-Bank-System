@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BankServer.utils;
+using System.Diagnostics;
 
 namespace BankServer.domain
 {
@@ -21,16 +22,18 @@ namespace BankServer.domain
         }
 
         public uint ChooseLeader() {
-            uint process = (uint)_config.GetNumberOfBoneyServers()+1;
-            uint leaderId;
-            while (true)
+            List<int> boneyIds = _config.GetBoneyServerIDs();
+            uint leaderId = (uint) boneyIds[0];
+
+            foreach(int id in boneyIds)
             {
-                if (_config.GetServerSuspectedInSlot(process, _slot) == SuspectState.NOTSUSPECTED) {
-                    leaderId =  process;
+                if (_config.GetServerSuspectedInSlot((uint)id, _slot) == SuspectState.NOTSUSPECTED)
+                {
+                    leaderId = (uint)id;
                     break;
                 }
-                process+=1;
             }
+
             return leaderId;
         }
 
