@@ -9,8 +9,6 @@ using System.Diagnostics;
 
 namespace BankServer.domain
 {
-
-
     internal class BankSlotManager : IUpdatable
     {
 

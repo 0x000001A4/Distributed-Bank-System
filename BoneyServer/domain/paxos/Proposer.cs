@@ -39,9 +39,12 @@ namespace BoneyServer.domain.paxos
 
         private static void sendPrepareAsync(uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)
         {
-            foreach (var channel in _boneyChannels)
-            {
-                Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses);
+            foreach (var channel in _boneyChannels) {
+                try { 
+                    Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses);
+                } catch (Exception e) {
+                    Console.WriteLine(e);
+                }
             }
         }
 
@@ -86,8 +89,7 @@ namespace BoneyServer.domain.paxos
             ProposerVector valueToPropose = new ProposerVector(null, 0, 0);
             foreach (ProposerVector promisse in promisses)
             {
-                if (promisse > valueToPropose)
-                {
+                if (promisse > valueToPropose) {
                     valueToPropose = promisse;
                 }
             }
@@ -108,8 +110,11 @@ namespace BoneyServer.domain.paxos
 
         }
 
-        private static void accept(GrpcChannel channel, ProposerVector valueToSend)
-        {
+        private static void accept(GrpcChannel channel, ProposerVector valueToSend) {
+            if (valueToSend.Value == null) {
+                Console.WriteLine("Unexpected behaviour: accept(GrpcChannel channel, ProposerVector valueToSend) -> valueToSend.Value == null (Proposer.cs: Line 91)");
+                Environment.Exit(-1);
+            }
             uint leaderProcessID = valueToSend.Value.ProcessID;
             uint slot = valueToSend.Value.Slot;
             uint leaderNumber = valueToSend.WriteTimeStamp;
@@ -117,7 +122,11 @@ namespace BoneyServer.domain.paxos
             CompareAndSwapReq value = new CompareAndSwapReq() { Leader = leaderProcessID, Slot = slot };
             PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
             AcceptReq request = new AcceptReq { Value = value, LeaderNumber = leaderNumber, PaxosInstance = instance };
-            AcceptedResp reply = client.Accept(request);
+            try { 
+                AcceptedResp reply = client.Accept(request);
+            } catch (Exception e) {
+                Console.WriteLine(e);
+            }
         }
 
 

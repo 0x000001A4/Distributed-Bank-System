@@ -12,6 +12,7 @@ namespace BankServer
             Logger.LogInfo("Bank Server started");
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
+
             BankSlotManager bankSlotManager = new BankSlotManager(config, int.Parse(args[1]));
             SlotTimer sloTimer = new SlotTimer(bankSlotManager,(uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
             //sloTimer.Execute();
