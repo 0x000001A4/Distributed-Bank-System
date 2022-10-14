@@ -32,7 +32,10 @@ namespace BoneyServer.domain.paxos
             Logger.LogDebugProposer("New proposer for instance " + instance);
             List<ProposerVector> promisses = new List<ProposerVector>(); // used to store all promisses received
             sendPrepareAsync(sourceLeaderNumber, instance, promisses);
+            Logger.LogDebugProposer($"Prepare({sourceLeaderNumber}) sent.");
+            Logger.LogDebugProposer("Waiting for a majority of promisses...");
             waitForMajority(promisses);
+            Logger.LogDebugProposer("Received a majority of promisses.");
             ProposerVector valueToSend = selectValueToSend(value, sourceLeaderNumber, instance, promisses);
             sendAccept(valueToSend);
         }
@@ -76,9 +79,7 @@ namespace BoneyServer.domain.paxos
         // TODO: it is currently actively waiting
         private static void waitForMajority(List<ProposerVector> promisses)
         {
-            Logger.LogDebugProposer("Waiting for a majority of promisses...");
             while (promisses.Count() < Math.Ceiling((decimal)_boneyChannels.Count() / 2));
-            Logger.LogDebugProposer("Received a majority of promisses.");
         }
 
         private static ProposerVector selectValueToSend(PaxosValue value, uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)
