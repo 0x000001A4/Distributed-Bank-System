@@ -11,7 +11,7 @@ namespace PuppetMaster
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Puppet master starting...");
+            Logger.LogInfo("Puppet master starting...");
             try
             {
                 string title      = "";
@@ -27,11 +27,11 @@ namespace PuppetMaster
                 checkIfFileExists($"{path}\\{appName}");
                 checkIfFileExists(configFilePath);
 
-                Console.WriteLine($"Initializing {numberOfBoneyServers} Boney servers:");
+                Logger.LogInfo($"Initializing {numberOfBoneyServers} Boney servers:");
                 foreach(int processID in config.GetBoneyServerIDs())
                 {
                     title = $"Boney{processID}";
-                    Console.WriteLine($"\tBoney server {processID} initialized.");
+                    Logger.LogInfo($"\tBoney server {processID} initialized.");
                     p = new Process();
                     p.StartInfo.FileName = "cmd.exe";
                     p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {processID}";
@@ -40,7 +40,7 @@ namespace PuppetMaster
                 }
 
                 serverType = "BankServer";
-                Console.WriteLine($"Initializing {1} Bank servers");
+                Logger.LogInfo($"Initializing {1} Bank servers");
                 title = $"Bank1";
                 appName = $"{serverType}.exe";
                 path = $"..\\..\\..\\..\\{serverType}\\bin\\Debug\\net6.0";
@@ -58,7 +58,7 @@ namespace PuppetMaster
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ERROR: " + ex.Message);
+                Logger.LogError(ex.Message);
                 return;
             }
 

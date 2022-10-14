@@ -39,13 +39,13 @@ namespace BoneyServer
 					}
 
 					if (_msg != null) _state.Enqueue(_msg);
-					else Console.WriteLine("Error: Can't queue message because it does not belong to any of specified types.");
+					else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
 				}
 
 				return await continuation(request, context);
 
 			} catch (Exception ex) {
-				Console.WriteLine(ex);
+				Logger.LogError("Interceptor:" + ex.Message + " (l. 45)");
 				throw;
 			}
 		}
@@ -54,6 +54,7 @@ namespace BoneyServer
 
         public static void Main(string[] args) // TODO - edit to receive all server state through the config file
 		{
+			Logger.DebugOn();
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
 			uint processID = uint.Parse(args[1]);
 			uint maxSlots = (uint)config.GetNumberOfSlots();
@@ -85,8 +86,9 @@ namespace BoneyServer
 
             Server server = new Server {
                 Services = {
-					CompareAndSwapService.BindService(_casService).Intercept(_interceptor),
-					PaxosAcceptorService.BindService(_paxosAcceptorService).Intercept(_interceptor)
+                  CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(boneyServerState,multiPaxos)).Intercept(_interceptor),
+                  PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl(multiPaxos)).Intercept(_interceptor),
+                  PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
 				        },
                 Ports = { serverPort }
             };
@@ -94,7 +96,7 @@ namespace BoneyServer
             server.Start();
 
 			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";
-			Console.WriteLine(startupMessage);
+			Logger.LogInfo(startupMessage);
 
 			//Configuring HTTP for client connections in Register method
 			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);

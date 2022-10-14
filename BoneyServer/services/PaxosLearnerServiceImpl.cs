@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoneyServer.utils;
 
 namespace BoneyServer.services
 {
@@ -32,6 +33,7 @@ namespace BoneyServer.services
             foreach (string address in bankServers) {
                 _bankServerChannels.Add(GrpcChannel.ForAddress("http://" + address));
             }
+            Logger.LogDebugLearner($"Servers set.");
         }
 
         public override Task<LearnCommandResp> LearnCommand(LearnCommandReq request, ServerCallContext context) {
@@ -44,15 +46,18 @@ namespace BoneyServer.services
 
         public LearnCommandResp doLearnCommand(LearnCommandReq request)
         {
+            Logger.LogDebugLearner("Received Accept message");
             uint requestInstance = request.PaxosInstance;
             PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
             requestInstanceInfo.AcceptedCommands++;
-            if (MajorityAccepted(requestInstanceInfo))
-            {
-                foreach (var channel in _bankServerChannels)
-                {
-                    CompareAndSwapService.CompareAndSwapServiceClient _client =
-                        new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+            
+            if (MajorityAccepted(requestInstance, requestInstanceInfo)) {
+                Logger.LogDebugLearner($"Received majority of accepts for instance {requestInstance}.");
+                _state.GetSlotManager().FillSlot((int) request.Value.Slot, request.Value.Leader);
+                _multiPaxos.GetSlotState((int)request.Value.Slot).EndConsensus();
+                foreach(var channel in _bankServerChannels) {
+                    PaxosResultHandlerService.PaxosResultHandlerServiceClient _client = 
+                        new PaxosResultHandlerService.PaxosResultHandlerServiceClient(channel);
 
 
                     if (requestInstanceInfo.Value != null)
@@ -63,12 +68,12 @@ namespace BoneyServer.services
                             Primary = requestInstanceInfo.Value.ProcessID
                         });
                     }
-                    else
-                    {
-                        Console.WriteLine("Unexpected behaviour in LearnCommand(LearnCommandReq request, ...): requestInstanceInfo.value = null (line 44: PaxosLearnerServiceImpl.cs)");
+                    else {
+                        Logger.LogError("Unexpected behaviour in LearnCommand(LearnCommandReq request, ...): requestInstanceInfo.value = null (line 44: PaxosLearnerServiceImpl.cs)");
                         Environment.Exit(-1);
                     }
                 }
+                Logger.LogDebugLearner($"Response sent to all bank clients: (slot: {requestInstanceInfo.Value.Slot}, leader: {requestInstanceInfo.Value.ProcessID})");
             }
             return new LearnCommandResp();
         } 

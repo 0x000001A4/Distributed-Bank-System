@@ -3,6 +3,10 @@
     "BoneyServer": {
       "commandName": "Project",
       "commandLineArgs": "..\\\\..\\\\..\\\\..\\\\BoneyServer\\\\configuration_sample.txt\r\n1"
+    },
+    "BoneyServer 2": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\\\..\\\\..\\\\..\\\\BoneyServer\\\\configuration_sample.txt\r\n2"
     }
   }
 }

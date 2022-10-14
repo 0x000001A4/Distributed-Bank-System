@@ -1,5 +1,6 @@
 ﻿using BoneyServer.domain;
 using BoneyServer.domain.paxos;
+using BoneyServer.utils;
 using Grpc.Core;
 using System;
 using System.Collections.Generic;
@@ -30,37 +31,40 @@ namespace BoneyServer.services
             throw new Exception("The server is frozen.");
         }
 
-        public PromiseResp doPrepare(PrepareReq request) {
-            Console.WriteLine("BONEY CompareAndSwapServiceImpl: Received CompareAndSwap message request");
+        public PromiseResp doPrepare(PrepareReq request)
+        {
+            Logger.LogDebug("PaxosAcceptorServiceImpl: Starting Prepare request");
             uint leaderNumber = request.LeaderNumber;
             uint instance = request.PaxosInstance;
-            (PaxosValue, uint, uint, bool) tuplo = _multiPaxos.Promisse(leaderNumber, instance);
-            if (tuplo.Item4)
+            (PaxosValue value, bool ack) = _multiPaxos.Promisse(leaderNumber,instance);
+
+            if (value == null) // if no value was chosen yet
             {
-                uint ProcessID = tuplo.Item1.ProcessID;
-                uint Slot = tuplo.Item1.Slot;
-                CompareAndSwapReq value = new CompareAndSwapReq() { Leader = ProcessID, Slot = Slot };
-                PromiseResp promiseResp = new PromiseResp() { Value = value, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = true };
-                return promiseResp;
+                return new PromiseResp() { WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack };
             }
             else
             {
-                PromiseResp promiseResp = new PromiseResp() { PromisseFlag = false };
-                return promiseResp;
+                uint processID = value.ProcessID;
+                uint Slot = value.Slot;
+                CompareAndSwapReq valueToSend = new CompareAndSwapReq() { Leader = processID, Slot = Slot };
+                return new PromiseResp() { Value = valueToSend, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack };
             }
         }
 
-		public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
-			if (!_state.IsFrozen()) {
-                return Task.FromResult(doAccept(request));
-            }
-            // Message was queued and will he handled later
-            throw new Exception("The server is frozen.");
-        }
+      public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
+          Logger.LogDebug("PaxosAcceptorServiceImpl: Received ACCEPT! request");
+          if (!_state.IsFrozen()) {
+              return Task.FromResult(doAccept(request));
+          }
+              // Message was queued and will he handled later
+          throw new Exception("The server is frozen.");
+      }
 
-        public AcceptedResp doAccept(AcceptReq request) {
-            Acceptor.LearnWork(request);
-            return new AcceptedResp();
-        }
+      public AcceptedResp doAccept(AcceptReq request) {
+          _multiPaxos.UpdateAccept(new PaxosValue(request.Value.Leader,request.Value.Slot),
+                    request.LeaderNumber,request.PaxosInstance);
+          Acceptor.LearnWork(request);
+          return new AcceptedResp();
+      }
 	}
 }

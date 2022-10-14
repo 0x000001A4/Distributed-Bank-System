@@ -107,5 +107,11 @@ namespace BoneyServer.domain
         {
             return _config.GetBankServersPortsAndAddresses();
         }
+
+
+        public BoneySlotManager GetSlotManager()
+        {
+            return _slotManager;
+        }
     }
 }

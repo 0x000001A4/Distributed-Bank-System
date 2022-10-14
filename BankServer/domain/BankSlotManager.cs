@@ -5,54 +5,64 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BankServer.utils;
+using System.Diagnostics;
 
 namespace BankServer.domain
 {
+    internal class BankSlotManager : IUpdatable
+    {
+
+        uint _slot=1;
+        ServerConfiguration _config;
+        int _processID;
+
+        public BankSlotManager(ServerConfiguration config,int processId) {
+            _config = config;
+            _processID = processId;
+        }
+
+        public uint ChooseLeader() {
+            List<int> boneyIds = _config.GetBoneyServerIDs();
+            uint leaderId = (uint) boneyIds[0];
+
+            foreach(int id in boneyIds)
+            {
+                if (_config.GetServerSuspectedInSlot((uint)id, _slot) == SuspectState.NOTSUSPECTED)
+                {
+                    leaderId = (uint)id;
+                    break;
+                }
+            }
+
+            return leaderId;
+        }
+
+        public void BroadcastCompareAndSwap() {
+
+            List<int> boneyAdresses = _config.GetBoneyServerIDs();
+
+                foreach (int id in boneyAdresses) {
+                    (string, int) tuplo = _config.GetBoneyHostnameAndPortByProcess(id);
+                    Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
+                    GrpcChannel channel = GrpcChannel.ForAddress(tuplo.Item1 + ":" + tuplo.Item2);
+                    CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+                
+                (string,int) tuplo2 = _config.GetBankHostnameAndPortByProcess(_processID);
+                string address = "http://" + tuplo2.Item1 + ":" + tuplo2.Item2;
+                client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() , Address = address});
+                }
+            Logger.LogDebug("CompareAndSwap sent");
+        }
+
+        public void IncrementSlot() {
+             _slot += 1;
+        }
+
+        public void Update() {
+            BroadcastCompareAndSwap();
+            IncrementSlot();
+        }
 
 
-	internal class BankSlotManager : IUpdatable
-	{
-
-		uint _slot=1;
-		ServerConfiguration _config;
-
-		public BankSlotManager(ServerConfiguration config) {
-			_config = config;
-		}
-
-		public uint ChooseLeader() {
-			uint process = (uint)_config.GetNumberOfBoneyServers()+1;
-			uint leaderId;
-			while (true)
-			{
-				if (_config.GetServerSuspectedInSlot(process, _slot) == SuspectState.NOTSUSPECTED) {
-					leaderId =  process;
-					break;
-				}
-				process+=1;
-			}
-			return leaderId;
-		}
-
-		public void BroadcastCompareAndSwap() {
-			for (int i = 0; i < _config.GetNumberOfBoneyServers(); i++) {
-				(string, int) tuplo = _config.GetBoneyHostnameAndPortByProcess(i + 1);
-				Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
-				GrpcChannel channel = GrpcChannel.ForAddress(tuplo.Item1 + ":" + tuplo.Item2);
-				CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-				client.CompareAndSwap(new CompareAndSwapReq { Slot = _slot, Leader = ChooseLeader() });
-			}
-		}
-
-		public void IncrementSlot() {
-			 _slot += 1;
-		}
-
-		public void Update() {
-			BroadcastCompareAndSwap();
-			IncrementSlot();
-		}
-
-
-	}
+    }
 }

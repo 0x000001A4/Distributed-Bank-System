@@ -5,7 +5,7 @@ namespace BoneyServer.domain
     /// <summary>
     /// Stores the value of a process to a slot
     /// </summary>
-    internal class BoneySlotManager
+    public class BoneySlotManager
     {
         private Slots<uint> _processSlots;
         private uint currentSlot;

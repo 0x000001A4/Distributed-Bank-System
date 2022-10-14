@@ -1,11 +1,8 @@
-﻿using Grpc.Core;
-using Grpc.Net.Client;
-using System.Timers;
-using System.Threading.Channels;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Timers;
 using System.Globalization;
+using BankServer.domain;
 
-namespace BankServer.domain
+namespace BankServer.utils
 {
 
     public class SlotTimer
@@ -25,10 +22,6 @@ namespace BankServer.domain
             _clock = new System.Timers.Timer() { Interval = 1/*span.TotalMilliseconds*/, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
-            var periodicTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
-
-
-
         }
 
         public void Execute()
@@ -48,11 +41,11 @@ namespace BankServer.domain
             var periodicTimer = new PeriodicTimer(timeSpan);
             while (await periodicTimer.WaitForNextTickAsync())
             {
+                Logger.LogDebug("Tick");
                 action();
             }
         }
 
 
     }
-
 }

@@ -1,11 +1,8 @@
-﻿using Grpc.Core;
-using Grpc.Net.Client;
-using System.Timers;
-using System.Threading.Channels;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Timers;
 using System.Globalization;
+using BoneyServer.domain;
 
-namespace BoneyServer.domain
+namespace BoneyServer.utils
 {
 
     public class SlotTimer
@@ -25,8 +22,6 @@ namespace BoneyServer.domain
             _clock = new System.Timers.Timer() { Interval = 1/*span.TotalMilliseconds*/, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
-            var periodicTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
-
 
         }
 
@@ -47,11 +42,11 @@ namespace BoneyServer.domain
             var periodicTimer = new PeriodicTimer(timeSpan);
             while (await periodicTimer.WaitForNextTickAsync())
             {
+                Logger.LogEvent("Timer Tick");
                 action();
             }
         }
 
-
+        
     }
-
 }

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "BankServer": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\\\..\\\\..\\\\..\\\\BankServer\\\\configuration_sample.txt\r\n4"
+    },
+    "Bank Server 2": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\\\..\\\\..\\\\..\\\\BankServer\\\\configuration_sample.txt\r\n5"
+    }
+  }
+}
