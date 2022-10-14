@@ -1,39 +1,56 @@
 ﻿using BoneyServer.domain;
 using BoneyServer.domain.paxos;
-using BoneyServer.utils;
-using Grpc.Core;
 using Grpc.Net.Client;
+using Grpc.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BoneyServer.utils;
 
 namespace BoneyServer.services
 {
-    internal class PaxosLearnerServiceImpl : PaxosLearnerService.PaxosLearnerServiceBase {
+    public class PaxosLearnerServiceImpl : PaxosLearnerService.PaxosLearnerServiceBase {
 
-        BoneyServerState _state;
         IMultiPaxos _multiPaxos;
         static List<GrpcChannel> _bankServerChannels = new List<GrpcChannel>();
+        uint _numberOfBoneys;
+        BoneyServerState _state;
+        
 
-        public PaxosLearnerServiceImpl(BoneyServerState state, IMultiPaxos multiPaxos) 
+        public PaxosLearnerServiceImpl(List<string> bankServersInfo, IMultiPaxos multiPaxos, uint numberOfBoneyProcesses, BoneyServerState state) 
         {
-            _state = state;
             _multiPaxos = multiPaxos;
-            SetServers(_state.GetBankServersHostnameAndPort());
+            SetServers(bankServersInfo);
+            _numberOfBoneys = numberOfBoneyProcesses;
+            _state = state;
         }
 
         public static void SetServers(List<String> bankServers)
         {
             _bankServerChannels = new List<GrpcChannel>();
-            foreach (string address in bankServers)
-            {
+            foreach (string address in bankServers) {
                 _bankServerChannels.Add(GrpcChannel.ForAddress("http://" + address));
             }
             Logger.LogDebugLearner($"Servers set.");
         }
 
-        public override Task<LearnCommandResp> LearnCommand(LearnCommandReq request, ServerCallContext context)
+        public override Task<LearnCommandResp> LearnCommand(LearnCommandReq request, ServerCallContext context) {
+            if (!_state.IsFrozen()) {
+                return Task.FromResult(doLearnCommand(request));
+            }
+            // Message was queued and will be handled later
+            throw new Exception("The server is frozen.");
+        }
+
+        public LearnCommandResp doLearnCommand(LearnCommandReq request)
         {
             Logger.LogDebugLearner("Received Accept message");
             uint requestInstance = request.PaxosInstance;
             PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
+            requestInstanceInfo.AcceptedCommands++;
+            
             if (MajorityAccepted(requestInstance, requestInstanceInfo)) {
                 Logger.LogDebugLearner($"Received majority of accepts for instance {requestInstance}.");
                 _state.GetSlotManager().FillSlot((int) request.Value.Slot, request.Value.Leader);
@@ -43,8 +60,9 @@ namespace BoneyServer.services
                         new PaxosResultHandlerService.PaxosResultHandlerServiceClient(channel);
 
 
-                    if (requestInstanceInfo.Value != null){
-                        var reply = _client.HandlePaxosResult(new PaxosResultRequest()
+                    if (requestInstanceInfo.Value != null)
+                    {
+                        var reply = _client.HandlePaxosResult(new CompareAndSwapResp()
                         {
                             Slot = requestInstanceInfo.Value.Slot,
                             Primary = requestInstanceInfo.Value.ProcessID
@@ -57,11 +75,11 @@ namespace BoneyServer.services
                 }
                 Logger.LogDebugLearner($"Response sent to all bank clients: (slot: {requestInstanceInfo.Value.Slot}, leader: {requestInstanceInfo.Value.ProcessID})");
             }
-            return Task.FromResult(new LearnCommandResp());
-        }
+            return new LearnCommandResp();
+        } 
 
-        private bool MajorityAccepted(uint currentInstance, PaxosInstance currentInstanceInfo) {
-            return currentInstanceInfo.AcceptedCommands > _state.GetNumberOfBoneyProcesses();
+        private bool MajorityAccepted(PaxosInstance currentInstanceInfo) {
+            return currentInstanceInfo.AcceptedCommands > (_numberOfBoneys/2)+1;
         }
     }
 }

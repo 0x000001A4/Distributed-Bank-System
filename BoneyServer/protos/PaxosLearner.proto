@@ -1,6 +1,11 @@
 ﻿syntax = "proto3";
 import "CompareAndSwap.proto";
 
+service PaxosLearnerService {
+	rpc LearnCommand (LearnCommandReq) returns (LearnCommandResp);
+	rpc SendLearnCommandResponse (LearnCommandResp) returns (LearnCommandResp);
+}
+
 message LearnCommandReq {
 	CompareAndSwapReq value = 1;
 	uint32 leaderNumber = 2;
@@ -9,8 +14,4 @@ message LearnCommandReq {
 
 message LearnCommandResp {
 
-}
-
-service PaxosLearnerService {
-	rpc LearnCommand (LearnCommandReq) returns (LearnCommandResp);
 }

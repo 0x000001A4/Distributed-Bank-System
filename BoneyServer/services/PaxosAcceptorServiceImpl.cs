@@ -1,4 +1,5 @@
-﻿using BoneyServer.domain.paxos;
+﻿using BoneyServer.domain;
+using BoneyServer.domain.paxos;
 using BoneyServer.utils;
 using Grpc.Core;
 using System;
@@ -11,22 +12,31 @@ using System.Threading.Tasks;
 namespace BoneyServer.services
 {
 
-    internal class PaxosAcceptorServiceImpl : PaxosAcceptorService.PaxosAcceptorServiceBase
+    public class PaxosAcceptorServiceImpl : PaxosAcceptorService.PaxosAcceptorServiceBase
     {
         private IMultiPaxos _multiPaxos;
+        private BoneyServerState _state;
 
-        public PaxosAcceptorServiceImpl(IMultiPaxos multiPaxos)
+        public PaxosAcceptorServiceImpl(IMultiPaxos multiPaxos, BoneyServerState state)
         {
+            _state = state;
             _multiPaxos = multiPaxos;
         }
 
-        public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context)
+        public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context) {
+            if (!_state.IsFrozen()) {
+                return Task.FromResult(doPrepare(request));
+            }
+            // Request got queued and will be handled later
+            throw new Exception("The server is frozen.");
+        }
+
+        public PromiseResp doPrepare(PrepareReq request)
         {
             Logger.LogDebugAcceptor($"Received Prepare({request.LeaderNumber}) request");
             uint leaderNumber = request.LeaderNumber;
             uint instance = request.PaxosInstance;
             (PaxosValue value, bool ack) = _multiPaxos.Promisse(leaderNumber,instance);
-            Logger.LogDebugAcceptor($"After multiPaxos.primse call");
 
             if (value == null) // if no value was chosen yet
             {
@@ -42,15 +52,20 @@ namespace BoneyServer.services
                 return Task.FromResult(new PromiseResp() { Value = valueToSend, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack });
             }
 
-        }
+      public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
+          Logger.LogDebug("PaxosAcceptorServiceImpl: Received ACCEPT! request");
+          if (!_state.IsFrozen()) {
+              return Task.FromResult(doAccept(request));
+          }
+              // Message was queued and will he handled later
+          throw new Exception("The server is frozen.");
+      }
 
-		public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context)
-		{
-            Logger.LogDebug("PaxosAcceptorServiceImpl: Received ACCEPT! request");
-            _multiPaxos.UpdateAccept(new PaxosValue(request.Value.Leader,request.Value.Slot),
-                request.LeaderNumber,request.PaxosInstance);
-			Acceptor.LearnWork(request);
-			return Task.FromResult(new AcceptedResp(/* Send accepted information */));
-		}
+      public AcceptedResp doAccept(AcceptReq request) {
+          _multiPaxos.UpdateAccept(new PaxosValue(request.Value.Leader,request.Value.Slot),
+                    request.LeaderNumber,request.PaxosInstance);
+          Acceptor.LearnWork(request);
+          return new AcceptedResp();
+      }
 	}
 }

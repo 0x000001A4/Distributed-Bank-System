@@ -1,14 +1,16 @@
 ﻿syntax = "proto3";
 
 service CompareAndSwapService {
-  rpc CompareAndSwap (CompareAndSwapRequest) returns (CompareAndSwapResponse);
+  rpc CompareAndSwap (CompareAndSwapReq) returns (CompareAndSwapResp);
+  rpc HandlePaxosResult (CompareAndSwapResp) returns (CompareAndSwapResp);
 }
 
-message CompareAndSwapRequest {
+message CompareAndSwapReq {
 	uint32 slot = 1;
 	uint32 leader = 2;
 	string address =3;
 }
-message CompareAndSwapResponse {
-	bool ok = 1;
+message CompareAndSwapResp {
+	uint32 slot = 1;
+	uint32 Primary = 2;
 }
