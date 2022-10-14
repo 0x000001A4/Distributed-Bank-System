@@ -36,7 +36,7 @@ namespace BoneyServer.services
             Logger.LogDebugAcceptor($"Received Prepare({request.LeaderNumber}) request");
             uint leaderNumber = request.LeaderNumber;
             uint instance = request.PaxosInstance;
-            (PaxosValue value, bool ack) = _multiPaxos.Promisse(leaderNumber, instance);
+            (PaxosValue value, uint writeTS,  bool ack) = _multiPaxos.Promisse(leaderNumber, instance);
 
             if (value == null) // if no value was chosen yet
             {
@@ -48,8 +48,8 @@ namespace BoneyServer.services
                 uint processID = value.ProcessID;
                 uint Slot = value.Slot;
                 CompareAndSwapReq valueToSend = new CompareAndSwapReq() { Leader = processID, Slot = Slot };
-                Logger.LogDebugAcceptor($"Sending Promise( value: < slot: {valueToSend.Slot} , primary: {valueToSend.Leader}> , w_ts: {leaderNumber} , instance: {instance} , ACK )");
-                return new PromiseResp() { Value = valueToSend, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack };
+                Logger.LogDebugAcceptor($"Sending Promise( value: < slot: {valueToSend.Slot} , primary: {valueToSend.Leader}> , w_ts: {writeTS} , instance: {instance} , ACK )");
+                return new PromiseResp() { Value = valueToSend, WriteTimeStamp = writeTS, PaxosInstance = instance, PromisseFlag = ack };
             }
         }
 

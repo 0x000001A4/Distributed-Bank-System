@@ -11,7 +11,7 @@ namespace BoneyServer.domain.paxos
 
         public void UpdateAccept(PaxosValue value, uint leaderNumber, uint instance);
 
-        (PaxosValue, bool) Promisse(uint leaderNumber, uint instance);
+        (PaxosValue, uint, bool) Promisse(uint leaderNumber, uint instance);
 
 
         public PaxosSlotState GetSlotState(int slot);
@@ -87,7 +87,7 @@ namespace BoneyServer.domain.paxos
                
         
        }
-        public (PaxosValue?, bool) Promisse(uint leaderNumber, uint instance)
+        public (PaxosValue?, uint, bool) Promisse(uint leaderNumber, uint instance)
         {
             try
             {
@@ -95,13 +95,13 @@ namespace BoneyServer.domain.paxos
                 createInstancesUpTo(instance);
                 PaxosInstance instancia = _paxosInstances[(int)instance];
                 PaxosValue? value = instancia.Value;
-                //uint writeTimeStamp = instancia.WriteTimeStamp;
+                uint writeTimeStamp = instancia.WriteTimeStamp;
                 uint readTimeStamp = instancia.ReadTimeStamp;
 
                 bool needReadUpdate = Acceptor.PromisseWork(leaderNumber, readTimeStamp);
                 if (needReadUpdate) _paxosInstances[(int)instance].ReadTimeStamp = leaderNumber;
 
-                return (value, needReadUpdate);
+                return (value, writeTimeStamp, needReadUpdate);
             }catch(Exception e)
             {
                 Logger.LogError(e.Message);
