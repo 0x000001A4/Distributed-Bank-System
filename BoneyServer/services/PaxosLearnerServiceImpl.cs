@@ -51,13 +51,13 @@ namespace BoneyServer.services
             PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
             requestInstanceInfo.AcceptedCommands++;
             
-            if (MajorityAccepted(requestInstance, requestInstanceInfo)) {
+            if (MajorityAccepted(requestInstanceInfo)) {
                 Logger.LogDebugLearner($"Received majority of accepts for instance {requestInstance}.");
                 _state.GetSlotManager().FillSlot((int) request.Value.Slot, request.Value.Leader);
                 _multiPaxos.GetSlotState((int)request.Value.Slot).EndConsensus();
                 foreach(var channel in _bankServerChannels) {
-                    PaxosResultHandlerService.PaxosResultHandlerServiceClient _client = 
-                        new PaxosResultHandlerService.PaxosResultHandlerServiceClient(channel);
+                    CompareAndSwapService.CompareAndSwapServiceClient _client = 
+                        new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
 
                     if (requestInstanceInfo.Value != null)

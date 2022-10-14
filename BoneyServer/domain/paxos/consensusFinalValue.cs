@@ -15,10 +15,10 @@ namespace BoneyServer.domain.paxos
         public static void DoWork(string address,uint slot,uint consensus)
         {
                GrpcChannel channel = GrpcChannel.ForAddress("http://" + address);
-                PaxosResultHandlerService.PaxosResultHandlerServiceClient _client =
-                    new PaxosResultHandlerService.PaxosResultHandlerServiceClient(channel);
+                CompareAndSwapService.CompareAndSwapServiceClient _client =
+                    new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
-                    var reply = _client.HandlePaxosResult(new PaxosResultRequest()
+                    var reply = _client.HandlePaxosResult(new CompareAndSwapResp()
                     {
                         Slot = slot,
                         Primary = consensus

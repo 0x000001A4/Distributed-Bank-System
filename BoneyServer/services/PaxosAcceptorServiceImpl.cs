@@ -36,12 +36,12 @@ namespace BoneyServer.services
             Logger.LogDebugAcceptor($"Received Prepare({request.LeaderNumber}) request");
             uint leaderNumber = request.LeaderNumber;
             uint instance = request.PaxosInstance;
-            (PaxosValue value, bool ack) = _multiPaxos.Promisse(leaderNumber,instance);
+            (PaxosValue value, bool ack) = _multiPaxos.Promisse(leaderNumber, instance);
 
             if (value == null) // if no value was chosen yet
             {
                 Logger.LogDebugAcceptor($"Sending Promise( value: null ,  w_ts: {leaderNumber} , instance: {instance} , NACK )");
-                return Task.FromResult(new PromiseResp() { WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack });
+                return new PromiseResp() { WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack };
             }
             else
             {
@@ -49,8 +49,9 @@ namespace BoneyServer.services
                 uint Slot = value.Slot;
                 CompareAndSwapReq valueToSend = new CompareAndSwapReq() { Leader = processID, Slot = Slot };
                 Logger.LogDebugAcceptor($"Sending Promise( value: < slot: {valueToSend.Slot} , primary: {valueToSend.Leader}> , w_ts: {leaderNumber} , instance: {instance} , ACK )");
-                return Task.FromResult(new PromiseResp() { Value = valueToSend, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack });
+                return new PromiseResp() { Value = valueToSend, WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack };
             }
+        }
 
       public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
           Logger.LogDebug("PaxosAcceptorServiceImpl: Received ACCEPT! request");

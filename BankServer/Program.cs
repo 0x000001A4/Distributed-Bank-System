@@ -31,7 +31,7 @@ namespace BankServer
                 (string address, int port) = config.GetBoneyHostnameAndPortByProcess(1);
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + address + ":" + port);
                 CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                client.CompareAndSwapAsync(new CompareAndSwapRequest { Leader = 1, Slot = 0 });
+                client.CompareAndSwapAsync(new CompareAndSwapReq { Leader = 1, Slot = 0 });
 
                 //foreach(var channel in channels)
                 //{
