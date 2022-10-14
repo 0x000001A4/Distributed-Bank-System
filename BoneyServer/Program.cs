@@ -50,9 +50,10 @@ namespace BoneyServer
 			}
 		}
 	}
-	public class BoneyServer {
+	public class BoneyServer
+	{
 
-        public static void Main(string[] args) // TODO - edit to receive all server state through the config file
+		public static void Main(string[] args) // TODO - edit to receive all server state through the config file
 		{
 			Logger.DebugOn();
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
@@ -71,6 +72,7 @@ namespace BoneyServer
             BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos, config, cmdHandler);
 
 			CompareAndSwapServiceImpl _casService = new CompareAndSwapServiceImpl(boneyServerState, multiPaxos);
+
 			PaxosAcceptorServiceImpl _paxosAcceptorService = new PaxosAcceptorServiceImpl(boneyServerState, multiPaxos);
 			PaxosLearnerServiceImpl _paxosLearnerService = new PaxosLearnerServiceImpl(boneyServerState,
 				multiPaxos, config.GetBankServersPortsAndAddresses(), (uint)config.GetNumberOfBoneyServers());
@@ -89,7 +91,7 @@ namespace BoneyServer
                   CompareAndSwapService.BindService(_casService).Intercept(_interceptor),
                   PaxosAcceptorService.BindService(_paxosAcceptorService).Intercept(_interceptor),
                   PaxosLearnerService.BindService(_paxosLearnerService).Intercept(_interceptor)
-				},
+				         },
                 Ports = { serverPort }
             };
 

@@ -86,15 +86,34 @@ namespace BoneyServer.domain.paxos
         }
         public (PaxosValue?, bool) Promisse(uint leaderNumber, uint instance)
         {
-            PaxosInstance instancia = _paxosInstances[(int)instance];
-            PaxosValue? value = instancia.Value;
-            //uint writeTimeStamp = instancia.WriteTimeStamp;
-            uint readTimeStamp = instancia.ReadTimeStamp;
+            try
+            {
+                Logger.LogDebug("Instance " + instance);
+                createInstancesUpTo(instance);
+                PaxosInstance instancia = _paxosInstances[(int)instance];
+                PaxosValue? value = instancia.Value;
+                //uint writeTimeStamp = instancia.WriteTimeStamp;
+                uint readTimeStamp = instancia.ReadTimeStamp;
 
-            bool needReadUpdate = Acceptor.PromisseWork(leaderNumber, readTimeStamp);
-            if (needReadUpdate) _paxosInstances[(int)instance].ReadTimeStamp = leaderNumber;
+                bool needReadUpdate = Acceptor.PromisseWork(leaderNumber, readTimeStamp);
+                if (needReadUpdate) _paxosInstances[(int)instance].ReadTimeStamp = leaderNumber;
 
-            return (value, needReadUpdate);
+                return (value, needReadUpdate);
+            }catch(Exception e)
+            {
+                Logger.LogError(e.Message);
+                throw new Exception();
+            }
+        }
+
+        private void createInstancesUpTo(uint instance)
+        {
+            int currentSize = _paxosInstances.Count();
+            int instancesToAdd = (int)instance - currentSize + 1;
+            for (int i = 0; i < instancesToAdd; i++ )
+            {
+                _paxosInstances.Add(new PaxosInstance());
+            }
 
         }
 
