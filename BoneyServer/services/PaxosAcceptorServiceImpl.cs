@@ -23,12 +23,12 @@ namespace BoneyServer.services
             _multiPaxos = multiPaxos;
         }
 
-        public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context) { // EDITED -----------------------------------
-            //if (!_state.IsFrozen()) {
+        public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context) {
+            if (!_state.IsFrozen()) {
                 return Task.FromResult(doPrepare(request));
-            //}
+            }
             // Request got queued and will be handled later
-            //throw new Exception("The server is frozen.");
+            throw new Exception("The server is frozen.");
         }
 
         public PromiseResp doPrepare(PrepareReq request)
@@ -53,16 +53,16 @@ namespace BoneyServer.services
             }
         }
 
-      public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) { // EDITED -----------------------------------
+      public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
             Logger.LogDebugAcceptor($"Received ACCEPT!( value: ( primary: {request.Value.Leader}," +
                 $" slot: {request.Value.Slot} ) ," +
                 $"  w_ts: {request.LeaderNumber} )" +
                 $" (PaxosAcceptorServiceImpl.cs l. 57))");
-          //if (!_state.IsFrozen()) {
+          if (!_state.IsFrozen()) {
               return Task.FromResult(doAccept(request));
-          //}
-              // Message was queued and will he handled later
-          //throw new Exception("The server is frozen.");
+          }
+          // Message was queued and will he handled later
+          throw new Exception("The server is frozen.");
       }
 
       public AcceptedResp doAccept(AcceptReq request) {

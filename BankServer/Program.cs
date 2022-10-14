@@ -33,7 +33,6 @@ namespace BankServer
             {
                 Services = {
                   CompareAndSwapService.BindService(new PaxosResultHandlerServiceImpl())
-
 				         },
                 Ports = { serverPort }
             };

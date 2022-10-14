@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using BoneyServer.domain.paxos;
 
 namespace BoneyServer.utils
 {
@@ -14,6 +15,11 @@ namespace BoneyServer.utils
         CompareAndSwapServiceImpl? _casService;
         PaxosAcceptorServiceImpl? _paxosAcceptorService;
         PaxosLearnerServiceImpl? _paxosLearnerService;
+        IMultiPaxos _multiPaxos;
+
+        public QueuedCommandHandler(IMultiPaxos multiPaxos) {
+            _multiPaxos = multiPaxos;
+        }
 
 
         public void AddCompareAndSwapService(CompareAndSwapServiceImpl casService) {
@@ -34,8 +40,7 @@ namespace BoneyServer.utils
                 throw new Exception();
             }
             _casService.doCompareAndSwap(request);
-            CompareAndSwapService.CompareAndSwapServiceClient _client =
-                new CompareAndSwapService.CompareAndSwapServiceClient(GrpcChannel.ForAddress(sender));
+            // Response will be sent to banks inside this function (When learners learn the value from majority of acceptors)
         }
 
         public void handlePrepare(PrepareReq request, string sender) {

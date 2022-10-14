@@ -9,7 +9,7 @@ namespace BoneyServer.utils
     public static class FrozenState
     {
         public const string FROZEN = "F";
-        public const string UNFROZEN = "NF";
+        public const string UNFROZEN = "N";
     }
 
     public static class SuspectState

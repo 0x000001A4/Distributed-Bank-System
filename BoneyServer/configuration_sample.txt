@@ -7,6 +7,6 @@ P 8 client
 S 3
 T 12:10:15
 D 5000 
-F 1 (1, N, NS) (2, N, NS) (3, N, NS) (4, N, NS)
+F 1 (1, F, NS) (2, N, NS) (3, N, NS) (4, N, NS)
 F 2 (1, N, NS) (2, N, NS) (3, N, NS) (4, N, NS)
-F 3 (1, N, NS) (2, N, NS) (3, N, NS) (4, N, NS) 
+F 3 (1, N, NS) (2, N, NS) (3, N, NS) (4, N, NS)

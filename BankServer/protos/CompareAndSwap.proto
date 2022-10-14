@@ -12,5 +12,5 @@ message CompareAndSwapReq {
 }
 message CompareAndSwapResp {
 	uint32 slot = 1;
-	uint32 Primary = 2;
+	uint32 primary = 2;
 }

@@ -55,14 +55,14 @@ namespace BoneyServer.domain.paxos
 			{
 				PaxosLearnerService.PaxosLearnerServiceClient client = new PaxosLearnerService.PaxosLearnerServiceClient(channel);
 				Logger.LogDebugAcceptor("sending Accepted to " + channel.Target);
-				//try { 
+				try { 
 					LearnCommandResp reply = await client.LearnCommandAsync(
 						new LearnCommandReq { Value = compareAndSwapReq, LeaderNumber = leaderNumber, PaxosInstance = instance }
 					);
-				/*} catch(Exception e) {
+				} catch(Exception e) {
 					Logger.LogError(e + "(Acceptor.cs   l. 60)");
 					throw e;
-				}*/
+				}
 			Logger.LogDebugAcceptor($"Accepted sent to all Learners: < (slot: {compareAndSwapReq.Slot}, leader: {compareAndSwapReq.Leader}), w_ts: {leaderNumber}, instance: {instance} >");
 			}
 		}

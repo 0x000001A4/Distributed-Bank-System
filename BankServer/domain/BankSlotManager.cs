@@ -47,16 +47,16 @@ namespace BankServer.domain
             uint leader = ChooseLeader();
 
             foreach (int id in boneyAdresses) {
-                    (string boneyHost, int boneyPort) = _config.GetBoneyHostnameAndPortByProcess(id);
-                    Logger.LogDebug($"Sending to {boneyHost}:{boneyPort}");
-                    //Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
-                    GrpcChannel channel = GrpcChannel.ForAddress("http://" + boneyHost + ":" + boneyPort);
-                    CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+                (string boneyHost, int boneyPort) = _config.GetBoneyHostnameAndPortByProcess(id);
+                Logger.LogDebug($"Sending to {boneyHost}:{boneyPort}");
+                //Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
+                GrpcChannel channel = GrpcChannel.ForAddress("http://" + boneyHost + ":" + boneyPort);
+                CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
                
-                    client.CompareAndSwap(new CompareAndSwapReq { Slot = _slot, Leader = leader, Address = address});
-                }
+                Logger.LogDebug("CompareAndSwap sent");
+                client.CompareAndSwapAsync(new CompareAndSwapReq { Slot = _slot, Leader = leader, Address = address});
+            }
 
-            Logger.LogDebug("CompareAndSwap sent");
         }
 
         public void IncrementSlot() {

@@ -8,6 +8,7 @@ namespace BoneyServer.domain.paxos
         public void Start(PaxosValue value, string address, uint primary);
         void UpdateServers(Dictionary<uint, string> servers);
         PaxosInstance GetPaxosInstance(uint instanceId);
+        public uint GetPrimaryForSlot(uint slot);
 
         public void UpdateAccept(PaxosValue value, uint leaderNumber, uint instance);
 
@@ -141,6 +142,18 @@ namespace BoneyServer.domain.paxos
             return _paxosInstances[(int)instanceId];
         }
 
+        public uint GetPrimaryForSlot(uint slot)
+        {
+            if (slot > _paxosInstances.Capacity) 
+                throw new Exception("Trying to get primary for a slot that is bigger than the max number of slots.");
+
+            foreach (PaxosInstance paxosInstance in _paxosInstances) { 
+                if (paxosInstance.Value != null && paxosInstance.Value.Slot == slot) {
+                    return paxosInstance.Value.ProcessID;
+                }
+            }
+            throw new Exception("Unexpected behaviour: There was no paxos instance corresponding to the slot.");
+        }
 
        public PaxosSlotState GetSlotState(int slot)
         {

@@ -21,7 +21,8 @@ namespace BoneyServer.services
         }
 
         public override Task<CompareAndSwapResp> CompareAndSwap(CompareAndSwapReq request, ServerCallContext context) {
-
+            Logger.LogDebug("CompareAndSwap received.");
+            Logger.LogDebug(_state.IsFrozen().ToString());
             if (!_state.IsFrozen()) {
                 doCompareAndSwap(request);
                 Logger.LogDebug("End of CompareAndSwap");

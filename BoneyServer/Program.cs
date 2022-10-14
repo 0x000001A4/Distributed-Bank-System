@@ -73,7 +73,7 @@ namespace BoneyServer
 
             IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyServersPortsAndAddresses());
 
-			QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
+			QueuedCommandHandler cmdHandler = new QueuedCommandHandler(multiPaxos);
             BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos, config, cmdHandler);
 
 			CompareAndSwapServiceImpl _casService = new CompareAndSwapServiceImpl(boneyServerState, multiPaxos);
@@ -93,9 +93,9 @@ namespace BoneyServer
 
             Server server = new Server {
                 Services = {
-                  CompareAndSwapService.BindService(_casService)/*.Intercept(_interceptor)*/,
-                  PaxosAcceptorService.BindService(_paxosAcceptorService)/*.Intercept(_interceptor)*/,
-				  PaxosLearnerService.BindService(_paxosLearnerService)/*.Intercept(_interceptor)*/
+                  CompareAndSwapService.BindService(_casService).Intercept(_interceptor),
+                  PaxosAcceptorService.BindService(_paxosAcceptorService).Intercept(_interceptor),
+				  PaxosLearnerService.BindService(_paxosLearnerService).Intercept(_interceptor)
 				         },
                 Ports = { serverPort }
             };

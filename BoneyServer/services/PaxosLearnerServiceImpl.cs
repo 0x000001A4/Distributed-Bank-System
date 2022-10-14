@@ -37,11 +37,11 @@ namespace BoneyServer.services
         }
 
         public override Task<LearnCommandResp> LearnCommand(LearnCommandReq request, ServerCallContext context) { // edited ---------------
-            //if (!_state.IsFrozen()) {
+            if (!_state.IsFrozen()) {
                 return Task.FromResult(doLearnCommand(request));
-            //}
+            }
             // Message was queued and will be handled later
-            //throw new Exception("The server is frozen.");
+            throw new Exception("The server is frozen.");
         }
 
         public LearnCommandResp doLearnCommand(LearnCommandReq request)
