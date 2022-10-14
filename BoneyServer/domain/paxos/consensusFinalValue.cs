@@ -11,21 +11,20 @@ namespace BoneyServer.domain.paxos
     public static class ConsensusFinalValue
 
     {
-       
-        public static void DoWork(string address,uint slot,uint consensus)
+
+        public static void DoWork(string address, uint slot, uint primary)
         {
-               GrpcChannel channel = GrpcChannel.ForAddress("http://" + address);
-                CompareAndSwapService.CompareAndSwapServiceClient _client =
-                    new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+            GrpcChannel channel = GrpcChannel.ForAddress("http://" + address);
+            CompareAndSwapService.CompareAndSwapServiceClient _client =
+                new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
-                    var reply = _client.HandlePaxosResult(new CompareAndSwapResp()
-                    {
-                        Slot = slot,
-                        Primary = consensus
-                    });
-                
-            
+            var reply = _client.HandlePaxosResult(new CompareAndSwapResp()
+            {
+                Slot = slot,
+                Primary = primary
+            });
+
+
         }
-
     }
 }

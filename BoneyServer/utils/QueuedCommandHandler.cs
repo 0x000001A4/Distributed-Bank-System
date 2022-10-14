@@ -33,10 +33,9 @@ namespace BoneyServer.utils
                 Console.WriteLine("Unexpected behaviour in handleCompareAndSwap function: _casService == null (QueuedCommandHandler.cs : Line 27)");
                 Environment.Exit(-1);
             }
-            CompareAndSwapResp compareAndSwapResponse = _casService.doCompareAndSwap(request);
+            _casService.doCompareAndSwap(request);
             CompareAndSwapService.CompareAndSwapServiceClient _client =
                 new CompareAndSwapService.CompareAndSwapServiceClient(GrpcChannel.ForAddress(sender));
-            _client.HandlePaxosResult(compareAndSwapResponse);
         }
 
         public void handlePrepare(PrepareReq request, string sender) {
