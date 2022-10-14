@@ -14,7 +14,7 @@ namespace BankServer.services
         public override Task<CompareAndSwapResp> HandlePaxosResult(CompareAndSwapResp request, ServerCallContext context)
         {
             // Use request.primary to chose a primary for request.slot
-            Logger.LogDebugBankServer($"Bank Server HandlePaxosResult(request) called:  Elected Primary: {request.Primary} | Slot: {request.Slot}");
+            Logger.LogDebug($"Bank Server compareAndSwap response:  Elected ( Primary: {request.Primary}, Slot: {request.Slot})");
             return Task.FromResult(request);
         }
     }

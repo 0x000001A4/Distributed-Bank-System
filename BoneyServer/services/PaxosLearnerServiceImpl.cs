@@ -36,50 +36,59 @@ namespace BoneyServer.services
             Logger.LogDebugLearner($"Servers set.");
         }
 
-        public override Task<LearnCommandResp> LearnCommand(LearnCommandReq request, ServerCallContext context) {
-            if (!_state.IsFrozen()) {
+        public override Task<LearnCommandResp> LearnCommand(LearnCommandReq request, ServerCallContext context) { // edited ---------------
+            //if (!_state.IsFrozen()) {
                 return Task.FromResult(doLearnCommand(request));
-            }
+            //}
             // Message was queued and will be handled later
-            throw new Exception("The server is frozen.");
+            //throw new Exception("The server is frozen.");
         }
 
         public LearnCommandResp doLearnCommand(LearnCommandReq request)
         {
-            Logger.LogDebugLearner("Received Accept message");
-            uint requestInstance = request.PaxosInstance;
-            PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
-            requestInstanceInfo.AcceptedCommands++;
-            
-            if (MajorityAccepted(requestInstanceInfo)) {
-                Logger.LogDebugLearner($"Received majority of accepts for instance {requestInstance}.");
-                _state.GetSlotManager().FillSlot((int) request.Value.Slot, request.Value.Leader);
-                _multiPaxos.GetSlotState((int)request.Value.Slot).EndConsensus();
-                foreach(var channel in _bankServerChannels) {
-                    CompareAndSwapService.CompareAndSwapServiceClient _client = 
-                        new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+            try
+            {
+                Logger.LogDebugLearner("Received Accept message");
+                uint requestInstance = request.PaxosInstance;
+                PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
+                requestInstanceInfo.AcceptedCommands++;
 
-
-                    if (requestInstanceInfo.Value != null)
+                if (MajorityAccepted(requestInstanceInfo))
+                {
+                    Logger.LogDebugLearner($"Received majority of accepts for instance {requestInstance}.");
+                    _state.GetSlotManager().FillSlot((int)request.Value.Slot, request.Value.Leader);
+                    _multiPaxos.GetSlotState((int)request.Value.Slot).EndConsensus();
+                    foreach (var channel in _bankServerChannels)
                     {
-                        var reply = _client.HandlePaxosResult(new CompareAndSwapResp()
+                        CompareAndSwapService.CompareAndSwapServiceClient _client =
+                            new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+
+                        Logger.LogDebugLearner($"Value to send: {requestInstanceInfo.Value} ");
+                        if (requestInstanceInfo.Value != null)
                         {
-                            Slot = requestInstanceInfo.Value.Slot,
-                            Primary = requestInstanceInfo.Value.ProcessID
-                        });
-                        Logger.LogDebugLearner($"Response sent to all bank clients: (slot: {requestInstanceInfo.Value.Slot}, leader: {requestInstanceInfo.Value.ProcessID})");
-                    }
-                    else {
-                        Logger.LogError("Unexpected behaviour in LearnCommand(LearnCommandReq request, ...): requestInstanceInfo.value = null (line 44: PaxosLearnerServiceImpl.cs)");
-                        Environment.Exit(-1);
+                            var reply = _client.HandlePaxosResult(new CompareAndSwapResp()
+                            {
+                                Slot = requestInstanceInfo.Value.Slot,
+                                Primary = requestInstanceInfo.Value.ProcessID
+                            });
+                            Logger.LogDebugLearner($"Response sent to all bank clients: (slot: {requestInstanceInfo.Value.Slot}, leader: {requestInstanceInfo.Value.ProcessID})");
+                        }
+                        else
+                        {
+                            Logger.LogError("Unexpected behaviour in LearnCommand(LearnCommandReq request, ...): requestInstanceInfo.value = null (line 44: PaxosLearnerServiceImpl.cs)");
+                            throw new Exception();
+                        }
                     }
                 }
+            }catch(Exception e) { 
+                Logger.LogError(e.Message + "(Learner l. 84)");
+                throw new Exception();
             }
             return new LearnCommandResp();
         } 
 
         private bool MajorityAccepted(PaxosInstance currentInstanceInfo) {
-            return currentInstanceInfo.AcceptedCommands > (_numberOfBoneys/2)+1;
+            return currentInstanceInfo.AcceptedCommands >= (int)(_numberOfBoneys/2)+1;
         }
     }
 }

@@ -51,7 +51,7 @@ namespace PuppetMaster
 
                 p = new Process();
                 p.StartInfo.FileName = "cmd.exe";
-                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {4}";
+                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {5}";
 
                 p.Start();
 
@@ -59,7 +59,7 @@ namespace PuppetMaster
             catch (Exception ex)
             {
                 Logger.LogError(ex.Message);
-                return;
+                throw ex;
             }
 
         }

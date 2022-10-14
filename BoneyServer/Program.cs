@@ -51,18 +51,19 @@ namespace BoneyServer
 
 			} catch (Exception ex) {
 				Logger.LogError("Interceptor:" + ex.Message + " (l. 45)");
-				throw;
+				throw ex;
 			}
 		}
 	}
 	public class BoneyServer
 	{
-
+		private static uint processNum = 0;
 		public static void Main(string[] args) // TODO - edit to receive all server state through the config file
 		{
 			Logger.DebugOn();
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
 			uint processID = uint.Parse(args[1]);
+			//uint processID = uint.Parse(Console.ReadLine()); //FOR DEBUGGING
 			uint maxSlots = (uint)config.GetNumberOfSlots();
 			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
 
@@ -92,9 +93,9 @@ namespace BoneyServer
 
             Server server = new Server {
                 Services = {
-                  CompareAndSwapService.BindService(_casService).Intercept(_interceptor),
-                  PaxosAcceptorService.BindService(_paxosAcceptorService).Intercept(_interceptor),
-                  PaxosLearnerService.BindService(_paxosLearnerService).Intercept(_interceptor)
+                  CompareAndSwapService.BindService(_casService)/*.Intercept(_interceptor)*/,
+                  PaxosAcceptorService.BindService(_paxosAcceptorService)/*.Intercept(_interceptor)*/,
+				  PaxosLearnerService.BindService(_paxosLearnerService)/*.Intercept(_interceptor)*/
 				         },
                 Ports = { serverPort }
             };

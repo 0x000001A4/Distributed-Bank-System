@@ -43,23 +43,27 @@ namespace BoneyServer.domain.paxos
 				   request.PaxosInstance);
 			} catch(Exception e) {
 				Console.WriteLine(e);
+				throw e;
 			}
 		}
 
 
 		public async static Task AcceptCommand(CompareAndSwapReq compareAndSwapReq, uint leaderNumber, uint instance)
 		{
+			Logger.LogDebugAcceptor("sending accepted to learners..");
 			foreach (var channel in _boneyChannels)
 			{
 				PaxosLearnerService.PaxosLearnerServiceClient client = new PaxosLearnerService.PaxosLearnerServiceClient(channel);
-				try { 
+				Logger.LogDebugAcceptor("sending Accepted to " + channel.Target);
+				//try { 
 					LearnCommandResp reply = await client.LearnCommandAsync(
 						new LearnCommandReq { Value = compareAndSwapReq, LeaderNumber = leaderNumber, PaxosInstance = instance }
 					);
-				} catch(Exception e) {
-					Console.WriteLine(e);
-				}
-        Logger.LogDebugAcceptor($"Accepted sent to all Learners: < (slot: {compareAndSwapReq.Slot}, leader: {compareAndSwapReq.Leader}), w_ts: {leaderNumber}, instance: {instance} >");
+				/*} catch(Exception e) {
+					Logger.LogError(e + "(Acceptor.cs   l. 60)");
+					throw e;
+				}*/
+			Logger.LogDebugAcceptor($"Accepted sent to all Learners: < (slot: {compareAndSwapReq.Slot}, leader: {compareAndSwapReq.Leader}), w_ts: {leaderNumber}, instance: {instance} >");
 			}
 		}
 	}

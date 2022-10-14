@@ -47,6 +47,7 @@ namespace BoneyServer.domain.paxos
                     Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses);
                 } catch (Exception e) {
                     Console.WriteLine(e);
+                    throw e;
                 }
             }
         }
@@ -114,7 +115,7 @@ namespace BoneyServer.domain.paxos
         private static void accept(GrpcChannel channel, ProposerVector valueToSend) {
             if (valueToSend.Value == null) {
                 Console.WriteLine("Unexpected behaviour: accept(GrpcChannel channel, ProposerVector valueToSend) -> valueToSend.Value == null (Proposer.cs: Line 91)");
-                Environment.Exit(-1);
+                throw new Exception();
             }
             uint leaderProcessID = valueToSend.Value.ProcessID;
             uint slot = valueToSend.Value.Slot;
@@ -126,7 +127,8 @@ namespace BoneyServer.domain.paxos
             try { 
                 AcceptedResp reply = client.Accept(request);
             } catch (Exception e) {
-                Console.WriteLine(e);
+                Logger.LogError(e + "(Proposer.cs  l. 129)");
+                throw new Exception();
             }
         }
 

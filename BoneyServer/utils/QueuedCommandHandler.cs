@@ -31,7 +31,7 @@ namespace BoneyServer.utils
         public void handleCompareAndSwap(CompareAndSwapReq request, string sender) {
             if (_casService == null) {
                 Console.WriteLine("Unexpected behaviour in handleCompareAndSwap function: _casService == null (QueuedCommandHandler.cs : Line 27)");
-                Environment.Exit(-1);
+                throw new Exception();
             }
             _casService.doCompareAndSwap(request);
             CompareAndSwapService.CompareAndSwapServiceClient _client =
@@ -41,7 +41,7 @@ namespace BoneyServer.utils
         public void handlePrepare(PrepareReq request, string sender) {
             if (_paxosAcceptorService == null) {
                 Console.WriteLine("Unexpected behaviour in handlePrepare function: _paxosAcceptorService == null (QueuedCommandHandler.cs : Line 36)");
-                Environment.Exit(-1);
+                throw new Exception();
             }
             PromiseResp promise = _paxosAcceptorService.doPrepare(request);
             PaxosAcceptorService.PaxosAcceptorServiceClient _client =
@@ -52,7 +52,7 @@ namespace BoneyServer.utils
         public void handleAccept(AcceptReq request, string sender) {
             if (_paxosAcceptorService == null) {
                 Console.WriteLine("Unexpected behaviour in handleAccept function: _paxosAcceptorService == null (QueuedCommandHandler.cs : Line 43)");
-                Environment.Exit(-1);
+                throw new Exception();
             }
             AcceptedResp acceptedResponse = _paxosAcceptorService.doAccept(request);
             PaxosAcceptorService.PaxosAcceptorServiceClient _client =
@@ -64,7 +64,7 @@ namespace BoneyServer.utils
             if (_paxosLearnerService == null)
             {
                 Console.WriteLine("Unexpected behaviour in handleLearnCommand function: _paxosLearnerService == null (QueuedCommandHandler.cs : Line 51)");
-                Environment.Exit(-1);
+                throw new Exception();
             }
             LearnCommandResp learnCommandResponse = _paxosLearnerService.doLearnCommand(request);
             PaxosLearnerService.PaxosLearnerServiceClient _client =
