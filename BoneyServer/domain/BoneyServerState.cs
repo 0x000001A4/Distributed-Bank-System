@@ -49,22 +49,22 @@ namespace BoneyServer.domain
 
         public void HandleQueuedMessage(Message _msg)
         {
-            ServerCallContext _context = _msg.GetServerCallContext();
-            var _sender = _context.Peer;
+            string _sender = _msg.GetSender();
+            uint msgId = _msg.GetRequestId();
 
-            if (_msg.GetRequestId() == 1) {
+            if (msgId == 1) {
                 _cmdHandler.handleCompareAndSwap(_msg.GetCompareAndSwapRequest(), _sender);
             }
 
-            else if (_msg.GetRequestId() == 2) {
+            else if (msgId == 2) {
                 _cmdHandler.handlePrepare(_msg.GetPrepareRequest(), _sender);
             }
         
-            else if (_msg.GetRequestId() == 3) {
+            else if (msgId == 3) {
                 _cmdHandler.handleAccept(_msg.GetAcceptRequest(), _sender);
             }
             
-            else if (_msg.GetRequestId() == 4) {
+            else if (msgId == 4) {
                 _cmdHandler.handleLearnCommand(_msg.GetLearnCommandRequest(), _sender);
             }
         }
@@ -85,13 +85,23 @@ namespace BoneyServer.domain
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slot);
 
+            // Set Configuration as complete (Needed to avoid crashing boney servers while they are configurating)
+            _config.setAsConfigured();
+
             // Check if boney server just unfroze!
-            if (_slot != 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN)
+            if (_slot > 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) {
+                HandleQueuedMessages();
+            }
+        }
+
+        public void HandleQueuedMessages() {
+            // If yes handle Queued messages!
+            while (_queue.Count > 0)
             {
-                // If yes handle Queued messages!
-                while (_queue.Count != 0) {
-                    HandleQueuedMessage(_queue.Dequeue());
-                }
+                Message msg = _queue.Dequeue();
+                Logger.LogDebug($"Dequeued: {msg} with MessageId: {msg.GetRequestId()}");
+                HandleQueuedMessage(msg);
+                Logger.LogDebug($"Exited HandleQueuedMessage with Message Id: {msg.GetRequestId()}");
             }
         }
 
@@ -115,6 +125,10 @@ namespace BoneyServer.domain
         public BoneySlotManager GetSlotManager()
         {
             return _slotManager;
+        }
+
+        public bool isConfigured() {
+            return _config.hasFinished();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace BoneyServer.domain.paxos
 
     {
 
-        public static void DoWork(string address, uint slot, uint primary)
+        public static void SendPaxosResult(string address, uint slot, uint primary)
         {
             GrpcChannel channel = GrpcChannel.ForAddress("http://" + address);
             CompareAndSwapService.CompareAndSwapServiceClient _client =

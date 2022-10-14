@@ -4,6 +4,7 @@ using BoneyServer.services;
 using BoneyServer.utils;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
+using System.Diagnostics;
 
 namespace BoneyServer
 {
@@ -21,24 +22,28 @@ namespace BoneyServer
 			ServerCallContext context,
 			UnaryServerMethod<TRequest, TResponse> continuation) {
 			try {
+				if (!_state.isConfigured()) throw new Exception("Server is not configured yet, don't make requests.");
+
 				if (_state.IsFrozen()) {
 					Type requestType = typeof(TRequest);
 					Message? _msg = null;
+					string sender = context.Peer;
 
                     if (requestType == typeof(CompareAndSwapReq)) {
-						_msg = new Message((CompareAndSwapReq)(object) request, context);
+						_msg = new Message((CompareAndSwapReq)(object) request, sender);
 					}
                     if (requestType == typeof(PrepareReq)) {
-                        _msg = new Message((PrepareReq)(object) request, context);
+                        _msg = new Message((PrepareReq)(object) request, sender);
                     }
                     if (requestType == typeof(AcceptReq)) {
-                        _msg = new Message((AcceptReq)(object) request, context);
+                        _msg = new Message((AcceptReq)(object) request, sender);
                     }
 					if (requestType == typeof(LearnCommandReq)) {
-						_msg = new Message((LearnCommandReq)(object) request, context);
+						_msg = new Message((LearnCommandReq)(object) request, sender);
 					}
 
 					if (_msg != null) _state.Enqueue(_msg);
+
 					else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
 				}
 
@@ -64,7 +69,6 @@ namespace BoneyServer
 
             ServerPort serverPort;
             serverPort = new ServerPort(hostname, port, ServerCredentials.Insecure);
-			BoneySlotManager slotManager = new BoneySlotManager(maxSlots);
 
             IMultiPaxos multiPaxos = new Paxos(processID, maxSlots, config.GetBoneyServersPortsAndAddresses());
 
@@ -94,6 +98,7 @@ namespace BoneyServer
 				         },
                 Ports = { serverPort }
             };
+			config.AddServerAndState(server, boneyServerState);
 
             server.Start();
 
@@ -103,7 +108,6 @@ namespace BoneyServer
 			//Configuring HTTP for client connections in Register method
 			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 			while (true);
-			//server.ShutdownAsync().Wait();
 		}
 
 	}

@@ -21,6 +21,7 @@ namespace BoneyServer.services
         }
 
         public override Task<CompareAndSwapResp> CompareAndSwap(CompareAndSwapReq request, ServerCallContext context) {
+
             if (!_state.IsFrozen()) {
                 doCompareAndSwap(request);
                 return Task.FromResult(new CompareAndSwapResp());
@@ -30,7 +31,7 @@ namespace BoneyServer.services
         }
 
         public void doCompareAndSwap(CompareAndSwapReq request) {
-            Logger.LogDebug("CompareAndSwapServiceImpl: CompareAndSwap received");
+            Logger.LogDebug("CompareAndSwapServiceImpl: CompareAndSwap received (CompareAndSwapServiceImpl.cs: Line 33)");
             PaxosValue value = new PaxosValue(request.Leader, request.Slot);
             _multiPaxos.Start(value, request.Address, _state.GetSlotManager().GetSlotValue((int)request.Slot));
         }

@@ -10,33 +10,33 @@ namespace BoneyServer.domain {
 	public class Message {
 
 		private uint requestId;
-        private ServerCallContext context;
+        private string sender;
 		private CompareAndSwapReq? compareAndSwapRequest = null;
 		private PrepareReq? prepareRequest = null;
 		private AcceptReq? acceptRequest = null;
         private LearnCommandReq? learnCommandRequest = null;
 
-        public Message(CompareAndSwapReq _request, ServerCallContext _context) {
+        public Message(CompareAndSwapReq _request, string _sender) {
 			compareAndSwapRequest = _request;
-            context = _context;
+            sender = _sender;
             requestId = 1;
 		}
-        public Message(PrepareReq _request, ServerCallContext _context)
+        public Message(PrepareReq _request, string _sender)
         {
             prepareRequest = _request;
-            context = _context;
+            sender = _sender;
             requestId = 2;
         }
-        public Message(AcceptReq _request, ServerCallContext _context)
+        public Message(AcceptReq _request, string _sender)
         {
             acceptRequest = _request;
-            context = _context;
+            sender = _sender;
             requestId = 3;
         }
-        public Message(LearnCommandReq _request, ServerCallContext _context)
+        public Message(LearnCommandReq _request, string _sender)
         {
             learnCommandRequest = _request;
-            context = _context;
+            sender = _sender;
             requestId = 4;
         }
 
@@ -60,8 +60,8 @@ namespace BoneyServer.domain {
             return learnCommandRequest;
         }
 
-        public ServerCallContext GetServerCallContext() {
-            return context;
+        public string GetSender() {
+            return sender;
         }
     }
 }

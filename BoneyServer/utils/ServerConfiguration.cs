@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
+using BoneyServer.domain;
+using Grpc.Core;
 
 namespace BoneyServer.utils
 {
@@ -17,6 +19,9 @@ namespace BoneyServer.utils
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
+        Server? _server;
+        BoneyServerState? _state;
+        private bool _started = false;
 
         public ServerConfiguration() { }
 
@@ -283,9 +288,24 @@ namespace BoneyServer.utils
         {
             if (slot > _numberOfSlots)
             {
-                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Freezing process.");
-                Process.GetCurrentProcess().WaitForExit();
+                if (_state != null) {
+                    _state.HandleQueuedMessages();
+                }
+                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Shutting process down after processing queued requests.");
+                if (_server != null) _server.ShutdownAsync().Wait();
             }
+        }
+        
+        public void AddServerAndState(Server server, BoneyServerState state) {
+            _server = server;
+            _state = state;
+        }
+    
+        public bool hasFinished() {
+            return _started;
+        }
+        public void setAsConfigured() {
+            _started = true;
         }
     }
 }

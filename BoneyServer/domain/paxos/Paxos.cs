@@ -81,15 +81,14 @@ namespace BoneyServer.domain.paxos
 
             else if (slotState.IsFinished())
             {
-                ConsensusFinalValue.DoWork(address, slot, primary);
+                ConsensusFinalValue.SendPaxosResult(address, slot, primary);
             }
 
         }
         public (PaxosValue?, uint, bool) Promisse(uint leaderNumber, uint instance)
 
         {
-            try
-            {
+            try {
                 Logger.LogDebug("Instance " + instance);
                 createInstancesUpTo(instance);
                 PaxosInstance instancia = _paxosInstances[(int)instance];
@@ -101,8 +100,8 @@ namespace BoneyServer.domain.paxos
                 if (needReadUpdate) _paxosInstances[(int)instance].ReadTimeStamp = leaderNumber;
 
                 return (value, writeTimeStamp, needReadUpdate);
-            }catch(Exception e)
-            {
+
+            } catch(Exception e) {
                 Logger.LogError(e.Message);
                 throw new Exception();
             }
@@ -158,18 +157,18 @@ namespace BoneyServer.domain.paxos
         private void updateLeader()
         {
             uint minProcID = int.MaxValue;
+            Console.WriteLine(_paxosServers.Count);
             foreach (var server in _paxosServers)
             {
+                Console.WriteLine(server.Key);
                 string serverSuspectedState = server.Value;
-                bool res;
-                if (res = serverSuspectedState.Equals(SuspectState.NOTSUSPECTED))
+                if (serverSuspectedState.Equals(SuspectState.NOTSUSPECTED))
                 {
                     if (server.Key < minProcID) minProcID = server.Key;
                 }
             }
 
-            if (_leaderProcessID == minProcID)
-            {
+            if (_leaderProcessID == minProcID) {
                 Logger.LogDebug("PAXOS: Leader hasn't changed.");
             }
             // if was not already leader and is elected as leader
@@ -179,8 +178,7 @@ namespace BoneyServer.domain.paxos
                 Logger.LogDebug($"PAXOS: I was elected leader, updating LeaderNumber to {_sourceLeaderNumber}.");
             }
             // another process is elected leader
-            else if (minProcID != _sourceProcessID)
-            {
+            else if (minProcID != _sourceProcessID) {
                 Logger.LogDebug($"PAXOS: Process {minProcID} was elected Leader.");
             }
 
