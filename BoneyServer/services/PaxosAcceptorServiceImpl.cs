@@ -23,12 +23,12 @@ namespace BoneyServer.services
             _multiPaxos = multiPaxos;
         }
 
-        public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context) {
-            if (!_state.IsFrozen()) {
+        public override Task<PromiseResp> Prepare(PrepareReq request, ServerCallContext context) { // EDITED -----------------------------------
+            //if (!_state.IsFrozen()) {
                 return Task.FromResult(doPrepare(request));
-            }
+            //}
             // Request got queued and will be handled later
-            throw new Exception("The server is frozen.");
+            //throw new Exception("The server is frozen.");
         }
 
         public PromiseResp doPrepare(PrepareReq request)
@@ -40,26 +40,29 @@ namespace BoneyServer.services
 
             if (value == null) // if no value was chosen yet
             {
-                Logger.LogDebugAcceptor($"Sending Promise( value: null ,  w_ts: {leaderNumber} , instance: {instance} , NACK )");
-                return new PromiseResp() { WriteTimeStamp = leaderNumber, PaxosInstance = instance, PromisseFlag = ack };
+                Logger.LogDebugAcceptor($"Sending Promise( value: null ,  w_ts: {writeTS} , instance: {instance} , ACK: {ack} )");
+                return new PromiseResp() { WriteTimeStamp = writeTS, PaxosInstance = instance, PromisseFlag = ack };
             }
             else
             {
                 uint processID = value.ProcessID;
                 uint Slot = value.Slot;
                 CompareAndSwapReq valueToSend = new CompareAndSwapReq() { Leader = processID, Slot = Slot };
-                Logger.LogDebugAcceptor($"Sending Promise( value: < slot: {valueToSend.Slot} , primary: {valueToSend.Leader}> , w_ts: {writeTS} , instance: {instance} , ACK )");
+                Logger.LogDebugAcceptor($"Sending Promise( value: < slot: {valueToSend.Slot} , primary: {valueToSend.Leader}> , w_ts: {writeTS} , instance: {instance} , ACK: {ack} )");
                 return new PromiseResp() { Value = valueToSend, WriteTimeStamp = writeTS, PaxosInstance = instance, PromisseFlag = ack };
             }
         }
 
-      public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
-          Logger.LogDebug("PaxosAcceptorServiceImpl: Received ACCEPT! request");
-          if (!_state.IsFrozen()) {
+      public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) { // EDITED -----------------------------------
+            Logger.LogDebugAcceptor($"Received ACCEPT!( value: ( primary: {request.Value.Leader}," +
+                $" slot: {request.Value.Slot} ) ," +
+                $"  w_ts: {request.LeaderNumber} )" +
+                $" (PaxosAcceptorServiceImpl.cs l. 57))");
+          //if (!_state.IsFrozen()) {
               return Task.FromResult(doAccept(request));
-          }
+          //}
               // Message was queued and will he handled later
-          throw new Exception("The server is frozen.");
+          //throw new Exception("The server is frozen.");
       }
 
       public AcceptedResp doAccept(AcceptReq request) {

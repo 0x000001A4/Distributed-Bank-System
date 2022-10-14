@@ -48,8 +48,9 @@ namespace BoneyServer.domain.paxos
             _paxosInstances.Add(new PaxosInstance());    
 
             // Initialize paxos slots state
-            _paxosSlotState = new Slots<PaxosSlotState>(numOfSlots);
-            for (int i = 0; i < numOfSlots; i++)
+            _paxosSlotState = new Slots<PaxosSlotState>(numOfSlots+1);
+            
+            for (int i = 0; i < numOfSlots+1; i++)
             {
                 _paxosSlotState[i] = new PaxosSlotState();
             }
@@ -61,28 +62,37 @@ namespace BoneyServer.domain.paxos
 
         public void Start(PaxosValue value, string address, uint primary)
         {
-            uint slot = value.Slot;
-            PaxosSlotState slotState = _paxosSlotState[(int)slot];
-            if (slotState.NotStarted() && iAmLeader())
+            Logger.LogDebug($"Antes do lock");
+            lock (this)
             {
-                Logger.LogDebug("Paxos: New consensus instance started");
-                Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
-                _paxosInstances.Add(new PaxosInstance());
-                proposer.Start();
-                slotState.StartConsensus();
-                Instance++;
+                uint slot = value.Slot;
+                PaxosSlotState slotState = _paxosSlotState[(int)slot];
+                Logger.LogDebug($"Starting proposer");
+                if (slotState.NotStarted() && iAmLeader())
+                {
+                    slotState.StartConsensus();
+                    Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
+                    _paxosInstances.Add(new PaxosInstance());
+                    proposer.Start();
+                    Instance++;
 
-                // If an isntance for slot has already begun, enqueue the request not to start a new instance
+                    // If an instance for slot has already begun, enqueue the request not to start a new instance
 
-            }
-            else if (slotState.IsWaiting()) {
-                _paxosSlotState[(int)slot].Enqueue(value.ProcessID);
+                }
+                else if (slotState.IsWaiting())
+                {
+                    Logger.LogDebug($"Slot {slot} is Waiting");
+                    _paxosSlotState[(int)slot].Enqueue(value.ProcessID);
+                }
+
+                else if (slotState.IsFinished())
+                {
+                    Logger.LogDebug($"Slot {slot} is Finished");
+                    ConsensusFinalValue.DoWork(address, slot, primary);
+                    Logger.LogDebug($"Response (primary: {primary}, slot: {slot}) sent to {address}. (No Paxos instance started)");
+                }
             }
 
-            else if (slotState.IsFinished())
-            {
-                ConsensusFinalValue.DoWork(address, slot, primary);
-            }
 
         }
         public (PaxosValue?, uint, bool) Promisse(uint leaderNumber, uint instance)
@@ -104,22 +114,9 @@ namespace BoneyServer.domain.paxos
             }catch(Exception e)
             {
                 Logger.LogError(e.Message);
-                throw new Exception();
+                throw e;
             }
         }
-
-        private void createInstancesUpTo(uint instance)
-        {
-            int currentSize = _paxosInstances.Count();
-            int instancesToAdd = (int)instance - currentSize + 1;
-            for (int i = 0; i < instancesToAdd; i++ )
-            {
-                _paxosInstances.Add(new PaxosInstance());
-            }
-
-        }
-
-
 
         public void UpdateAccept(PaxosValue value, uint leaderNumber, uint instance)
         {
@@ -141,11 +138,7 @@ namespace BoneyServer.domain.paxos
 
         public PaxosInstance GetPaxosInstance(uint instanceId)
         {
-            if (instanceId > Instance)
-            {
-                Logger.LogDebug("PAXOS: Call to GetPaxosInstance(instanceId) with instanceId > current instance");
-                Environment.Exit(-1);
-            }
+            createInstancesUpTo(instanceId);
             return _paxosInstances[(int)instanceId];
         }
 
@@ -189,10 +182,21 @@ namespace BoneyServer.domain.paxos
 
         private bool iAmLeader() {
             if (_leaderProcessID == null) {
-                Console.WriteLine("Unexpected Behaviour: Leader should be chosen before starting consensus for primary");
-                Environment.Exit(-1);
+                Logger.LogError("Unexpected Behaviour: Leader should be chosen before starting consensus for primary (Paxos.cs  l.185)");
+                throw new Exception();
             }
             return _leaderProcessID == _sourceProcessID;
+        }
+
+        private void createInstancesUpTo(uint instance)
+        {
+            int currentSize = _paxosInstances.Count();
+            int instancesToAdd = (int)instance - currentSize + 1;
+            Instance += (uint)instancesToAdd;
+            for (int i = 0; i < instancesToAdd; i++)
+            {
+                _paxosInstances.Add(new PaxosInstance());
+            }
         }
     }
 

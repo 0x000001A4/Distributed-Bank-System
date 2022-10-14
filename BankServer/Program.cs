@@ -1,6 +1,8 @@
 ﻿using Grpc.Net.Client;
 using BankServer.domain;
 using BankServer.utils;
+using BankServer.services;
+using Grpc.Core;
 
 namespace BankServer
 {
@@ -12,34 +14,63 @@ namespace BankServer
             Logger.LogInfo("Bank Server started");
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
+            
 
             BankSlotManager bankSlotManager = new BankSlotManager(config, int.Parse(args[1]));
             SlotTimer sloTimer = new SlotTimer(bankSlotManager,(uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
-            //sloTimer.Execute();
+            sloTimer.Execute();
             
 
             List<string> servers = config.GetBoneyServersPortsAndAddresses();
-            List<GrpcChannel> channels = new List<GrpcChannel>();
-            foreach(string address in servers)
+
+
+            int processID = int.Parse(args[1]);
+            (string hostname, int portNum) = config.GetBankHostnameAndPortByProcess(processID);
+            Logger.LogDebug(hostname + ":" + portNum);
+            ServerPort serverPort;
+            serverPort = new ServerPort(hostname, portNum, ServerCredentials.Insecure);
+            Server server = new Server
             {
-                GrpcChannel channel = GrpcChannel.ForAddress("http://" + address);
-            }
-            
+                Services = {
+                  CompareAndSwapService.BindService(new PaxosResultHandlerServiceImpl())
+
+				         },
+                Ports = { serverPort }
+            };
+            server.Start();
+
+
+
+
+
+            //List<GrpcChannel> channels = new List<GrpcChannel>();
+            //foreach(string address in servers)
+            //{
+            //    GrpcChannel channel = GrpcChannel.ForAddress("http://" + address);
+            //    channels.Add(channel);
+            //}
             while (true)
             {
-                Console.ReadKey();
-                (string address, int port) = config.GetBoneyHostnameAndPortByProcess(1);
-                GrpcChannel channel = GrpcChannel.ForAddress("http://" + address + ":" + port);
-                CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                client.CompareAndSwapAsync(new CompareAndSwapReq { Leader = 1, Slot = 0 });
-
-                //foreach(var channel in channels)
+                //var key = Console.ReadKey().Key;
+                //(string address, int port) = config.GetBoneyHostnameAndPortByProcess(1);
+                //uint leader = 0;
+                //uint slot = 0;
+                //if (key == ConsoleKey.A)
                 //{
-                //    CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                //    client.CompareAndSwapAsync(new CompareAndSwapRequest { Leader = 1, Slot = 0 });
+                //    leader = 1;
+                //    slot = 0;
+                //}
+                //else if (key == ConsoleKey.B)
+                //{
+                //    leader = 2;
+                //    slot = 1;
                 //}
 
-                Logger.LogDebug("CompareAndSwap sent");
+                //foreach (var channel in channels)
+                //{
+                //    CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+                //    client.CompareAndSwapAsync(new CompareAndSwapReq { Leader = leader, Slot = slot, Address = hostname + ":" + portNum });
+                //}
             }
         }
     }

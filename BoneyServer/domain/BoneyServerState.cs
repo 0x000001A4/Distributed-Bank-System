@@ -26,7 +26,7 @@ namespace BoneyServer.domain
             uint numberOfSlots = (uint)config.GetNumberOfSlots();
             _numberOfProcesses = (uint)config.GetNumberOfBoneyServers();
 
-            _slotManager = new BoneySlotManager(numberOfSlots);
+            _slotManager = new BoneySlotManager(numberOfSlots+1);
             _slot = 0;
             _paxos = paxos;
             _config = config;

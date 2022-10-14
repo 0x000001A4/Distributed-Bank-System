@@ -26,7 +26,7 @@ namespace BankServer.utils
 
         public void Execute()
         {
-            if (_clock == null) Environment.Exit(-1);
+            if (_clock == null) throw new Exception();
             _clock.Elapsed += new ElapsedEventHandler(onTimedEvent);
             _clock.Start();
         }
@@ -41,7 +41,7 @@ namespace BankServer.utils
             var periodicTimer = new PeriodicTimer(timeSpan);
             while (await periodicTimer.WaitForNextTickAsync())
             {
-                Logger.LogDebug("Tick");
+                Logger.LogEvent("Tick");
                 action();
             }
         }
