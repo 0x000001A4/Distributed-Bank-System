@@ -51,7 +51,7 @@ namespace PuppetMaster
 
                 p = new Process();
                 p.StartInfo.FileName = "cmd.exe";
-                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {5}";
+                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {4}";
 
                 p.Start();
 

@@ -88,7 +88,7 @@ namespace BoneyServer.domain.paxos
                 else if (slotState.IsFinished())
                 {
                     Logger.LogDebug($"Slot {slot} is Finished");
-                    ConsensusFinalValue.DoWork(address, slot, primary);
+                    ConsensusFinalValue.SendPaxosResult(address, slot, primary);
                     Logger.LogDebug($"Response (primary: {primary}, slot: {slot}) sent to {address}. (No Paxos instance started)");
                 }
             }

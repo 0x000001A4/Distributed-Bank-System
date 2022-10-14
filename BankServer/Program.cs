@@ -39,39 +39,7 @@ namespace BankServer
             };
             server.Start();
 
-
-
-
-
-            //List<GrpcChannel> channels = new List<GrpcChannel>();
-            //foreach(string address in servers)
-            //{
-            //    GrpcChannel channel = GrpcChannel.ForAddress("http://" + address);
-            //    channels.Add(channel);
-            //}
-            while (true)
-            {
-                //var key = Console.ReadKey().Key;
-                //(string address, int port) = config.GetBoneyHostnameAndPortByProcess(1);
-                //uint leader = 0;
-                //uint slot = 0;
-                //if (key == ConsoleKey.A)
-                //{
-                //    leader = 1;
-                //    slot = 0;
-                //}
-                //else if (key == ConsoleKey.B)
-                //{
-                //    leader = 2;
-                //    slot = 1;
-                //}
-
-                //foreach (var channel in channels)
-                //{
-                //    CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                //    client.CompareAndSwapAsync(new CompareAndSwapReq { Leader = leader, Slot = slot, Address = hostname + ":" + portNum });
-                //}
-            }
+            while (true);
         }
     }
 }
