@@ -27,7 +27,7 @@ namespace BoneyServer.domain
             _numberOfProcesses = (uint)config.GetNumberOfBoneyServers();
 
             _slotManager = new BoneySlotManager(numberOfSlots);
-            _slot = 1;
+            _slot = 0;
             _paxos = paxos;
             _config = config;
             _processId = processId;
@@ -70,18 +70,11 @@ namespace BoneyServer.domain
         }
 
         public void Update() {
-            // Save previous slot boney server state Status (frozen/not frozen)
+            // Save previous slot boney server state Status (frozen/not frozen) and incrementSlot
             var _prevSlotStatus = _frozen;
-            // Update boney server state Status
-            _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slot);
-            // Check if boney server just unfroze!
-            if (_slot != 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) {
-                // If yes handle Queued messages!
-                while (_queue.Count != 0) {
-                    HandleQueuedMessage(_queue.Dequeue());
-                }
-            }
+            IncrementSlot();
 
+            // Update servers' suspicions for new slot.
             Dictionary<uint, string> servers = new Dictionary<uint, string>();
             List<int> boneysID = _config.GetBoneyServerIDs();
             foreach (int id in boneysID) {
@@ -89,7 +82,17 @@ namespace BoneyServer.domain
             }
             _paxos.UpdateServers(servers);
 
-            IncrementSlot();
+            // Update servers' own frozen state for new slot.
+            _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slot);
+
+            // Check if boney server just unfroze!
+            if (_slot != 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN)
+            {
+                // If yes handle Queued messages!
+                while (_queue.Count != 0) {
+                    HandleQueuedMessage(_queue.Dequeue());
+                }
+            }
         }
 
         public bool IsFrozen()

@@ -17,7 +17,7 @@ namespace BoneyServer.services
         private IMultiPaxos _multiPaxos;
         private BoneyServerState _state;
 
-        public PaxosAcceptorServiceImpl(IMultiPaxos multiPaxos, BoneyServerState state)
+        public PaxosAcceptorServiceImpl(BoneyServerState state, IMultiPaxos multiPaxos)
         {
             _state = state;
             _multiPaxos = multiPaxos;

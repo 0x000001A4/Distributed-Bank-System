@@ -14,7 +14,7 @@ namespace BoneyServer.services
     {
         private IMultiPaxos _multiPaxos;
         private BoneyServerState _state;
-        public CompareAndSwapServiceImpl(BoneyServerState state,IMultiPaxos multiPaxos) {
+        public CompareAndSwapServiceImpl(BoneyServerState state, IMultiPaxos multiPaxos) {
             _multiPaxos = multiPaxos;
             _state = state;
          
@@ -22,17 +22,17 @@ namespace BoneyServer.services
 
         public override Task<CompareAndSwapResp> CompareAndSwap(CompareAndSwapReq request, ServerCallContext context) {
             if (!_state.IsFrozen()) {
-                return Task.FromResult(doCompareAndSwap(request));
+                doCompareAndSwap(request);
+                return Task.FromResult(new CompareAndSwapResp());
             }
             // Request got queued and will be handled later
             throw new Exception("The server is frozen.");
         }
 
-        public CompareAndSwapResp doCompareAndSwap(CompareAndSwapReq request) {
-            Console.WriteLine("BONEY CompareAndSwapServiceImpl: Received CompareAndSwap message request");
+        public void doCompareAndSwap(CompareAndSwapReq request) {
+            Logger.LogDebug("CompareAndSwapServiceImpl: CompareAndSwap received");
             PaxosValue value = new PaxosValue(request.Leader, request.Slot);
-            _multiPaxos.Start(value,request.Address,_state.GetSlotManager().GetSlotValue((int)request.Slot));
-            return new CompareAndSwapResp();
+            _multiPaxos.Start(value, request.Address, _state.GetSlotManager().GetSlotValue((int)request.Slot));
         }
     }
 }

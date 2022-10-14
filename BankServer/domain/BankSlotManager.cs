@@ -12,7 +12,7 @@ namespace BankServer.domain
     internal class BankSlotManager : IUpdatable
     {
 
-        uint _slot=1;
+        uint _slot = 0;
         ServerConfiguration _config;
         int _processID;
 
@@ -59,8 +59,8 @@ namespace BankServer.domain
         }
 
         public void Update() {
-            BroadcastCompareAndSwap();
             IncrementSlot();
+            BroadcastCompareAndSwap();
         }
 
 
