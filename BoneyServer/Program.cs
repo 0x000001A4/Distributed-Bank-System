@@ -70,10 +70,10 @@ namespace BoneyServer
 			QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
             BoneyServerState boneyServerState = new BoneyServerState(processID, multiPaxos, config, cmdHandler);
 
-			CompareAndSwapServiceImpl _casService = new CompareAndSwapServiceImpl(multiPaxos, boneyServerState);
-			PaxosAcceptorServiceImpl _paxosAcceptorService = new PaxosAcceptorServiceImpl(multiPaxos, boneyServerState);
-			PaxosLearnerServiceImpl _paxosLearnerService = new PaxosLearnerServiceImpl(config.GetBankServersPortsAndAddresses(),
-				multiPaxos, (uint)config.GetNumberOfBoneyServers(), boneyServerState);
+			CompareAndSwapServiceImpl _casService = new CompareAndSwapServiceImpl(boneyServerState, multiPaxos);
+			PaxosAcceptorServiceImpl _paxosAcceptorService = new PaxosAcceptorServiceImpl(boneyServerState, multiPaxos);
+			PaxosLearnerServiceImpl _paxosLearnerService = new PaxosLearnerServiceImpl(boneyServerState,
+				multiPaxos, config.GetBankServersPortsAndAddresses(), (uint)config.GetNumberOfBoneyServers());
 
 			cmdHandler.AddCompareAndSwapService(_casService);
 			cmdHandler.AddPaxosAcceptorService(_paxosAcceptorService);
@@ -86,10 +86,10 @@ namespace BoneyServer
 
             Server server = new Server {
                 Services = {
-                  CompareAndSwapService.BindService(new CompareAndSwapServiceImpl(boneyServerState,multiPaxos)).Intercept(_interceptor),
-                  PaxosAcceptorService.BindService(new PaxosAcceptorServiceImpl(multiPaxos)).Intercept(_interceptor),
-                  PaxosLearnerService.BindService(new PaxosLearnerServiceImpl(boneyServerState, multiPaxos)).Intercept(_interceptor)
-				        },
+                  CompareAndSwapService.BindService(_casService).Intercept(_interceptor),
+                  PaxosAcceptorService.BindService(_paxosAcceptorService).Intercept(_interceptor),
+                  PaxosLearnerService.BindService(_paxosLearnerService).Intercept(_interceptor)
+				},
                 Ports = { serverPort }
             };
 

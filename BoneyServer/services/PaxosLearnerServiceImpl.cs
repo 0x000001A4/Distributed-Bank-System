@@ -19,7 +19,7 @@ namespace BoneyServer.services
         BoneyServerState _state;
         
 
-        public PaxosLearnerServiceImpl(List<string> bankServersInfo, IMultiPaxos multiPaxos, uint numberOfBoneyProcesses, BoneyServerState state) 
+        public PaxosLearnerServiceImpl(BoneyServerState state, IMultiPaxos multiPaxos, List<string> bankServersInfo, uint numberOfBoneyProcesses) 
         {
             _multiPaxos = multiPaxos;
             SetServers(bankServersInfo);
@@ -51,13 +51,13 @@ namespace BoneyServer.services
             PaxosInstance? requestInstanceInfo = _multiPaxos.GetPaxosInstance(requestInstance);
             requestInstanceInfo.AcceptedCommands++;
             
-            if (MajorityAccepted(requestInstance, requestInstanceInfo)) {
+            if (MajorityAccepted(requestInstanceInfo)) {
                 Logger.LogDebugLearner($"Received majority of accepts for instance {requestInstance}.");
                 _state.GetSlotManager().FillSlot((int) request.Value.Slot, request.Value.Leader);
                 _multiPaxos.GetSlotState((int)request.Value.Slot).EndConsensus();
                 foreach(var channel in _bankServerChannels) {
-                    PaxosResultHandlerService.PaxosResultHandlerServiceClient _client = 
-                        new PaxosResultHandlerService.PaxosResultHandlerServiceClient(channel);
+                    CompareAndSwapService.CompareAndSwapServiceClient _client = 
+                        new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
 
                     if (requestInstanceInfo.Value != null)
@@ -67,13 +67,13 @@ namespace BoneyServer.services
                             Slot = requestInstanceInfo.Value.Slot,
                             Primary = requestInstanceInfo.Value.ProcessID
                         });
+                        Logger.LogDebugLearner($"Response sent to all bank clients: (slot: {requestInstanceInfo.Value.Slot}, leader: {requestInstanceInfo.Value.ProcessID})");
                     }
                     else {
                         Logger.LogError("Unexpected behaviour in LearnCommand(LearnCommandReq request, ...): requestInstanceInfo.value = null (line 44: PaxosLearnerServiceImpl.cs)");
                         Environment.Exit(-1);
                     }
                 }
-                Logger.LogDebugLearner($"Response sent to all bank clients: (slot: {requestInstanceInfo.Value.Slot}, leader: {requestInstanceInfo.Value.ProcessID})");
             }
             return new LearnCommandResp();
         } 

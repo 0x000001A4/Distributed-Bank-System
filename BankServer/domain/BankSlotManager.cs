@@ -12,7 +12,7 @@ namespace BankServer.domain
     internal class BankSlotManager : IUpdatable
     {
 
-        uint _slot=1;
+        uint _slot = 0;
         ServerConfiguration _config;
         int _processID;
 
@@ -49,7 +49,7 @@ namespace BankServer.domain
                 
                 (string,int) tuplo2 = _config.GetBankHostnameAndPortByProcess(_processID);
                 string address = "http://" + tuplo2.Item1 + ":" + tuplo2.Item2;
-                client.CompareAndSwap(new CompareAndSwapRequest { Slot = _slot, Leader = ChooseLeader() , Address = address});
+                client.CompareAndSwap(new CompareAndSwapReq { Slot = _slot, Leader = ChooseLeader() , Address = address});
                 }
             Logger.LogDebug("CompareAndSwap sent");
         }
@@ -59,8 +59,8 @@ namespace BankServer.domain
         }
 
         public void Update() {
-            BroadcastCompareAndSwap();
             IncrementSlot();
+            BroadcastCompareAndSwap();
         }
 
 

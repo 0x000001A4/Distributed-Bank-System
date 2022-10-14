@@ -5,7 +5,7 @@ namespace BoneyServer.domain.paxos
 {
     public interface IMultiPaxos
     {
-        public void Start(PaxosValue value, string address, uint finalValue);
+        public void Start(PaxosValue value, string address, uint primary);
         void UpdateServers(Dictionary<uint, string> servers);
         PaxosInstance GetPaxosInstance(uint instanceId);
 
@@ -59,7 +59,7 @@ namespace BoneyServer.domain.paxos
             Acceptor.SetServers(boneysAdress);
         }
 
-        public void Start(PaxosValue value, string address, uint finalValue)
+        public void Start(PaxosValue value, string address, uint primary)
         {
             uint slot = value.Slot;
             PaxosSlotState slotState = _paxosSlotState[(int)slot];
@@ -75,18 +75,15 @@ namespace BoneyServer.domain.paxos
                 // If an isntance for slot has already begun, enqueue the request not to start a new instance
 
             }
-            else if (slotState.IsWaiting())
-            {
+            else if (slotState.IsWaiting()) {
                 _paxosSlotState[(int)slot].Enqueue(value.ProcessID);
-                
             }
             else if (slotState.IsFinished())
             {
-                ConsensusFinalValue.DoWork(address, slot, finalValue);
+                ConsensusFinalValue.DoWork(address, slot, primary);
             }
-               
-        
-       }
+
+        }
         public (PaxosValue?, bool) Promisse(uint leaderNumber, uint instance)
         {
             PaxosInstance instancia = _paxosInstances[(int)instance];
@@ -169,8 +166,11 @@ namespace BoneyServer.domain.paxos
             _leaderProcessID = minProcID;
         }
 
-        private bool iAmLeader()
-        {
+        private bool iAmLeader() {
+            if (_leaderProcessID == null) {
+                Console.WriteLine("Unexpected Behaviour: Leader should be chosen before starting consensus for primary");
+                Environment.Exit(-1);
+            }
             return _leaderProcessID == _sourceProcessID;
         }
     }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BankServer.utils;
 
 namespace BankServer.services
 {
@@ -12,7 +13,7 @@ namespace BankServer.services
         public override Task<CompareAndSwapResp> HandlePaxosResult(CompareAndSwapResp request, ServerCallContext context)
         {
             // Use request.primary to chose a primary for request.slot
-            Debug.Logger($"Bank Server HandlePaxosResult(request) called:  Elected Primary: {request.Primary} | Slot: {request.Slot}");
+            Logger.LogDebugBankServer($"Bank Server HandlePaxosResult(request) called:  Elected Primary: {request.Primary} | Slot: {request.Slot}");
             return Task.FromResult(request);
         }
     }
