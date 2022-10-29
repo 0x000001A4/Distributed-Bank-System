@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace PuppetMaster.utils
+namespace BankClient.utils
 {
 
     /// <summary>
@@ -17,7 +17,6 @@ namespace PuppetMaster.utils
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
-        private bool _started = false;
 
         public ServerConfiguration() { }
 
@@ -253,11 +252,13 @@ namespace PuppetMaster.utils
 
         public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
+            checkIfExceededMaxSlots(slotNumber);
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 
         public string GetFrozenStateOfProcessInSlot(uint processId, uint slotNumber)
         {
+            checkIfExceededMaxSlots(slotNumber);
             return _serverStatePerSlot[slotNumber, processId];
         }
         public int GetNumberOfBoneyServers()
@@ -305,18 +306,13 @@ namespace PuppetMaster.utils
             return _bankServersHostnames.Values.ToList();
         }
 
-        public bool ExceededMaxSlots(uint slot)
+        private void checkIfExceededMaxSlots(uint slot)
         {
-            return slot > _numberOfSlots;
-        }
-
-        public bool hasFinished()
-        {
-            return _started;
-        }
-        public void setAsConfigured()
-        {
-            _started = true;
+            if (slot > _numberOfSlots)
+            {
+                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Freezing process.");
+                Process.GetCurrentProcess().WaitForExit();
+            }
         }
     }
 }
