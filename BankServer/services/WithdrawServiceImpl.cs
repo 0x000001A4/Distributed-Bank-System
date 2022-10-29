@@ -19,10 +19,24 @@ namespace BankServer.services
             _bankManager = bankManager;
 
         }
-        /*public override Task<WithdrawResp> HandleWithdrawReq(WithdrawReq request, ServerCallContext context)
+        public override Task<WithdrawResp> Withdraw(WithdrawReq request, ServerCallContext context)
         {
-            
-            return Task.FromResult(request);
-        }*/
+            Logger.LogDebug("Withdraw received.");
+            //Logger.LogDebug(_state.IsFrozen().ToString());
+            //if (!_state.IsFrozen())
+            //{
+            WithdrawResp response = doWithdraw(request);
+            Logger.LogDebug("End of CompareAndSwap");
+            return Task.FromResult(response);                     //Rick Ve Isto
+            //}
+            // Request got queued and will be handled later
+            throw new Exception("The server is frozen.");
+        }
+
+        public WithdrawResp doWithdraw(WithdrawReq request)
+        {
+            string response = _bankManager.Withdraw((int)request.Client.ClientID, request.Amount);
+            return new WithdrawResp() { Response = response };
+        }
     }
 }

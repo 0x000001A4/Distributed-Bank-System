@@ -17,10 +17,24 @@ namespace BankServer.services
             _bankManager = bankManager;
 
         }
-        /*public override Task<ReadResp> HandleReadReq(ReadReq request, ServerCallContext context)
+        public override Task<ReadResp> Read(ReadReq request, ServerCallContext context)
         {
-            
-            return Task.FromResult(request);
-        }*/
+            Logger.LogDebug("Read received.");
+            //Logger.LogDebug(_state.IsFrozen().ToString());
+            //if (!_state.IsFrozen())
+            //{
+            ReadResp response = doRead(request);
+            Logger.LogDebug("End of CompareAndSwap");
+            return Task.FromResult(response);                     //Rick Ve Isto
+            //}
+            // Request got queued and will be handled later
+            throw new Exception("The server is frozen.");
+        }
+
+        public ReadResp doRead(ReadReq request)
+        {
+            double balance = _bankManager.Read((int)request.Client.ClientID);
+            return new ReadResp() { Balance = balance };
+        }
     }
 }

@@ -8,46 +8,46 @@ namespace BankServer.domain
 {
     public class BankManager {
        
-        private Dictionary<int, int> _clientLogic = new Dictionary<int, int>();
+        private Dictionary<int, double> _clientLogic = new Dictionary<int, double>();
 
         public BankManager() {}
 
-        public bool deposit(int client_id, int value) {
+        public string Deposit(int client_id, double value) {
             lock (this)
             {
-                int final_value;
+                double final_value;
                 if (_clientLogic.TryGetValue(client_id, out final_value))
                 {
                     _clientLogic.Add(client_id, final_value + value);
-                    return true;
+                    return "SUCESS";
                 }
-                return false;
+                return "FAIL";
             }
            
         }
 
-        public bool withdrawal(int client_id, int value) {
+        public string Withdraw(int client_id, double value) {
             lock (this)
             {
-                int final_value;
+                double final_value;
                 if (_clientLogic.TryGetValue(client_id, out final_value))
                 {
                     if (final_value >= value)
                     {
                         _clientLogic.Add(client_id, final_value - value);
-                        return true;
+                        return "SUCESS";
                     }
                 }
-                return false;
+                return "FAIL";
             }
         }
 
 
-        public int getBalance(int client_id)
+        public double Read(int client_id)
         {
             lock (this)
             {
-                int final_value;
+                double final_value;
                 if (_clientLogic.TryGetValue(client_id, out final_value))
                 {
 
