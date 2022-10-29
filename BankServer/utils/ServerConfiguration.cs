@@ -15,12 +15,10 @@ namespace BankServer.utils
         private Dictionary<int, string> _bankServersHostnames;
         private string[,] _serverStatePerSlot;      // TODO - edit to dynamic structure
         private string[,] _serverSuspectedPerSlot;  // 
-        private List<int> _clientList;
+        private Dictionary<int, string> _clients;
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
-        Server? _server;
-        BankServerState? _state;
         private bool _started = false;
 
         public ServerConfiguration() { }
@@ -29,9 +27,9 @@ namespace BankServer.utils
         {
             Dictionary<int, string> _boneyMap = new Dictionary<int, string>();
             Dictionary<int, string> _bankMap = new Dictionary<int, string>();
+            Dictionary<int, string> _clientMap = new Dictionary<int, string>();
             string[,] _serverState;
             string[,] _serverSuspect;
-            List<int> clientList = new List<int>();
             int _numberSlots = 1;
             string _timeOfFirstSlot = "";
             int _slotDuration = 0;
@@ -63,7 +61,19 @@ namespace BankServer.utils
                         var match = expression.Match(words[3]);
                         _bankMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
                     }
-                    if (words[2] == "client") clientList.Add(int.Parse(words[1]));
+                    if (words[2] == "client")
+                    {
+                        try
+                        {
+                            _clientMap.Add(int.Parse(words[1]), words[3]);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.LogError("Please provide clients in the configuration file in the following format: \"P client configFileName\"");
+                            throw;
+                        }
+
+                    }
                 }
                 else if (words[0] == "S")
                 {
@@ -131,7 +141,7 @@ namespace BankServer.utils
                 .SetBankServersHostnames(_bankMap)
                 .SetServerStatePerSlot(_serverState)
                 .SetServerSuspectedPerSlot(_serverSuspect)
-                .SetClientList(clientList)
+                .SetClients(_clientMap)
                 .SetTimeOfFirstSlot(_timeOfFirstSlot)
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
@@ -165,9 +175,9 @@ namespace BankServer.utils
             return this;
         }
 
-        public ServerConfiguration SetClientList(List<int> clientList)
+        public ServerConfiguration SetClients(Dictionary<int, string> clients)
         {
-            _clientList = clientList;
+            _clients = clients;
             return this;
         }
 
@@ -206,9 +216,9 @@ namespace BankServer.utils
         }
 
 
-        public List<int> GetClientList()
+        public Dictionary<int, string> GetClients()
         {
-            return _clientList;
+            return _clients;
         }
 
         public (string, int) GetBoneyHostnameAndPortByProcess(int p)
@@ -245,13 +255,11 @@ namespace BankServer.utils
 
         public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
-            checkIfExceededMaxSlots(slotNumber);
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 
         public string GetFrozenStateOfProcessInSlot(uint processId, uint slotNumber)
         {
-            checkIfExceededMaxSlots(slotNumber);
             return _serverStatePerSlot[slotNumber, processId];
         }
         public int GetNumberOfBoneyServers()
@@ -264,14 +272,29 @@ namespace BankServer.utils
             return _bankServersHostnames.Count();
         }
 
-        public bool CheckClientExists(int id)
+        public int GetNumberOfClients()
         {
-            return _clientList.Contains(id);
+            return _clients.Count();
         }
 
+        public bool CheckClientExists(int id)
+        {
+            return _clients.ContainsKey(id);
+        }
+        
         public List<int> GetBoneyServerIDs()
         {
             return _boneyServersHostnames.Keys.ToList();
+        }
+
+        public List<int> GetBankServerIDs()
+        {
+            return _bankServersHostnames.Keys.ToList();
+        }
+
+        public List<int> GetClientIDs()
+        {
+            return _clients.Keys.ToList();
         }
 
         public List<string> GetBoneyServersPortsAndAddresses()
@@ -289,23 +312,9 @@ namespace BankServer.utils
             return _bankServersHostnames.Values.ToList();
         }
 
-        private void checkIfExceededMaxSlots(uint slot)
+        public bool ExceededMaxSlots(uint slot)
         {
-            if (slot > _numberOfSlots)
-            {
-                if (_state != null)
-                {
-                    _state.HandleQueuedMessages();
-                }
-                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Shutting process down after processing queued requests.");
-                if (_server != null) _server.ShutdownAsync().Wait();
-            }
-        }
-
-        public void AddServerAndState(Server server, BankServerState state)
-        {
-            _server = server;
-            _state = state;
+            return slot > _numberOfSlots;
         }
 
         public bool hasFinished()
