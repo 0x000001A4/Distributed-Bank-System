@@ -18,10 +18,10 @@ namespace BankServer.services
             _bankManager = bankManager;
             
         }
-        public override Task<DepositResp> HandleDepositReq(DepositReq request, ServerCallContext context)
+        /*public override Task<DepositResp> HandleDepositReq(DepositReq request, ServerCallContext context)
         {
             
             return Task.FromResult(request);
-        }
+        }*/
     }
 }

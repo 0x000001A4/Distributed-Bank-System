@@ -302,11 +302,6 @@ namespace BankServer.utils
             return _boneyServersHostnames.Values.ToList();
         }
 
-        public List<int> GetBankServerIDs()
-        {
-            return _bankServersHostnames.Keys.ToList();
-        }
-
         public List<string> GetBankServersPortsAndAddresses()
         {
             return _bankServersHostnames.Values.ToList();

@@ -1,9 +1,9 @@
 ﻿using Grpc.Core;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using BankServer.domain;
+using BoneyServer.domain;
 
-namespace BankServer.utils
+namespace BoneyServer.utils
 {
 
     /// <summary>
@@ -300,11 +300,6 @@ namespace BankServer.utils
         public List<string> GetBoneyServersPortsAndAddresses()
         {
             return _boneyServersHostnames.Values.ToList();
-        }
-
-        public List<int> GetBankServerIDs()
-        {
-            return _bankServersHostnames.Keys.ToList();
         }
 
         public List<string> GetBankServersPortsAndAddresses()

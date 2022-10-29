@@ -34,12 +34,6 @@ namespace BankServer.domain
         }
 
 
-        public void IncrementSlot()
-        {
-            _slotManager.IncrementSlot();
-        }
-
-
         public void HandleQueuedMessage(Message _msg)
         {
             string _sender = _msg.GetSender();
@@ -55,7 +49,7 @@ namespace BankServer.domain
         public void Update()
         {
             var _prevSlotStatus = _frozen;
-            IncrementSlot();
+            _slotManager.IncrementSlot();
 
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());

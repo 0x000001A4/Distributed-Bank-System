@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BankServer.utils;
 using BankServer.domain;
 
 namespace BankServer.services
@@ -18,10 +17,10 @@ namespace BankServer.services
             _bankManager = bankManager;
 
         }
-        public override Task<ReadResp> HandleReadReq(ReadReq request, ServerCallContext context)
+        /*public override Task<ReadResp> HandleReadReq(ReadReq request, ServerCallContext context)
         {
             
             return Task.FromResult(request);
-        }
+        }*/
     }
 }
