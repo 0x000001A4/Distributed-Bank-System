@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BankClient": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\\\..\\\\..\\\\..\\\\BankClient\\\\configuration_sample.txt\r\n..\\\\..\\\\..\\\\..\\\\BankClient\\\\client-script-13.txt\r\n8"
+    }
+  }
+}
