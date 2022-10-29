@@ -1,0 +1,53 @@
+﻿syntax = "proto3";
+
+service ClientService {
+  rpc Deposit (DepositReq) returns (DepositResp);
+  rpc Withdraw (WithdrawReq) returns (WithdrawResp);
+  rpc Read (ReadReq) returns (ReadResp);
+  
+}
+
+/*  Deposit */
+message DepositReq {
+	Client client = 1;
+	uint32 amount = 2;
+	
+}
+
+message DepositResp {
+	string response = 1;
+	
+}
+
+/*  Withdraw */
+
+message WithdrawReq {
+	Client client = 1;
+	uint32 amount = 2;
+	
+}
+
+message WithdrawResp {
+	string response = 1;
+	
+}
+
+/*  Read */
+
+message ReadReq {
+	Client client = 1;
+	
+	
+}
+
+message ReadResp {
+	uint32 balance = 1;
+	
+}
+
+
+
+message Client {
+	uint32 clientID = 1;
+	uint32 clientRequestSeqNumb = 2;
+}
