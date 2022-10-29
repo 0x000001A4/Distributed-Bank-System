@@ -11,8 +11,6 @@ namespace BankClient.utils
     }
     public class ClientConfiguration
     {
-
-
         public List<ICommand> Commands;
         public ClientConfiguration(List<ICommand> commands)
         {
@@ -24,7 +22,6 @@ namespace BankClient.utils
             List<ICommand> commands = new List<ICommand>();
             string[] lines = File.ReadAllLines(filePath);
             string[] words;
-
             foreach (string line in lines)
             {
                 words = line.Split(' ');
@@ -50,19 +47,18 @@ namespace BankClient.utils
                         default:
                             break;
                     }
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Please use the correct format for commands:" +
-                    "\n\tD double" +
-                    "\n\tW double" +
-                    "\n\tR" +
-                    "\n\tS int");
-                throw e;
-            }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Please use the correct format for commands:" +
+                        "\n\tD double" +
+                        "\n\tW double" +
+                        "\n\tR" +
+                        "\n\tS int");
+                    throw e;
+                }
 
-        }
-
+            }
             return new ClientConfiguration(commands);
         }
     }

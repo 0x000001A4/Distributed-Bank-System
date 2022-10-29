@@ -1,35 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BankClient.utils;
-using Google.Protobuf.WellKnownTypes;
+﻿using BankClient.utils;
 using Grpc.Net.Client;
 
 namespace BankClient.domain
 {
-    internal class BankClientFrontEnd
+    public class BankClientFrontend
     {
         ServerConfiguration _config;
-        public BankClientFrontEnd(ServerConfiguration config)
+        public BankClientFrontend(ServerConfiguration config)
         {
             _config = config;
         }
 
-        public string ExecuteDeposit(int clientID,int opeSeqNumb,double amount)
+        public string Deposit(uint clientID, uint opeSeqNumb,double amount)
         {
             List<int> bankAdresses = _config.GetBankServerIDs();
-            foreach (int id in bankAdresses)
+            Logger.LogInfo(bankAdresses.ToString());
+            foreach (int id in bankAdresses) // TODO: Sees only bank with port 10004 why ??
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                //Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + bankHost + ":" + bankPort);
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
-                Logger.LogDebug("CompareAndSwap sent");
-                Client protoClient = new Client { ClientID = (uint)clientID, ClientRequestSeqNumb = (uint) opeSeqNumb };
+                Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
                 DepositResp response = client.Deposit(request);
                 return response.Response;
@@ -38,19 +31,17 @@ namespace BankClient.domain
 
         }
 
-        public string ExecuteWithDraw(int clientID, int opeSeqNumb, double amount)
+        public string Withdraw(uint clientID, uint opeSeqNumb, double amount)
         {
             List<int> bankAdresses = _config.GetBankServerIDs();
             foreach (int id in bankAdresses)
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                //Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + bankHost + ":" + bankPort);
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
-                Logger.LogDebug("Withdraw sent");
-                Client protoClient = new Client { ClientID = (uint)clientID, ClientRequestSeqNumb = (uint)opeSeqNumb };
+                Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 WithdrawReq request = new WithdrawReq { Client = protoClient, Amount = amount };
                 WithdrawResp response = client.Withdraw(request);
                 return response.Response;
@@ -59,21 +50,19 @@ namespace BankClient.domain
 
         }
 
-        public double ExecuteRead(int clientID, int opeSeqNumb)
+        public double ReadBalance(uint clientID, uint opeSeqNumb)
         {
             List<int> bankAdresses = _config.GetBankServerIDs();
             foreach (int id in bankAdresses)
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                //Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + bankHost + ":" + bankPort);
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
-                Logger.LogDebug("Withdraw sent");
-                Client protoClient = new Client { ClientID = (uint)clientID, ClientRequestSeqNumb = (uint)opeSeqNumb };
+                Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 ReadReq request = new ReadReq { Client = protoClient,};
-                ReadResp response = client.Read(request);
+                ReadResp response = client.ReadBalance(request);
                 return response.Balance;
             }
             return -1;

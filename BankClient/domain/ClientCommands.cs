@@ -1,29 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BankClient.domain
+﻿namespace BankClient.domain
 {
     public interface ICommand
     {
         string CommandName { get; set; }
-        void Execute();
+        void Execute(uint executionOrder);
         string GetName()
         {
             return CommandName;
         }
     }
-    public abstract class FrontendCommand
+    public abstract class FrontendCommandContext
     {
-        protected static bool _frontend;
-        public static void SetFrontend(bool frontend)
-        {
-            _frontend = frontend;
-        }
+        public static BankClientFrontend Frontend { get; set; }
+        public static uint ClientID { get; set; }
+
     }
-    public class ReadCommand : FrontendCommand, ICommand
+    public class ReadCommand : FrontendCommandContext, ICommand
     {
         public string CommandName { get; set; }
         public ReadCommand()
@@ -31,13 +23,13 @@ namespace BankClient.domain
             CommandName = "Read()";
         }
 
-        public void Execute()
+        public void Execute(uint executionOrder)
         {
-            //_frontend.Read();
+            Frontend.ReadBalance(ClientID, executionOrder);
         }
     }
 
-    public class DepositCommand : FrontendCommand, ICommand
+    public class DepositCommand : FrontendCommandContext, ICommand
     {
         public string CommandName { get; set; }
         private double _ammount;
@@ -46,13 +38,13 @@ namespace BankClient.domain
             _ammount = ammount;
             CommandName = $"Deposit({ammount})";
         }
-        public void Execute()
+        public void Execute(uint executionOrder)
         {
-            //_frontend.Deposit(_ammount);
+            Frontend.Deposit(ClientID, executionOrder, _ammount);
         }
     }
 
-    public class WithdrawCommand : FrontendCommand, ICommand
+    public class WithdrawCommand : FrontendCommandContext, ICommand
     {
         public string CommandName { get; set; }
         private double _ammount;
@@ -61,13 +53,13 @@ namespace BankClient.domain
             _ammount = ammount;
             CommandName = $"Withdraw({ammount})";
         }
-        public void Execute()
+        public void Execute(uint executionOrder)
         {
-            //_frontend.Withdraw(_ammount);
+            Frontend.Withdraw(ClientID, executionOrder, _ammount);
         }
     }
 
-    public class WaitCommand : FrontendCommand, ICommand
+    public class WaitCommand : ICommand
     {
         public string CommandName { get; set; }
         private int _timeMillis;
@@ -76,7 +68,7 @@ namespace BankClient.domain
             _timeMillis = timeMillis;
             CommandName = $"Wait({timeMillis})";
         }
-        public void Execute()
+        public void Execute(uint seqNumber)
         {
             Thread.Sleep(_timeMillis);
         }

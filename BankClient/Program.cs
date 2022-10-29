@@ -29,7 +29,7 @@ namespace BankClient
 			}
 			Logger.LogInfo($"Starting Bank Client {clientID}");
 
-			ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig);
+			ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig, clientID);
 			clientLogic.Start();
 
 			Logger.LogInfo("All commands executed");
@@ -41,21 +41,21 @@ namespace BankClient
 	public class ClientLogic
     {
 		private List<ICommand> _commands;
-		public ClientLogic(List<ICommand> commands, ServerConfiguration globalConfig)
+		public ClientLogic(List<ICommand> commands, ServerConfiguration globalConfig, uint clientID)
         {
 			_commands = commands;
-			// TODO: delete from comment
-			// FrontendCommand.SetFrontend(new BankClientFrontEnd(globalConfig));
+			FrontendCommandContext.Frontend = new BankClientFrontend(globalConfig);
+			FrontendCommandContext.ClientID = clientID;
         }
 
 		public void Start()
         {
-			int count = 1;
+			uint executionOrder = 1;
 			foreach(var command in _commands)
             {
 				Logger.LogInfo(command.GetName() + " executed");
-				command.Execute();
-				count++;
+				command.Execute(executionOrder);
+				executionOrder++;
             }
         }
     }

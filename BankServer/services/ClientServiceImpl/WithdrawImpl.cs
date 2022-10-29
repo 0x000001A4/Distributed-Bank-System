@@ -1,24 +1,10 @@
 ﻿using BankServer.utils;
 using Grpc.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BankServer.utils;
-using BankServer.domain;
 
 namespace BankServer.services
 {
-    internal class WithdrawServiceImpl : ClientService.ClientServiceBase
+    partial class ClientServiceImpl : ClientService.ClientServiceBase
     {
-
-        public BankManager _bankManager;
-        public WithdrawServiceImpl(BankManager bankManager)
-        {
-            _bankManager = bankManager;
-
-        }
         public override Task<WithdrawResp> Withdraw(WithdrawReq request, ServerCallContext context)
         {
             Logger.LogDebug("Withdraw received.");
