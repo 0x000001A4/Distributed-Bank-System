@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using Grpc.Core;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
+using BankServer.domain;
 
 namespace BankServer.utils
 {
@@ -17,6 +19,9 @@ namespace BankServer.utils
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
+        Server? _server;
+        BankServerState? _state;
+        private bool _started = false;
 
         public ServerConfiguration() { }
 
@@ -269,14 +274,14 @@ namespace BankServer.utils
             return _boneyServersHostnames.Keys.ToList();
         }
 
-        public List<int> GetBankServerIDs()
-        {
-            return _bankServersHostnames.Keys.ToList();
-        }
-
         public List<string> GetBoneyServersPortsAndAddresses()
         {
             return _boneyServersHostnames.Values.ToList();
+        }
+
+        public List<int> GetBankServerIDs()
+        {
+            return _bankServersHostnames.Keys.ToList();
         }
 
         public List<string> GetBankServersPortsAndAddresses()
@@ -288,10 +293,28 @@ namespace BankServer.utils
         {
             if (slot > _numberOfSlots)
             {
-                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Freezing process.");
-                Process.GetCurrentProcess().WaitForExit();
+                if (_state != null)
+                {
+                    _state.HandleQueuedMessages();
+                }
+                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Shutting process down after processing queued requests.");
+                if (_server != null) _server.ShutdownAsync().Wait();
             }
+        }
+
+        public void AddServerAndState(Server server, BankServerState state)
+        {
+            _server = server;
+            _state = state;
+        }
+
+        public bool hasFinished()
+        {
+            return _started;
+        }
+        public void setAsConfigured()
+        {
+            _started = true;
         }
     }
 }
-

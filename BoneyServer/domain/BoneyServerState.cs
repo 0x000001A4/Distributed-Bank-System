@@ -53,7 +53,7 @@ namespace BoneyServer.domain
             uint msgId = _msg.GetRequestId();
 
             if (msgId == 1) {
-                _cmdHandler.handleCompareAndSwap(_msg.GetCompareAndSwapRequest(), _sender);
+                _cmdHandler.handleCompareAndSwap(_msg.GetCompareAndSwapRequest());
             }
 
             else if (msgId == 2) {

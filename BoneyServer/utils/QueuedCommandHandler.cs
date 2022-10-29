@@ -34,7 +34,7 @@ namespace BoneyServer.utils
             _paxosLearnerService = paxosLearnerService;
         }
 
-        public void handleCompareAndSwap(CompareAndSwapReq request, string sender) {
+        public void handleCompareAndSwap(CompareAndSwapReq request) {
             if (_casService == null) {
                 Console.WriteLine("Unexpected behaviour in handleCompareAndSwap function: _casService == null (QueuedCommandHandler.cs : Line 27)");
                 throw new Exception();
