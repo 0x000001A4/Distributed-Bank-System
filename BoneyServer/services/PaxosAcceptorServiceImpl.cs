@@ -66,9 +66,9 @@ namespace BoneyServer.services
       }
 
       public AcceptedResp doAccept(AcceptReq request) {
-          _multiPaxos.UpdateAccept(new PaxosValue(request.Value.Leader,request.Value.Slot),
+          bool accepted = _multiPaxos.UpdateAccept(new PaxosValue(request.Value.Leader,request.Value.Slot),
                     request.LeaderNumber,request.PaxosInstance);
-          Acceptor.LearnWork(request);
+          if (accepted) Acceptor.SendAccepted(request);
           return new AcceptedResp();
       }
 	}

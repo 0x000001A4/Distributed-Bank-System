@@ -28,16 +28,15 @@ namespace BoneyServer.domain.paxos
 
 		public static bool PromisseWork(uint leaderNumber, uint readTimeStamp)
 		{
-			if (leaderNumber >= readTimeStamp) return true;
-			else return false;
+			return (leaderNumber >= readTimeStamp);
 		}
 
 
 
 
-		public static void LearnWork(AcceptReq request) {
+		public static void SendAccepted(AcceptReq request) {
 			try {
-				Task ret = AcceptCommand(
+				AcceptCommand(
 				   new CompareAndSwapReq(request.Value),
 				   request.LeaderNumber,
 				   request.PaxosInstance);
@@ -48,7 +47,7 @@ namespace BoneyServer.domain.paxos
 		}
 
 
-		public async static Task AcceptCommand(CompareAndSwapReq compareAndSwapReq, uint leaderNumber, uint instance)
+		public static void AcceptCommand(CompareAndSwapReq compareAndSwapReq, uint leaderNumber, uint instance)
 		{
 			Logger.LogDebugAcceptor("sending accepted to learners..");
 			foreach (var channel in _boneyChannels)
@@ -56,7 +55,7 @@ namespace BoneyServer.domain.paxos
 				PaxosLearnerService.PaxosLearnerServiceClient client = new PaxosLearnerService.PaxosLearnerServiceClient(channel);
 				Logger.LogDebugAcceptor("sending Accepted to " + channel.Target);
 				try { 
-					LearnCommandResp reply = await client.LearnCommandAsync(
+					client.LearnCommandAsync(
 						new LearnCommandReq { Value = compareAndSwapReq, LeaderNumber = leaderNumber, PaxosInstance = instance }
 					);
 				} catch(Exception e) {
