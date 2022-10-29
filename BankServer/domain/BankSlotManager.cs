@@ -9,9 +9,9 @@ using System.Diagnostics;
 
 namespace BankServer.domain
 {
-    public class BankSlotManager
-    {
+    public class BankSlotManager {
 
+        Slots<uint> _slots;
         uint _slot = 0;
         ServerConfiguration _config;
         int _maxSlots;
@@ -48,6 +48,17 @@ namespace BankServer.domain
 
         public int GetMaxSlots() {
             return _maxSlots;
+        }
+
+        public void SetPrimaryOnSlot(uint slotId, uint primary)
+        {
+            _slots[(int)slotId] = primary;
+        }
+
+
+        public uint GetPrimaryOnSlot(uint slotId)
+        {
+            return _slots[(int)slotId];
         }
     }
 }

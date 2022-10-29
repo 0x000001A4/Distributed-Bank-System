@@ -26,11 +26,7 @@ namespace BankServer.utils
                 Console.WriteLine("Unexpected behaviour in handlePaxosResult function: _paxosResultHandler == null (QueuedCommandHandler.cs : Line 22)");
                 throw new Exception();
             }
-            CompareAndSwapResp paxosResultHandlerResp = _paxosResultHandler.doHandlePaxosResult(request);
-            /*
-            CompareAndSwapService.CompareAndSwapServiceClient _client =
-                new CompareAndSwapService.CompareAndSwapServiceClient(GrpcChannel.ForAddress(sender));
-            _client.SendHandlePaxosResultResponse(paxosResultHandlerResp);*/
+            _ = _paxosResultHandler.doHandlePaxosResult(request);
         }
     }
 }

@@ -18,8 +18,11 @@ namespace BankServer.domain
         private Queue<Message> _queue { get; set; } = new Queue<Message>();
         private QueuedCommandHandler _cmdHandler;
 
+        private uint _sequenceNumber;
+
         public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler)
         {
+            _sequenceNumber = 0;
             _slotManager = new BankSlotManager(config);
             _numberOfProcesses = (uint)config.GetNumberOfBankServers();
             _config = config;
@@ -109,7 +112,6 @@ namespace BankServer.domain
 
         public void BroadcastCompareAndSwap()
         {
-
             List<int> boneyAdresses = _config.GetBoneyServerIDs();
             (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess((int)_processId);
             string address = "http://" + bankHost + ":" + bankPort;
@@ -119,13 +121,17 @@ namespace BankServer.domain
             {
                 (string boneyHost, int boneyPort) = _config.GetBoneyHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {boneyHost}:{boneyPort}");
-                //Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + boneyHost + ":" + boneyPort);
                 CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
                 Logger.LogDebug("CompareAndSwap sent");
                 client.CompareAndSwapAsync(new CompareAndSwapReq { Slot = _slotManager.GetCurrentSlot(), Leader = leader, Address = address });
             }
+
+        }
+
+        public void Cleanup()
+        {
 
         }
     }

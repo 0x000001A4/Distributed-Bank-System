@@ -19,16 +19,22 @@ namespace BankServer.services
             _state = state;
         }
 
-        public override Task<CompareAndSwapResp> HandlePaxosResult(CompareAndSwapResp request, ServerCallContext context)
+        public override Task<HandlePaxosResultResp> HandlePaxosResult(CompareAndSwapResp request, ServerCallContext context)
         {
             // Use request.primary to chose a primary for request.slot
             Logger.LogDebug($"Bank Server compareAndSwap response:  Elected ( Primary: {request.Primary}, Slot: {request.Slot})");
             return Task.FromResult(doHandlePaxosResult(request));
         }
 
-        public CompareAndSwapResp doHandlePaxosResult(CompareAndSwapResp request)
+        public HandlePaxosResultResp doHandlePaxosResult(CompareAndSwapResp request)
         {
-            return request;
+            uint _prevPrimary = _state.GetSlotManager().GetPrimaryOnSlot(request.Slot);
+            uint _primary = request.Primary;
+            if (_prevPrimary != _primary) {
+                _state.Cleanup();
+            }
+            _state.GetSlotManager().SetPrimaryOnSlot(request.Slot, _primary);
+            return new HandlePaxosResultResp { };
         }
     }
 }
