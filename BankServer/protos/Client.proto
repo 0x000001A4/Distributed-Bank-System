@@ -3,7 +3,7 @@
 service ClientService {
   rpc Deposit (DepositReq) returns (DepositResp);
   rpc Withdraw (WithdrawReq) returns (WithdrawResp);
-  rpc Read (ReadReq) returns (ReadResp);
+  rpc ReadBalance (ReadReq) returns (ReadResp);
   
 }
 

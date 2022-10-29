@@ -17,6 +17,7 @@ namespace BankClient.utils
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
+        private bool _started = false;
 
         public ServerConfiguration() { }
 
@@ -238,6 +239,12 @@ namespace BankClient.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
+
+        public string GetClientScriptNameById(int id)
+        {
+            return _clients.GetValueOrDefault(id);
+        }
+
         public string GetServerStateInSlot(uint serverID, uint slotNumber)
         {
             return _serverStatePerSlot[slotNumber, serverID];
@@ -252,13 +259,11 @@ namespace BankClient.utils
 
         public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
-            checkIfExceededMaxSlots(slotNumber);
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 
         public string GetFrozenStateOfProcessInSlot(uint processId, uint slotNumber)
         {
-            checkIfExceededMaxSlots(slotNumber);
             return _serverStatePerSlot[slotNumber, processId];
         }
         public int GetNumberOfBoneyServers()
@@ -306,13 +311,18 @@ namespace BankClient.utils
             return _bankServersHostnames.Values.ToList();
         }
 
-        private void checkIfExceededMaxSlots(uint slot)
+        public bool ExceededMaxSlots(uint slot)
         {
-            if (slot > _numberOfSlots)
-            {
-                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Freezing process.");
-                Process.GetCurrentProcess().WaitForExit();
-            }
+            return slot > _numberOfSlots;
+        }
+
+        public bool hasFinished()
+        {
+            return _started;
+        }
+        public void setAsConfigured()
+        {
+            _started = true;
         }
     }
 }

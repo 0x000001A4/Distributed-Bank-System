@@ -1,7 +1,5 @@
-﻿using Grpc.Core;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using BoneyServer.domain;
 
 namespace BoneyServer.utils
 {
@@ -241,6 +239,12 @@ namespace BoneyServer.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
+
+        public string GetClientScriptNameById(int id)
+        {
+            return _clients.GetValueOrDefault(id);
+        }
+
         public string GetServerStateInSlot(uint serverID, uint slotNumber)
         {
             return _serverStatePerSlot[slotNumber, serverID];
@@ -281,7 +285,7 @@ namespace BoneyServer.utils
         {
             return _clients.ContainsKey(id);
         }
-        
+
         public List<int> GetBoneyServerIDs()
         {
             return _boneyServersHostnames.Keys.ToList();
@@ -322,3 +326,4 @@ namespace BoneyServer.utils
         }
     }
 }
+
