@@ -54,7 +54,7 @@ namespace BoneyServer.domain
             uint msgId = _msg.GetRequestId();
 
             if (msgId == 1) {
-                _cmdHandler.handleCompareAndSwap(_msg.GetCompareAndSwapRequest(), _sender);
+                _cmdHandler.handleCompareAndSwap(_msg.GetCompareAndSwapRequest());
             }
 
             else if (msgId == 2) {
@@ -93,6 +93,7 @@ namespace BoneyServer.domain
             _config.setAsConfigured();
 
             // Check if boney server just unfroze!
+
             if (_slot > 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) {
                 HandleQueuedMessages();
             }

@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+﻿using Grpc.Core;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
+using BankServer.domain;
 
-namespace BoneyServer.utils
+namespace BankServer.utils
 {
 
     /// <summary>
@@ -279,7 +281,7 @@ namespace BoneyServer.utils
         {
             return _clients.ContainsKey(id);
         }
-
+        
         public List<int> GetBoneyServerIDs()
         {
             return _boneyServersHostnames.Keys.ToList();
@@ -298,6 +300,11 @@ namespace BoneyServer.utils
         public List<string> GetBoneyServersPortsAndAddresses()
         {
             return _boneyServersHostnames.Values.ToList();
+        }
+
+        public List<int> GetBankServerIDs()
+        {
+            return _bankServersHostnames.Keys.ToList();
         }
 
         public List<string> GetBankServersPortsAndAddresses()
@@ -320,4 +327,3 @@ namespace BoneyServer.utils
         }
     }
 }
-

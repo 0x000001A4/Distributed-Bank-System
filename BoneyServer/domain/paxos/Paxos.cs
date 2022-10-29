@@ -10,7 +10,7 @@ namespace BoneyServer.domain.paxos
         PaxosInstance GetPaxosInstance(uint instanceId);
         public uint GetPrimaryForSlot(uint slot);
 
-        public void UpdateAccept(PaxosValue value, uint leaderNumber, uint instance);
+        public bool UpdateAccept(PaxosValue value, uint leaderNumber, uint instance);
 
         (PaxosValue, uint, bool) Promisse(uint leaderNumber, uint instance);
 
@@ -116,13 +116,18 @@ namespace BoneyServer.domain.paxos
             }
         }
 
-        public void UpdateAccept(PaxosValue value, uint leaderNumber, uint instance)
+        public bool UpdateAccept(PaxosValue value, uint leaderNumber, uint instance)
         {
             PaxosInstance instancia = _paxosInstances[(int)instance];
-            if (leaderNumber >= instancia.WriteTimeStamp)
+            if (leaderNumber >= instancia.ReadTimeStamp)
             {
                 instancia.WriteTimeStamp = leaderNumber;
                 instancia.Value = value;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

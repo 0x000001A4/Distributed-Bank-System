@@ -125,7 +125,7 @@ namespace BoneyServer.domain.paxos
             PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
             AcceptReq request = new AcceptReq { Value = value, LeaderNumber = leaderNumber, PaxosInstance = instance };
             try { 
-                AcceptedResp reply = client.Accept(request);
+                client.AcceptAsync(request);
             } catch (Exception e) {
                 Logger.LogError(e + "(Proposer.cs  l. 129)");
                 throw new Exception();
