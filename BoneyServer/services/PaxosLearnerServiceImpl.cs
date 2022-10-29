@@ -66,7 +66,7 @@ namespace BoneyServer.services
                         Logger.LogDebugLearner($"Value to send: {requestInstanceInfo.Value} ");
                         if (requestInstanceInfo.Value != null)
                         {
-                            var reply = _client.HandlePaxosResult(new CompareAndSwapResp()
+                            _client.HandlePaxosResultAsync(new CompareAndSwapResp()
                             {
                                 Slot = requestInstanceInfo.Value.Slot,
                                 Primary = requestInstanceInfo.Value.ProcessID

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="protos\Client.proto" />
     <None Remove="protos\CompareAndSwap.proto" />
   </ItemGroup>
 
@@ -22,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Protobuf Include="protos\Client.proto" GrpcServices="Both" />
     <Protobuf Include="protos\CompareAndSwap.proto" GrpcServices="Both" />
   </ItemGroup>
 

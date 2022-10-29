@@ -62,6 +62,13 @@ namespace BankServer
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
 
+            DepositServiceImpl _DepositService = new DepositServiceImpl(bankManager);
+            DepositServiceImpl _WithdrawService = new WithdrawServiceImpl(bankManager);
+            DepositServiceImpl _ReadService = new ReadServiceImpl(bankManager);
+
+            BankSlotManager bankSlotManager = new BankSlotManager(config, int.Parse(args[1]));
+            SlotTimer sloTimer = new SlotTimer(bankSlotManager,(uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
+            sloTimer.Execute();
 
             QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler);
@@ -85,6 +92,8 @@ namespace BankServer
                 Services = {
                   CompareAndSwapService.BindService(_paxosResultHandlerService).Intercept(_interceptor)
 				         },
+                ClientService.BindService(_DepositService).BindService(_WithdrawService).BindService(_ReadService),
+                
                 Ports = { serverPort }
             };
             server.Start();
