@@ -99,7 +99,8 @@ namespace BoneyServer
 				         },
                 Ports = { serverPort }
             };
-			config.AddServerAndState(server, boneyServerState);
+			boneyServerState.AddServer(server);
+			//config.AddServerAndState(server, boneyServerState);
 
             server.Start();
 

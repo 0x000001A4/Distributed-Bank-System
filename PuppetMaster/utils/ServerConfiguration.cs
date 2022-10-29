@@ -13,10 +13,11 @@ namespace PuppetMaster.utils
         private Dictionary<int, string> _bankServersHostnames;
         private string[,] _serverStatePerSlot;      // TODO - edit to dynamic structure
         private string[,] _serverSuspectedPerSlot;  // 
-        private List<int> _clientList;
+        private Dictionary<int, string> _clients;
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
+        private bool _started = false;
 
         public ServerConfiguration() { }
 
@@ -24,9 +25,9 @@ namespace PuppetMaster.utils
         {
             Dictionary<int, string> _boneyMap = new Dictionary<int, string>();
             Dictionary<int, string> _bankMap = new Dictionary<int, string>();
+            Dictionary<int, string> _clientMap = new Dictionary<int, string>();
             string[,] _serverState;
             string[,] _serverSuspect;
-            List<int> clientList = new List<int>();
             int _numberSlots = 1;
             string _timeOfFirstSlot = "";
             int _slotDuration = 0;
@@ -58,7 +59,19 @@ namespace PuppetMaster.utils
                         var match = expression.Match(words[3]);
                         _bankMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
                     }
-                    if (words[2] == "client") clientList.Add(int.Parse(words[1]));
+                    if (words[2] == "client")
+                    {
+                        try
+                        {
+                            _clientMap.Add(int.Parse(words[1]), words[3]);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.LogError("Please provide clients in the configuration file in the following format: \"P client configFileName\"");
+                            throw;
+                        }
+
+                    }
                 }
                 else if (words[0] == "S")
                 {
@@ -126,7 +139,7 @@ namespace PuppetMaster.utils
                 .SetBankServersHostnames(_bankMap)
                 .SetServerStatePerSlot(_serverState)
                 .SetServerSuspectedPerSlot(_serverSuspect)
-                .SetClientList(clientList)
+                .SetClients(_clientMap)
                 .SetTimeOfFirstSlot(_timeOfFirstSlot)
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
@@ -160,9 +173,9 @@ namespace PuppetMaster.utils
             return this;
         }
 
-        public ServerConfiguration SetClientList(List<int> clientList)
+        public ServerConfiguration SetClients(Dictionary<int, string> clients)
         {
-            _clientList = clientList;
+            _clients = clients;
             return this;
         }
 
@@ -201,9 +214,9 @@ namespace PuppetMaster.utils
         }
 
 
-        public List<int> GetClientList()
+        public Dictionary<int, string> GetClients()
         {
-            return _clientList;
+            return _clients;
         }
 
         public (string, int) GetBoneyHostnameAndPortByProcess(int p)
@@ -240,13 +253,11 @@ namespace PuppetMaster.utils
 
         public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
-            checkIfExceededMaxSlots(slotNumber);
             return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 
         public string GetFrozenStateOfProcessInSlot(uint processId, uint slotNumber)
         {
-            checkIfExceededMaxSlots(slotNumber);
             return _serverStatePerSlot[slotNumber, processId];
         }
         public int GetNumberOfBoneyServers()
@@ -259,14 +270,29 @@ namespace PuppetMaster.utils
             return _bankServersHostnames.Count();
         }
 
+        public int GetNumberOfClients()
+        {
+            return _clients.Count();
+        }
+
         public bool CheckClientExists(int id)
         {
-            return _clientList.Contains(id);
+            return _clients.ContainsKey(id);
         }
 
         public List<int> GetBoneyServerIDs()
         {
             return _boneyServersHostnames.Keys.ToList();
+        }
+
+        public List<int> GetBankServerIDs()
+        {
+            return _bankServersHostnames.Keys.ToList();
+        }
+
+        public List<int> GetClientIDs()
+        {
+            return _clients.Keys.ToList();
         }
 
         public List<string> GetBoneyServersPortsAndAddresses()
@@ -279,13 +305,18 @@ namespace PuppetMaster.utils
             return _bankServersHostnames.Values.ToList();
         }
 
-        private void checkIfExceededMaxSlots(uint slot)
+        public bool ExceededMaxSlots(uint slot)
         {
-            if (slot > _numberOfSlots)
-            {
-                Logger.LogInfo("SERVER CONFIG: Max number of slots reached. Freezing process.");
-                Process.GetCurrentProcess().WaitForExit();
-            }
+            return slot > _numberOfSlots;
+        }
+
+        public bool hasFinished()
+        {
+            return _started;
+        }
+        public void setAsConfigured()
+        {
+            _started = true;
         }
     }
 }

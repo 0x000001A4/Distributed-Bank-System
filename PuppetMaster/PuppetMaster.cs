@@ -8,67 +8,70 @@ namespace PuppetMaster
 {
     public class PuppetMaster
     {
+        private class ProcessInfo
+        {
+            public readonly string AppName;
+            public readonly string ServerType;
+            public readonly string Path;
+            public readonly string ConfigFilePath;
+            public string Title { get; set; }
+
+            public ProcessInfo(string serverType, string configFile) {
+                ServerType  = serverType;
+                AppName     = $"{serverType}.exe";
+                Path           = $"..\\..\\..\\..\\{serverType}\\bin\\Debug\\net6.0";
+                ConfigFilePath = $"..\\..\\..\\..\\{serverType}\\{configFile}.txt";
+                checkIfFileExists($"{Path}\\{AppName}");
+                checkIfFileExists(ConfigFilePath);
+            }
+
+            private void checkIfFileExists(string path)
+            {
+                if (!File.Exists(path)) throw new Exception($"File {path} does not exist! Make sure the solution is compiled.");
+            }
+
+        }
+
 
         public static void Main(string[] args)
         {
+            ProcessInfo initInfo;
+            ServerConfiguration config;
             Logger.LogInfo("Puppet master starting...");
-            try
+
+            initInfo = new ProcessInfo("BoneyServer", "configuration_sample");
+            config = ServerConfiguration.ReadConfigFromFile(initInfo.ConfigFilePath);
+            Logger.LogInfo($"Initializing {config.GetNumberOfBoneyServers()} Boney servers:");
+            initializeServers(config.GetBoneyServerIDs(), initInfo);
+
+            initInfo = new ProcessInfo("BankServer", "configuration_sample");
+            config = ServerConfiguration.ReadConfigFromFile(initInfo.ConfigFilePath);
+            Logger.LogInfo($"Initializing {config.GetNumberOfBankServers()} Bank servers");
+            initializeServers(config.GetBankServerIDs(), initInfo);
+
+            initInfo = new ProcessInfo("BankClient", "configuration_sample");
+            config = ServerConfiguration.ReadConfigFromFile(initInfo.ConfigFilePath);
+            Logger.LogInfo($"Initializing {config.GetNumberOfClients()} Client servers");
+            //initializeServers(config.GetClientIDs(), initInfo);
+
+        }
+
+
+
+        private static void initializeServers(List<int> processIDs, ProcessInfo initInfo)
+        {
+            foreach (int processID in processIDs)
             {
-                string title      = "";
-                string serverType = "BoneyServer";
-                string appName    = $"{serverType}.exe";
-                string path           = $"..\\..\\..\\..\\{serverType}\\bin\\Debug\\net6.0";
-                string configFilePath = $"..\\..\\..\\..\\{serverType}\\configuration_sample.txt";
-                ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(configFilePath);
-
-                Process p;
-                int numberOfBoneyServers = config.GetNumberOfBoneyServers();
-
-                checkIfFileExists($"{path}\\{appName}");
-                checkIfFileExists(configFilePath);
-
-                Logger.LogInfo($"Initializing {numberOfBoneyServers} Boney servers:");
-                foreach(int processID in config.GetBoneyServerIDs())
-                {
-                    title = $"Boney{processID}";
-                    Logger.LogInfo($"\tBoney server {processID} initialized.");
-                    p = new Process();
-                    p.StartInfo.FileName = "cmd.exe";
-                    p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {processID}";
-
-                    p.Start();
-                }
-
-                serverType = "BankServer";
-                Logger.LogInfo($"Initializing {1} Bank servers");
-                title = $"Bank1";
-                appName = $"{serverType}.exe";
-                path = $"..\\..\\..\\..\\{serverType}\\bin\\Debug\\net6.0";
-                configFilePath = $"..\\..\\..\\..\\{serverType}\\configuration_sample.txt";
-
-                checkIfFileExists($"{path}\\{appName}");
-                checkIfFileExists(configFilePath);
-
-                p = new Process();
+                initInfo.Title = $"{initInfo.ServerType} {processID}";
+                Process p = new Process();
                 p.StartInfo.FileName = "cmd.exe";
-                p.StartInfo.Arguments = $"/k start \"{title}\" {path}\\{appName} {configFilePath} {4}";
-
+                p.StartInfo.Arguments = $"/k start \"{initInfo.Title}\" {initInfo.Path}\\{initInfo.AppName} {initInfo.ConfigFilePath} {processID}";
                 p.Start();
 
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message);
-                throw ex;
+                Logger.LogInfo($"{initInfo.Title}  initialized.");
             }
 
         }
-
-        private static void checkIfFileExists(string path)
-        {
-            if (!File.Exists(path)) throw new Exception($"File {path} does not exist! Make sure the solution is compiled.");
-        }
-
 
     }
 }

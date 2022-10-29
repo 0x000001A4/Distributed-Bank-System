@@ -16,6 +16,7 @@ namespace BoneyServer.domain
         private uint _numberOfProcesses;
         private IMultiPaxos _paxos;
         private ServerConfiguration _config;
+        private Server _server;
 
         private string _frozen;
         private Queue<Message> _queue { get; set; } = new Queue<Message>();
@@ -77,6 +78,9 @@ namespace BoneyServer.domain
             // Update servers' suspicions for new slot.
             Dictionary<uint, string> servers = new Dictionary<uint, string>();
             List<int> boneysID = _config.GetBoneyServerIDs();
+
+            stopServerIfExceededMaxSlots();
+
             foreach (int id in boneysID) {
                 servers.Add((uint)id, _config.GetServerSuspectedInSlot((uint)id, _slot));
             }
@@ -105,6 +109,16 @@ namespace BoneyServer.domain
             }
         }
 
+        private void stopServerIfExceededMaxSlots()
+        {
+            if (_config.ExceededMaxSlots(_slot))
+            {
+                HandleQueuedMessages();
+                Logger.LogInfo("Boney Server State: Max number of slots reached. Shutting process down after processing queued requests.");
+                _server.ShutdownAsync().Wait();
+            }
+        }
+
         public bool IsFrozen()
         {
             return _frozen == FrozenState.FROZEN;
@@ -129,6 +143,11 @@ namespace BoneyServer.domain
 
         public bool isConfigured() {
             return _config.hasFinished();
+        }
+
+        public void AddServer(Server server)
+        {
+            _server = server;
         }
     }
 }
