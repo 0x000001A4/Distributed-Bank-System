@@ -18,8 +18,8 @@ namespace BoneyServer.utils
             DateTime dateTime = DateTime.ParseExact(initialTime, "HH:mm:ss",
                                         CultureInfo.InvariantCulture);
             var span = dateTime - DateTime.Now;
-            //if (span.TotalMilliseconds < 0) throw new Exception("The starting time in configuration file must be after the current time.");           DECOMENT WHEN NOT DEBUGGING!!!!!
-            _clock = new System.Timers.Timer() { Interval = 1/*span.TotalMilliseconds*/, AutoReset = false };
+            if (span.TotalMilliseconds < 0) throw new Exception("The starting time in configuration file must be after the current time.");     //      DECOMENT WHEN NOT DEBUGGING!!!!!
+            _clock = new System.Timers.Timer() { Interval = span.TotalMilliseconds, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
 

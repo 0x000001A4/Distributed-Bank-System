@@ -34,11 +34,10 @@ namespace BoneyServer.domain.paxos
         private uint? _leaderProcessID;                   // The process it suspects to be the leader
         private List<string> _boneyAdress;
 
-        public static uint Instance { get; set; }
+        private uint Instance { get; set; } = 0;
 
         public Paxos(uint sourceProcessID, uint numOfSlots, List<string> boneysAdress)
         {
-            Instance = 0;
             _numberOfBoneyServers = boneysAdress.Count();
             _sourceLeaderNumber = sourceProcessID;
             _sourceProcessID = sourceProcessID;
@@ -63,7 +62,6 @@ namespace BoneyServer.domain.paxos
 
         public void Start(PaxosValue value, string address, uint primary)
         {
-            Logger.LogDebug($"Antes do lock");
             lock (this)
             {
                 uint slot = value.Slot;
@@ -200,12 +198,18 @@ namespace BoneyServer.domain.paxos
 
         private void createInstancesUpTo(uint instance)
         {
-            int currentSize = _paxosInstances.Count();
-            int instancesToAdd = (int)instance - currentSize + 1;
-            Instance += (uint)instancesToAdd;
-            for (int i = 0; i < instancesToAdd; i++)
+            lock(this)
             {
-                _paxosInstances.Add(new PaxosInstance());
+                int currentSize = _paxosInstances.Count();
+                int instancesToAdd = (int)instance - currentSize + 1;
+                if (instancesToAdd > 0)
+                {
+                    Instance += (uint)instancesToAdd;
+                    for (int i = 0; i < instancesToAdd; i++)
+                    {
+                        _paxosInstances.Add(new PaxosInstance());
+                    }
+                }
             }
         }
     }
