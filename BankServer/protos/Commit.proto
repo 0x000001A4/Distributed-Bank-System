@@ -1,0 +1,35 @@
+﻿syntax = "proto3";
+
+service BankService {
+  rpc Propose (ProposeReq) returns (AcceptResp);
+  rpc Commit (CommitReq) returns (CommitResp);
+ 
+  
+}
+
+/*  Propose */
+message ProposeReq {
+	uint32 slot = 1;
+	uint32 processId = 2;
+	uint32 seqNumber = 3;
+	
+}
+
+message AcceptResp {
+	bool ack = 1;
+	
+}
+
+/*  Commit */
+
+message CommitReq {
+	string address = 1;
+	uint32 seqNumber = 2;
+	
+}
+
+message CommitResp {
+	
+	
+}
+

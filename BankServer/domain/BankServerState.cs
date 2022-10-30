@@ -18,9 +18,9 @@ namespace BankServer.domain
         private Queue<Message> _queue { get; set; } = new Queue<Message>();
         private QueuedCommandHandler _cmdHandler;
 
-        public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler)
+        public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler, BankSlotManager slotManager)
         {
-            _slotManager = new BankSlotManager(config);
+            _slotManager = slotManager;
             _numberOfProcesses = (uint)config.GetNumberOfBankServers();
             _config = config;
             _processId = (uint)processId;

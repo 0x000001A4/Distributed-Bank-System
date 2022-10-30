@@ -58,11 +58,12 @@ namespace BankClient.domain
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                GrpcChannel channel = GrpcChannel.ForAddress("http://" + bankHost + ":" + bankPort);
+                string address = "http://" + bankHost + ":" + bankPort;
+                GrpcChannel channel = GrpcChannel.ForAddress(address);
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
-                DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
+                DepositReq request = new DepositReq { Client = protoClient, Amount = amount,Address = address };
                 DepositAsync(request,client,responseReceived);
 
 
@@ -80,7 +81,8 @@ namespace BankClient.domain
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                GrpcChannel channel = GrpcChannel.ForAddress("http://" + bankHost + ":" + bankPort);
+                string address = "http://" + bankHost + ":" + bankPort;
+                GrpcChannel channel = GrpcChannel.ForAddress(address);
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
@@ -101,7 +103,8 @@ namespace BankClient.domain
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                GrpcChannel channel = GrpcChannel.ForAddress("http://" + bankHost + ":" + bankPort);
+                string address = "http://" + bankHost + ":" + bankPort;
+                GrpcChannel channel = GrpcChannel.ForAddress(address);
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };

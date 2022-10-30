@@ -11,6 +11,7 @@ service ClientService {
 message DepositReq {
 	Client client = 1;
 	double amount = 2;
+	string address = 3;
 	
 }
 
@@ -24,6 +25,7 @@ message DepositResp {
 message WithdrawReq {
 	Client client = 1;
 	double amount = 2;
+	string address = 3;
 	
 }
 
@@ -36,6 +38,7 @@ message WithdrawResp {
 
 message ReadReq {
 	Client client = 1;
+	string address = 3;
 	
 	
 }

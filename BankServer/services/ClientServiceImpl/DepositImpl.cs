@@ -1,4 +1,5 @@
-﻿using BankServer.utils;
+﻿using BankServer.domain;
+using BankServer.utils;
 using Grpc.Core;
 
 namespace BankServer.services
@@ -21,6 +22,20 @@ namespace BankServer.services
 
         public DepositResp doDeposit(DepositReq request){
             /* Consensus */
+            int logPos;
+            if (verifyImLeader())
+            {
+                logPos = before2pc();
+                IncrementLog();
+                Propose2PC.executePropose((uint)_processId, _bankSlotManager.GetCurrentSlot(), _config, logPosition, request.Address);
+                after2pc(logPosition);
+
+
+            }
+            else
+            {
+                while(getLogPosition(logPos))
+            }
             string response = _bankManager.Deposit((int) request.Client.ClientID,request.Amount);
            
             

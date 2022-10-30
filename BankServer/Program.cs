@@ -62,10 +62,14 @@ namespace BankServer
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
 
-            ClientServiceImpl clientService = new ClientServiceImpl(bankManager);
+            
 
             QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
-            BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler);
+            BankSlotManager bankSlotManager = new BankSlotManager(config);
+            BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler,bankSlotManager);
+            List<bool> phaseCommitList = new List<bool>();
+            ClientServiceImpl clientService = new ClientServiceImpl(config, int.Parse(args[1]),bankSlotManager,bankManager,phaseCommitList);
+            BankServiceImpl bankService = new bankServiceImpl(phaseCommitList);
 
             SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
             slotTimer.Execute();
