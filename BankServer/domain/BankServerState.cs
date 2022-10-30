@@ -9,6 +9,7 @@ namespace BankServer.domain
     /// </summary>
     public class BankServerState : IUpdatable {
 
+        private Server _server;
         private BankSlotManager _slotManager;
         private uint _processId;
         private uint _numberOfProcesses;
@@ -45,19 +46,46 @@ namespace BankServer.domain
             if (msgId == 1) {
                 _cmdHandler.handlePaxosResult(_msg.GetCompareAndSwapResponse(), _sender);
             }
+
+            else if (msgId == 2) {
+                _cmdHandler.handleDepositReq(_msg.GetDepositReq(), _sender);
+            }
+
+            else if (msgId == 3) {
+                _cmdHandler.handleWithdrawReq(_msg.GetWithdrawReq(), _sender);
+            }
+
+            else if (msgId == 4) {
+                _cmdHandler.handleReadReq(_msg.GetReadReq(), _sender);
+            }
         }
 
+        public void AddServer(Server server)
+        {
+            _server = server;
+        }
+
+        private void stopServerIfExceededMaxSlots()
+        {
+            if (_config.ExceededMaxSlots(_slotManager.GetCurrentSlot()))
+            {
+                HandleQueuedMessages();
+                Logger.LogInfo("Boney Server State: Max number of slots reached. Shutting process down after processing queued requests.");
+                _server.ShutdownAsync().Wait();
+            }
+        }
 
 
         public void Update()
         {
             var _prevSlotStatus = _frozen;
             _slotManager.IncrementSlot();
+            stopServerIfExceededMaxSlots();
 
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
 
-            // Set Configuration as complete (Needed to avoid crashing boney servers while they are configurating)
+            // Set Configuration as complete (Needed to avoid crashing bank servers while they are configurating)
             _config.setAsConfigured();
 
             // Check if bankServer server just unfroze!

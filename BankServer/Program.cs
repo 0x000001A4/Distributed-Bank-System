@@ -31,29 +31,39 @@ namespace BankServer
                     Message? _msg = null;
                     string sender = context.Peer;
 
-                    if (requestType == typeof(CompareAndSwapResp))
-                    {
+                    // Handling Compare And Swap Responses sent by learners
+                    if (requestType == typeof(CompareAndSwapResp)) {
                         _msg = new Message((CompareAndSwapResp)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(DepositReq)) {
+                        _msg = new Message((DepositReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(WithdrawReq)) {
+                        _msg = new Message((WithdrawReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(ReadReq)) {
+                        _msg = new Message((ReadReq)(object)request, sender);
                     }
 
                     if (_msg != null) _state.Enqueue(_msg);
 
                     else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
                 }
-
                 return await continuation(request, context);
-
             }
             catch (Exception ex)
             {
-                Logger.LogError("Interceptor:" + ex.Message + " (l. 45)");
-                throw ex;
+                Logger.LogError("Interceptor:" + ex.Message + " (l. 49)");
+                throw;
             }
         }
     }
 
 
-    public class Program
+    public class BankServer
     {
         public static void Main(string[] args) 
         {
@@ -62,20 +72,18 @@ namespace BankServer
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
             BankManager bankManager = new BankManager();
 
-            ClientServiceImpl clientService = new ClientServiceImpl(bankManager);
 
             QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler);
 
-            SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
-            slotTimer.Execute();
 
+            ClientServiceImpl _clientService = new ClientServiceImpl(bankManager, bankServerState);
             PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState);
             cmdHandler.AddPaxosResultHandlerService(_paxosResultHandlerService);
+            cmdHandler.AddClientService(_clientService);
 
             int processID = int.Parse(args[1]);
             (string hostname, int portNum) = config.GetBankHostnameAndPortByProcess(processID);
-            Logger.LogDebug(hostname + ":" + portNum);
 
             BankServerStateInterceptor _interceptor = new BankServerStateInterceptor(bankServerState);
 
@@ -86,12 +94,18 @@ namespace BankServer
             {
                 Services = {
                     CompareAndSwapService.BindService(_paxosResultHandlerService).Intercept(_interceptor),
-                    ClientService.BindService(clientService)
+                    ClientService.BindService(_clientService).Intercept(_interceptor),
                 },
                 
                 Ports = { serverPort }
             };
+            bankServerState.AddServer(server);
             server.Start();
+
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
+            SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
+            slotTimer.Execute();
 
             while (true);
         }

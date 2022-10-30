@@ -17,7 +17,6 @@ namespace BoneyServer.services
         public CompareAndSwapServiceImpl(BoneyServerState state, IMultiPaxos multiPaxos) {
             _multiPaxos = multiPaxos;
             _state = state;
-         
         }
 
         public override Task<CompareAndSwapResp> CompareAndSwap(CompareAndSwapReq request, ServerCallContext context) {

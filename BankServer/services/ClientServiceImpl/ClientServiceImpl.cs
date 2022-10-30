@@ -3,13 +3,15 @@ using BankServer.domain;
 
 namespace BankServer.services
 {
-    partial class ClientServiceImpl : ClientService.ClientServiceBase
+    public partial class ClientServiceImpl : ClientService.ClientServiceBase
     {
         public BankManager _bankManager;
-        public ClientServiceImpl(BankManager bankManager)
+        public BankServerState _state;
+
+        public ClientServiceImpl(BankManager bankManager, BankServerState state)
         {
             _bankManager = bankManager;
-            
+            _state = state;   
         }
     }
 }

@@ -18,7 +18,8 @@ namespace BankServer.domain
 
         public BankSlotManager(ServerConfiguration config) {
             _config = config;
-            _maxSlots = config.GetNumberOfSlots()+1;
+            _maxSlots = config.GetNumberOfSlots();
+            _slots = new Slots<uint>((uint)_maxSlots);
         }
 
         public uint ChooseLeader() {
@@ -58,6 +59,8 @@ namespace BankServer.domain
 
         public uint GetPrimaryOnSlot(uint slotId)
         {
+            Console.WriteLine(_slots.size);
+            Console.WriteLine(slotId);
             return _slots[(int)slotId];
         }
     }

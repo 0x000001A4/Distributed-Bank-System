@@ -6,8 +6,7 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using System.Diagnostics;
 
-namespace BoneyServer
-{
+namespace BoneyServer {
 
     public class BoneyServerMessageInterceptor : Interceptor {
 
@@ -32,13 +31,13 @@ namespace BoneyServer
                     if (requestType == typeof(CompareAndSwapReq)) {
 						_msg = new Message((CompareAndSwapReq)(object) request, sender);
 					}
-                    if (requestType == typeof(PrepareReq)) {
+                    else if (requestType == typeof(PrepareReq)) {
                         _msg = new Message((PrepareReq)(object) request, sender);
                     }
-                    if (requestType == typeof(AcceptReq)) {
+                    else if (requestType == typeof(AcceptReq)) {
                         _msg = new Message((AcceptReq)(object) request, sender);
                     }
-					if (requestType == typeof(LearnCommandReq)) {
+					else if (requestType == typeof(LearnCommandReq)) {
 						_msg = new Message((LearnCommandReq)(object) request, sender);
 					}
 
@@ -57,13 +56,11 @@ namespace BoneyServer
 	}
 	public class BoneyServer
 	{
-		private static uint processNum = 0;
 		public static void Main(string[] args) // TODO - edit to receive all server state through the config file
 		{
 			Logger.DebugOn();
 			ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
 			uint processID = uint.Parse(args[1]);
-			//uint processID = uint.Parse(Console.ReadLine()); //FOR DEBUGGING
 			uint maxSlots = (uint)config.GetNumberOfSlots();
 			(string hostname, int port) = config.GetBoneyHostnameAndPortByProcess((int)processID);
 
@@ -86,8 +83,6 @@ namespace BoneyServer
 			cmdHandler.AddPaxosAcceptorService(_paxosAcceptorService);
 			cmdHandler.AddPaxosLearnerService(_paxosLearnerService);
 
-            SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
-            slotTimer.Execute();
 
 			BoneyServerMessageInterceptor _interceptor = new BoneyServerMessageInterceptor(boneyServerState);
 
@@ -100,15 +95,17 @@ namespace BoneyServer
                 Ports = { serverPort }
             };
 			boneyServerState.AddServer(server);
-			//config.AddServerAndState(server, boneyServerState);
 
             server.Start();
 
 			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";
 			Logger.LogInfo(startupMessage);
-
-			//Configuring HTTP for client connections in Register method
+			
 			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
+            SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
+            slotTimer.Execute();
+
 			while (true);
 		}
 
