@@ -124,7 +124,7 @@ namespace BankServer.utils
         private static void setDefaultColors()
         {
             Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         private static void setColors(ConsoleColor background, ConsoleColor text)

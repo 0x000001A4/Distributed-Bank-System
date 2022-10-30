@@ -239,6 +239,12 @@ namespace PuppetMaster.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
+
+        public string GetClientScriptNameById(int id)
+        {
+            return _clients.GetValueOrDefault(id);
+        }
+
         public string GetServerStateInSlot(uint serverID, uint slotNumber)
         {
             return _serverStatePerSlot[slotNumber, serverID];
