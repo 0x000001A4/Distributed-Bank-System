@@ -12,15 +12,17 @@ namespace BankServer.services
             //if (!_state.IsFrozen())
             //{
             WithdrawResp response = doWithdraw(request);
-            Logger.LogDebug("End of CompareAndSwap");
+            Logger.LogDebug("End of Withdraw");
             return Task.FromResult(response);                     //Rick Ve Isto
             //}
             // Request got queued and will be handled later
-            throw new Exception("The server is frozen.");
+            //throw new Exception("The server is frozen.");
         }
 
         public WithdrawResp doWithdraw(WithdrawReq request)
+
         {
+           
             string response = _bankManager.Withdraw((int)request.Client.ClientID, request.Amount);
             return new WithdrawResp() { Response = response };
         }

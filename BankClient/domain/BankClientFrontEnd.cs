@@ -11,10 +11,49 @@ namespace BankClient.domain
             _config = config;
         }
 
-        public string Deposit(uint clientID, uint opeSeqNumb,double amount)
+
+        public static async Task DepositAsync(DepositReq request, ClientService.ClientServiceClient client, List<DepositResp> responseReceived)
+        {
+
+            DepositResp response = await client.DepositAsync(request);
+            responseReceived.Add(response);
+ 
+        }
+
+        public static async Task WithdrawAsync(WithdrawReq request, ClientService.ClientServiceClient client, List<WithdrawResp> responseReceived)
+        {
+
+            WithdrawResp response = await client.WithdrawAsync(request);
+            responseReceived.Add(response);
+
+        }
+
+        public static async Task ReadAsync(ReadReq request, ClientService.ClientServiceClient client, List<ReadResp> responseReceived)
+        {
+
+            ReadResp response = await client.ReadBalanceAsync(request);
+            responseReceived.Add(response);
+
+        }
+
+        private static void WaitForDeposit(List<DepositResp> responseReceived)
+        {
+            while (responseReceived.Count() == 0) ;
+        }
+
+        private static void WaitForWithdraw(List<WithdrawResp> responseReceived)
+        {
+            while (responseReceived.Count() == 0) ;
+        }
+
+        private static void WaitForRead(List<ReadResp> responseReceived)
+        {
+            while (responseReceived.Count() == 0) ;
+        }
+        public void Deposit(uint clientID, uint opeSeqNumb,double amount)
         {
             List<int> bankAdresses = _config.GetBankServerIDs();
-            Logger.LogInfo(bankAdresses.ToString());
+            List<DepositResp> responseReceived = new List<DepositResp>();
             foreach (int id in bankAdresses) // TODO: Sees only bank with port 10004 why ??
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
@@ -24,16 +63,19 @@ namespace BankClient.domain
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
-                DepositResp response = client.Deposit(request);
-                return response.Response;
+                DepositAsync(request,client,responseReceived);
+
+
             }
-            return "";
+            WaitForDeposit(responseReceived);
+            Logger.LogDebug("Deposit Done with: " + responseReceived[0].Response);
 
         }
 
-        public string Withdraw(uint clientID, uint opeSeqNumb, double amount)
+        public void Withdraw(uint clientID, uint opeSeqNumb, double amount)
         {
             List<int> bankAdresses = _config.GetBankServerIDs();
+            List<WithdrawResp> responseReceived = new List<WithdrawResp>();
             foreach (int id in bankAdresses)
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
@@ -43,16 +85,18 @@ namespace BankClient.domain
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 WithdrawReq request = new WithdrawReq { Client = protoClient, Amount = amount };
-                WithdrawResp response = client.Withdraw(request);
-                return response.Response;
+                WithdrawAsync(request, client, responseReceived);
+
             }
-            return "";
+            WaitForWithdraw(responseReceived);
+            Logger.LogDebug("Withdraw Done with: " + responseReceived[0].Response);
 
         }
 
-        public double ReadBalance(uint clientID, uint opeSeqNumb)
+        public void ReadBalance(uint clientID, uint opeSeqNumb)
         {
             List<int> bankAdresses = _config.GetBankServerIDs();
+            List<ReadResp> responseReceived = new List<ReadResp>();
             foreach (int id in bankAdresses)
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
@@ -62,10 +106,12 @@ namespace BankClient.domain
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 ReadReq request = new ReadReq { Client = protoClient,};
-                ReadResp response = client.ReadBalance(request);
-                return response.Balance;
+                ReadAsync(request, client, responseReceived);
+
             }
-            return -1;
+            WaitForRead(responseReceived);
+            Logger.LogDebug("Read Done with Balance: " + responseReceived[0].Balance);
+            
         }
     }
 }

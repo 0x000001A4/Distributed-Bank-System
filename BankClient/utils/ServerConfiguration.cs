@@ -231,9 +231,8 @@ namespace BankClient.utils
         {
 
             var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
-
+           
             var match = expression.Match(_bankServersHostnames.GetValueOrDefault(p));
-
             string hostname = match.Groups["hostname"].Value;
 
             int port = int.Parse(match.Groups["portnumber"].Value);

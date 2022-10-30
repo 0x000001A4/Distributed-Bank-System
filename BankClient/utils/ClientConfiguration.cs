@@ -42,6 +42,7 @@ namespace BankClient.utils
                             break;
                         case ClientCommands.WAIT_COMMAND:
                             int timeMillis = int.Parse(words[1]);
+                            Logger.LogDebug("Time to wait is : " + timeMillis);
                             commands.Add(new WaitCommand(timeMillis));
                             break;
                         default:

@@ -5,7 +5,6 @@ using Grpc.Core;
 namespace BankClient
 {
 
-
     public class BankClient
 	{
 		public static void Main(string[] args)
@@ -53,9 +52,15 @@ namespace BankClient
 			uint executionOrder = 1;
 			foreach(var command in _commands)
             {
-				Logger.LogInfo(command.GetName() + " executed");
-				command.Execute(executionOrder);
-				executionOrder++;
+				try
+				{
+					//Logger.LogDebug(command.ToString());
+                    command.Execute(executionOrder);
+				}catch(Exception e){
+					Logger.LogError(e.Message);
+				}
+                Logger.LogInfo(command.GetName() + " executed");
+                executionOrder++;
             }
         }
     }

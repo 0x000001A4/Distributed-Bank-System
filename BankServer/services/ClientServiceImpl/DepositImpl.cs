@@ -16,12 +16,15 @@ namespace BankServer.services
                 return Task.FromResult(response);                     //Rick Ve Isto
             //}
             // Request got queued and will be handled later
-            throw new Exception("The server is frozen.");
+            //throw new Exception("The server is frozen.");
         }
 
-        public DepositResp doDeposit(DepositReq request)
-        {
+        public DepositResp doDeposit(DepositReq request){
+            /* Consensus */
             string response = _bankManager.Deposit((int) request.Client.ClientID,request.Amount);
+           
+            
+            
             return new DepositResp() { Response = response};
         }
     }
