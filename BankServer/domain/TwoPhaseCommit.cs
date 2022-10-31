@@ -6,10 +6,10 @@ namespace BankServer.domain
 {
     public interface ITwoPhaseCommit
     {
-        void Start(uint slot, uint clientID);
+        void Start(uint slot, uint clientID, int processID);
         void AcceptProposedSeqNum(int seqToAccept);
         void WaitForCommit(uint clientID);
-        void Commit(int seqToCommit, uint clientID);
+        void HandleCommit(int seqToCommit, uint clientID);
     }
     internal class ClientState
     {
@@ -40,11 +40,11 @@ namespace BankServer.domain
 
 
 
-        public void Start(uint slot, uint clientID)
+        public void Start(uint slot, uint clientID,int processID)
         {
             int seqToPropose;
             lock (this) { seqToPropose = getSeqNumToPropose(); }
-            sendPropose(slot, seqToPropose);
+            sendPropose(slot, seqToPropose,processID);
             sendCommit(seqToPropose, clientID);
         }
 
@@ -61,7 +61,7 @@ namespace BankServer.domain
             }
         }
 
-        public void Commit(int seqToCommit, uint clientID)
+        public void HandleCommit(int seqToCommit, uint clientID)
         {
             lock (getClientLock(clientID))
             {
@@ -73,15 +73,11 @@ namespace BankServer.domain
 
 
 
-
-
-
-
-        private bool sendPropose(uint slot, int seqToPropose)
+        private bool sendPropose(uint slot, int seqToPropose,int processID)
         {
             List<ProposeResp> respReceived = new List<ProposeResp>();
             object signal = new object();
-            _bankFrontend.SendProposeSeqNumToAllBanks(slot, seqToPropose, respReceived, signal);
+            _bankFrontend.SendProposeSeqNumToAllBanks(slot, seqToPropose, respReceived, processID,signal);
             return waitForMajority(_bankFrontend.GetNumberOfBanks(), respReceived, signal);
         }
 

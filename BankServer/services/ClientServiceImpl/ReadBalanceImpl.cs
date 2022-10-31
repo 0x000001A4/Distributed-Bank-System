@@ -21,8 +21,18 @@ namespace BankServer.services
 
         public ReadResp doRead(ReadReq request)
         {
-            double balance = _bankManager.Read((int)request.Client.ClientID);
-            return new ReadResp() { Balance = balance };
+            if (verifyImLeader())
+            {
+                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID, _processId);
+            }
+            if (_2PC.WaitForCommit(request.Client.ClientID))
+            {
+                double balance = _bankManager.Read((int)request.Client.ClientID);
+                return new ReadResp() { Balance = balance };
+            }
+
+            
+            return new ReadResp() { Balance = -1};
         }
     }
 }

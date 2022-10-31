@@ -21,8 +21,16 @@ namespace BankServer.services
 
         public WithdrawResp doWithdraw(WithdrawReq request)
         {
-            string response = _bankManager.Withdraw((int)request.Client.ClientID, request.Amount);
-            return new WithdrawResp() { Response = response };
+            if (verifyImLeader())
+            {
+                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID, _processId);
+            }
+            if (_2PC.WaitForCommit(request.Client.ClientID))
+            {
+                string response = _bankManager.Withdraw((int)request.Client.ClientID, request.Amount);
+                return new WithdrawResp() { Response = response };
+            }
+            return new WithdrawResp() { Response = "FAIL" };
         }
     }
 }
