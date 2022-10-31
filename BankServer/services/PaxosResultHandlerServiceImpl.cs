@@ -28,7 +28,7 @@ namespace BankServer.services
             Logger.LogDebug($"Bank Server compareAndSwap response:  Elected ( Primary: {request.Primary}, Slot: {request.Slot})");
             uint _prevPrimary = _state.GetSlotManager().GetPrimaryOnSlot(request.Slot);
             uint _primary = request.Primary;
-            if (_prevPrimary != _primary) {
+            if (_prevPrimary > 0 && _prevPrimary != _primary) {
                 _state.Cleanup();
             }
             _state.GetSlotManager().SetPrimaryOnSlot(request.Slot, _primary);

@@ -21,7 +21,7 @@ namespace BoneyServer {
 			ServerCallContext context,
 			UnaryServerMethod<TRequest, TResponse> continuation) {
 			try {
-				if (!_state.isConfigured()) throw new Exception("Server is not configured yet, don't make requests.");
+				while (!_state.isConfigured()) ;
 
 				if (_state.IsFrozen()) {
 					Type requestType = typeof(TRequest);
@@ -96,15 +96,14 @@ namespace BoneyServer {
             };
 			boneyServerState.AddServer(server);
 
-            server.Start();
+            SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
+            slotTimer.Execute();
 
 			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";
+            server.Start();
 			Logger.LogInfo(startupMessage);
 			
 			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-
-            SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
-            slotTimer.Execute();
 
 			while (true);
 		}

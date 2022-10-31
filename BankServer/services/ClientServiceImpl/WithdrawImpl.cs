@@ -8,7 +8,7 @@ namespace BankServer.services
         public override Task<WithdrawResp> Withdraw(WithdrawReq request, ServerCallContext context)
         {
             Logger.LogDebug("Withdraw received.");
-            //Logger.LogDebug(_state.IsFrozen().ToString());
+            Logger.LogDebug(_state.IsFrozen().ToString());
             if (!_state.IsFrozen())
             {
                 WithdrawResp response = doWithdraw(request);
@@ -21,9 +21,11 @@ namespace BankServer.services
 
         public WithdrawResp doWithdraw(WithdrawReq request)
         {
-            if (verifyImLeader())
-            {
-                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID, _processId);
+            uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ;
+
+            if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {
+                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID, _state.GetProcessId());
             }
             if (_2PC.WaitForCommit(request.Client.ClientID))
             {

@@ -33,6 +33,11 @@ namespace BankServer.domain.bank
             _2PC = _2pc;
         }
 
+        public uint GetProcessId()
+        {
+            return _processId;
+        }
+
         public void Enqueue(Message _msg)
         {
             _queue.Enqueue(_msg);
@@ -220,10 +225,15 @@ namespace BankServer.domain.bank
         {
             List<List<ClientRequest>> clientPendingRequests = new List<List<ClientRequest>>();
             object signalAcceptSeqNum = new object();
+            Console.WriteLine("Print 1");
             BroadcastListPendingRequests(clientPendingRequests, signalAcceptSeqNum);
+            Console.WriteLine("Print 2");
             WaitForMajority(clientPendingRequests, signalAcceptSeqNum);
+            Console.WriteLine("Print 3");
             clientPendingRequests = FilterProposedButNotCommitedRequests(clientPendingRequests);
+            Console.WriteLine("Print 4");
             ProposeAndCommitSeqNumbers(clientPendingRequests);
+            Console.WriteLine("Print 5");
         }
 
 

@@ -24,7 +24,7 @@ namespace BankServer
         {
             try
             {
-                if (!_state.isConfigured()) throw new Exception("Server is not configured yet, don't make requests.");
+                while (!_state.isConfigured()) ;
 
                 if (_state.IsFrozen())
                 {
@@ -79,8 +79,8 @@ namespace BankServer
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler, bankSlotManager, twoPhaseCommit);
 
-            BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit, config, bankServerState);
-            ClientServiceImpl _clientService = new ClientServiceImpl(config, (uint)processID, bankManager, twoPhaseCommit, bankServerState);
+            BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit, bankServerState);
+            ClientServiceImpl _clientService = new ClientServiceImpl(config, bankManager, twoPhaseCommit, bankServerState);
             PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState);
             cmdHandler.AddPaxosResultHandlerService(_paxosResultHandlerService);
             cmdHandler.AddClientService(_clientService);
@@ -103,12 +103,14 @@ namespace BankServer
                 Ports = { serverPort }
             };
             bankServerState.AddServer(server);
+
+            SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
+            slotTimer.Execute();
+
             server.Start();
 
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
-            SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
-            slotTimer.Execute();
 
             while (true);
         }

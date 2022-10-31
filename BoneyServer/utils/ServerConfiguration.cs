@@ -187,7 +187,7 @@ namespace BoneyServer.utils
 
         public ServerConfiguration SetNumberOfSlots(int numberOfSlots)
         {
-            _numberOfSlots = numberOfSlots+1;
+            _numberOfSlots = numberOfSlots;
             return this;
         }
 

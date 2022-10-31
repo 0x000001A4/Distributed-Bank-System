@@ -189,7 +189,7 @@ namespace BankServer.utils
 
         public ServerConfiguration SetNumberOfSlots(int numberOfSlots)
         {
-            _numberOfSlots = numberOfSlots;
+            _numberOfSlots = numberOfSlots+1;
             return this;
         }
 

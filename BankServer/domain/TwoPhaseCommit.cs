@@ -78,15 +78,20 @@ namespace BankServer.domain
 
         public bool WaitForCommit(uint clientID)
         {
-            lock(getClientLock(clientID))
+            Console.WriteLine("Waiting for commit ");
+
+            lock (getClientLock(clientID))
             {
                 TimeoutTimer timeout = new TimeoutTimer();
                 do 
                 {
-                    if (timeout.TimedOut()) return false;
-                    Monitor.Wait(getClientLock(clientID)); 
+                    if (timeout.TimedOut()) {
+                        return false;
+                    }
+                    Monitor.Wait(getClientLock(clientID));
                 }
                 while (hasntCommitedAllSeqNumsUntil(getClientSeqNum(clientID)));
+
                 resetClientSeqNum(clientID);
                 return true;
             }
@@ -94,9 +99,10 @@ namespace BankServer.domain
 
         public void HandleCommit(int seqToCommit, uint clientID)
         {
+            Console.WriteLine($"handlingCommit: seqNum {seqToCommit}, clientId {clientID}");
             checkSeqNum(seqToCommit);
-            lock (getClientLock(clientID))
-            {
+
+            lock (getClientLock(clientID)) {
                 setSeqNumAsCommited(seqToCommit);
                 setClientAsCommited(clientID, seqToCommit);
                 notifyAllClientsWaitingOnPrevCommits();
@@ -105,10 +111,9 @@ namespace BankServer.domain
 
         private void notifyAllClientsWaitingOnPrevCommits()
         {
-            foreach(var clientState in _clientsState)
-            {
-                object clientLock = clientState.Value.Lock;
-                Monitor.Pulse(clientLock);
+            foreach(var clientState in _clientsState) {
+                Console.WriteLine("PUUUUUUUUUUULSE:" + clientState.Key);
+                Monitor.Pulse(getClientLock(clientState.Key));
             }
         }
 
@@ -120,6 +125,7 @@ namespace BankServer.domain
             for (int seq = 0; seq <= seqNum; seq++)
             {
                 bool commited = _seqNumbersCommitedState[seqNum];
+                Console.WriteLine($"SeqNum: {seqNum} is commited? ${commited}");
                 if (!commited) return true;
             }
             return false;
@@ -142,19 +148,26 @@ namespace BankServer.domain
             {
                 while (responsePropose.Count() < Math.Ceiling((decimal)numberOfBanks / 2))
                 {
+                    Console.WriteLine($"received {responsePropose.Count} proposes");
                     Monitor.Wait(signalAcceptSeqNum);
                 }
 
                 foreach (ProposeResp resp in responsePropose)
                 {
-                    if (!resp.Ack) return false;
+                    if (!resp.Ack)
+                    {
+                        Console.WriteLine("Got false as response :(");
+                        return false;
+                    }
                 }
+                Console.WriteLine("Waited for majority :)");
                 return true;
             }
         }
 
         private void sendCommit(int seqToCommit, uint clientID)
         {
+            Console.WriteLine("Sending Commit to all banks");
             _bankFrontend.SendCommitSeqNumToAllBanks(seqToCommit, clientID);
         }
 

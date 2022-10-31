@@ -54,7 +54,7 @@ namespace BankClient
             {
 				try
 				{
-					//Logger.LogDebug(command.ToString());
+					Logger.LogDebug(command.ToString());
                     command.Execute(executionOrder);
 				}catch(Exception e){
 					Logger.LogError(e.Message);

@@ -19,7 +19,7 @@ namespace BankServer.domain.bank
             List<int> bankAdresses = _config.GetBankServerIDs();
             foreach (int id in bankAdresses)
             {
-                (string host, int port) = _config.GetBoneyHostnameAndPortByProcess(id);
+                (string host, int port) = _config.GetBankHostnameAndPortByProcess(id);
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + host + ":" + port);
                 _bankChannels.Add(channel);
             }

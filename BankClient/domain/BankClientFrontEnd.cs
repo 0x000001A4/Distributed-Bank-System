@@ -54,7 +54,7 @@ namespace BankClient.domain
         {
             List<int> bankAdresses = _config.GetBankServerIDs();
             List<DepositResp> responseReceived = new List<DepositResp>();
-            foreach (int id in bankAdresses) // TODO: Sees only bank with port 10004 why ??
+            foreach (int id in bankAdresses)
             {
                 (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
@@ -64,9 +64,7 @@ namespace BankClient.domain
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 DepositReq request = new DepositReq { Client = protoClient, Amount = amount,Address = address };
-                DepositAsync(request,client,responseReceived);
-
-
+                Task ret = DepositAsync(request,client,responseReceived);
             }
             WaitForDeposit(responseReceived);
             Logger.LogDebug("Deposit Done with: " + responseReceived[0].Response);

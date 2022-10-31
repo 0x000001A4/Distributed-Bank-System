@@ -10,9 +10,8 @@ namespace BankServer.services
         {
             Logger.LogDebug("Deposit received.");
             Logger.LogDebug(_state.IsFrozen().ToString());
-            if (!_state.IsFrozen())
-            {
-            DepositResp response = doDeposit(request);
+            if (!_state.IsFrozen()) {
+                DepositResp response = doDeposit(request);
                 Logger.LogDebug("End of Deposit");
                 return Task.FromResult(response);
             }
@@ -21,10 +20,17 @@ namespace BankServer.services
         }
 
         public DepositResp doDeposit(DepositReq request){
-            if (verifyImLeader())
+
+            Console.WriteLine("Verifying if Im leader");
+            uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
+
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ;
+            if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId())
             {
-                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID,_processId);
+                Console.WriteLine("Starting 2PC");
+                _2PC.Start(currentSlot, request.Client.ClientID, _state.GetProcessId());
             }
+
             if (_2PC.WaitForCommit(request.Client.ClientID))
             {
                 string response = _bankManager.Deposit((int)request.Client.ClientID, request.Amount);
