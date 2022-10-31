@@ -26,12 +26,12 @@ namespace BankServer.domain.bank
         }
 
         public void SendProposeSeqNumToAllBanks(uint slot, int seqToPropose, List<ProposeResp> respReceived, 
-            object signalAcceptSeqNum)
+            uint processID,object signalAcceptSeqNum)
         {
             foreach (GrpcChannel channel in _bankChannels)
             {
                 Logger.LogDebug($"Sending Propose({seqToPropose}) to {channel.Target}");
-                ProposeReq request = new ProposeReq { Slot = slot, SeqNumber = (uint)seqToPropose };
+                ProposeReq request = new ProposeReq { Slot = slot, SeqNumber = (uint)seqToPropose , PrimaryBankID = (uint)processID };
                 Task res = ProposeSeqNumAsync(request, channel, respReceived, signalAcceptSeqNum);
             }
         }

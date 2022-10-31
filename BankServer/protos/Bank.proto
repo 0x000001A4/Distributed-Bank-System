@@ -24,6 +24,7 @@ message ClientRequestMsg {
 message ProposeReq {
 	uint32 slot = 1;
 	uint32 seqNumber = 2;
+	uint32 primaryBankID = 3;
 }
 
 message ProposeResp {

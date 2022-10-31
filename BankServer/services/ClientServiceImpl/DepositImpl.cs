@@ -23,11 +23,15 @@ namespace BankServer.services
         public DepositResp doDeposit(DepositReq request){
             if (verifyImLeader())
             {
-                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID);
+                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID,_processId);
             }
-            _2PC.WaitForCommit(request.Client.ClientID);
-            string response = _bankManager.Deposit((int) request.Client.ClientID,request.Amount);
-            return new DepositResp() { Response = response};
+            if (_2PC.WaitForCommit(request.Client.ClientID))
+            {
+                string response = _bankManager.Deposit((int)request.Client.ClientID, request.Amount);
+                return new DepositResp() { Response = response };
+            }
+            
+            return new DepositResp() { Response = "FAIL"};
         }
     }
 }
