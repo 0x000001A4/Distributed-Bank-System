@@ -19,7 +19,7 @@ namespace BankServer.utils
                                         CultureInfo.InvariantCulture);
             var span = dateTime - DateTime.Now;
             //if (span.TotalMilliseconds < 0) throw new Exception("The starting time in configuration file must be after the current time.");  //         DELIVERY: DECOMENT WHEN NOT DEBUGGING!!!!!
-            _clock = new System.Timers.Timer() { Interval = 1 /*DELIVERY span.TotalMilliseconds*/, AutoReset = false };
+            _clock = new System.Timers.Timer() { Interval = span.TotalMilliseconds, AutoReset = false };
             _updatable = updatable;
             _slotDuration = slotDuration;
         }

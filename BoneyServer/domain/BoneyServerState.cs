@@ -26,7 +26,7 @@ namespace BoneyServer.domain
             uint numberOfSlots = (uint)config.GetNumberOfSlots();
             _numberOfProcesses = (uint)config.GetNumberOfBoneyServers();
 
-            _slotManager = new BoneySlotManager(numberOfSlots+1);
+            _slotManager = new BoneySlotManager(numberOfSlots);
             _paxos = paxos;
             _config = config;
             _processId = processId;
@@ -72,13 +72,11 @@ namespace BoneyServer.domain
             // Save previous slot boney server state Status (frozen/not frozen) and incrementSlot
             var _prevSlotStatus = _frozen;
             IncrementSlot();
+            stopServerIfExceededMaxSlots();
 
             // Update servers' suspicions for new slot.
             Dictionary<uint, string> servers = new Dictionary<uint, string>();
             List<int> boneysID = _config.GetBoneyServerIDs();
-
-            stopServerIfExceededMaxSlots();
-
             foreach (int id in boneysID) {
                 servers.Add((uint)id, _config.GetServerSuspectedInSlot((uint)id, _slotManager.GetCurrentSlot()));
             }

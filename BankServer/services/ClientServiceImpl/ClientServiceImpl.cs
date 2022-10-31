@@ -6,7 +6,7 @@ using BankServer.domain.bank;
 
 namespace BankServer.services
 {
-    partial class ClientServiceImpl : ClientService.ClientServiceBase
+    public partial class ClientServiceImpl : ClientService.ClientServiceBase
     {
         ServerConfiguration _config;
         int _processId;

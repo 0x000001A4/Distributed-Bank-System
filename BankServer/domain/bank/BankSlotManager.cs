@@ -2,9 +2,9 @@
 
 namespace BankServer.domain.bank
 {
-    public class BankSlotManager
-    {
+    public class BankSlotManager {
 
+        Slots<uint> _slots;
         uint _slot = 0;
         ServerConfiguration _config;
         int _maxSlots;
@@ -12,7 +12,8 @@ namespace BankServer.domain.bank
         public BankSlotManager(ServerConfiguration config)
         {
             _config = config;
-            _maxSlots = config.GetNumberOfSlots() + 1;
+            _maxSlots = config.GetNumberOfSlots();
+            _slots = new Slots<uint>((uint)_maxSlots);
         }
 
         public uint ChooseLeader()
@@ -32,9 +33,8 @@ namespace BankServer.domain.bank
             return leaderId;
         }
 
-        public void IncrementSlot()
-        {
-            _slot += 1;
+        public void IncrementSlot() {
+             _slot += 1;
         }
 
         public uint GetCurrentSlot()
@@ -42,9 +42,19 @@ namespace BankServer.domain.bank
             return _slot;
         }
 
-        public int GetMaxSlots()
-        {
+        public int GetMaxSlots() {
             return _maxSlots;
+        }
+
+        public void SetPrimaryOnSlot(uint slotId, uint primary)
+        {
+            _slots[(int)slotId] = primary;
+        }
+
+
+        public uint GetPrimaryOnSlot(uint slotId)
+        {
+            return _slots[(int)slotId];
         }
     }
 }

@@ -10,6 +10,7 @@ namespace BankServer.domain.bank
     public class BankServerState : IUpdatable
     {
 
+        private Server _server;
         private BankSlotManager _slotManager;
         private uint _processId;
         private uint _numberOfProcesses;
@@ -40,23 +41,49 @@ namespace BankServer.domain.bank
             string _sender = _msg.GetSender();
             uint msgId = _msg.GetRequestId();
 
-            if (msgId == 1)
-            {
+            if (msgId == 1) {
                 _cmdHandler.handlePaxosResult(_msg.GetCompareAndSwapResponse(), _sender);
+            }
+
+            else if (msgId == 2) {
+                _cmdHandler.handleDepositReq(_msg.GetDepositReq(), _sender);
+            }
+
+            else if (msgId == 3) {
+                _cmdHandler.handleWithdrawReq(_msg.GetWithdrawReq(), _sender);
+            }
+
+            else if (msgId == 4) {
+                _cmdHandler.handleReadReq(_msg.GetReadReq(), _sender);
             }
         }
 
+        public void AddServer(Server server)
+        {
+            _server = server;
+        }
+
+        private void stopServerIfExceededMaxSlots()
+        {
+            if (_config.ExceededMaxSlots(_slotManager.GetCurrentSlot()))
+            {
+                HandleQueuedMessages();
+                Logger.LogInfo("Boney Server State: Max number of slots reached. Shutting process down after processing queued requests.");
+                _server.ShutdownAsync().Wait();
+            }
+        }
 
 
         public void Update()
         {
             var _prevSlotStatus = _frozen;
             _slotManager.IncrementSlot();
+            stopServerIfExceededMaxSlots();
 
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
 
-            // Set Configuration as complete (Needed to avoid crashing boney servers while they are configurating)
+            // Set Configuration as complete (Needed to avoid crashing bank servers while they are configurating)
             _config.setAsConfigured();
 
             // Check if bankServer server just unfroze!
@@ -114,7 +141,6 @@ namespace BankServer.domain.bank
 
         public void BroadcastCompareAndSwap()
         {
-
             List<int> boneyAdresses = _config.GetBoneyServerIDs();
             (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess((int)_processId);
             string address = "http://" + bankHost + ":" + bankPort;
@@ -124,13 +150,17 @@ namespace BankServer.domain.bank
             {
                 (string boneyHost, int boneyPort) = _config.GetBoneyHostnameAndPortByProcess(id);
                 Logger.LogDebug($"Sending to {boneyHost}:{boneyPort}");
-                //Console.Write("Item1 " +tuplo.Item1 + " Item2 " + tuplo.Item2+"\n");
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + boneyHost + ":" + boneyPort);
                 CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
                 Logger.LogDebug("CompareAndSwap sent");
                 client.CompareAndSwapAsync(new CompareAndSwapReq { Slot = _slotManager.GetCurrentSlot(), Leader = leader, Address = address });
             }
+
+        }
+
+        public void Cleanup()
+        {
 
         }
     }

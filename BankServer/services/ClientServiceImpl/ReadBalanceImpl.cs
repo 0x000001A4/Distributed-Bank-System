@@ -3,7 +3,7 @@ using Grpc.Core;
 
 namespace BankServer.services
 {
-    partial class ClientServiceImpl : ClientService.ClientServiceBase
+    public partial class ClientServiceImpl : ClientService.ClientServiceBase
     {
         public override Task<ReadResp> ReadBalance(ReadReq request, ServerCallContext context)
         {
