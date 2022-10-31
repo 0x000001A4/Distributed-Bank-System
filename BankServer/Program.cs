@@ -79,7 +79,7 @@ namespace BankServer
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler,bankSlotManager);
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
 
-            BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit);
+            BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit, bankServerState);
             ClientServiceImpl _clientService = new ClientServiceImpl(config, int.Parse(args[1]), bankManager, twoPhaseCommit, bankServerState);
             PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState);
             cmdHandler.AddPaxosResultHandlerService(_paxosResultHandlerService);

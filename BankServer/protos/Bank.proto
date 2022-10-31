@@ -1,0 +1,46 @@
+﻿syntax = "proto3";
+
+service BankService {
+  rpc ProposeSeqNum (ProposeReq) returns (ProposeResp);
+  rpc CommitSeqNum (CommitReq) returns (CommitResp);
+  rpc ListPendingRequests (ListPendingRequestsReq) returns (ListPendingRequestsResp);
+}
+
+/* ListPendingRequests */
+message ListPendingRequestsReq {
+	uint32 lastKnownSeqNumber = 1;
+}
+
+message ListPendingRequestsResp {
+	repeated ClientRequestMsg pendingRequests = 1;
+}
+
+message ClientRequestMsg {
+	bool commited = 1;
+	uint32 clientId = 2;
+}
+
+/*  Propose */
+message ProposeReq {
+	uint32 slot = 1;
+	uint32 seqNumber = 2;
+}
+
+message ProposeResp {
+	bool ack = 1;
+	
+}
+
+/*  Commit */
+
+message CommitReq {
+	uint32 clientID = 1;
+	uint32 seqNumber = 2;
+	
+}
+
+message CommitResp {
+	
+	
+}
+

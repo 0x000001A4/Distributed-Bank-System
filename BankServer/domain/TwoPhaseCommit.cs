@@ -4,6 +4,7 @@ using BankServer.domain.bank;
 
 namespace BankServer.domain
 {
+
     public interface ITwoPhaseCommit
     {
         void Start(uint slot, uint clientID);
@@ -35,9 +36,6 @@ namespace BankServer.domain
             _seqNumbersCommitedState = new List<bool>();
             _clientsState = new Dictionary<uint, ClientState>();
         }
-
-
-
 
 
         public void Start(uint slot, uint clientID)
@@ -72,11 +70,6 @@ namespace BankServer.domain
         }
 
 
-
-
-
-
-
         private bool sendPropose(uint slot, int seqToPropose)
         {
             List<ProposeResp> respReceived = new List<ProposeResp>();
@@ -100,7 +93,6 @@ namespace BankServer.domain
                 {
                     if (!resp.Ack) return false;
                 }
-
                 return true;
             }
         }

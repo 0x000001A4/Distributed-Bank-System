@@ -1,6 +1,7 @@
 ﻿using BankServer.utils;
 using Grpc.Core;
 using Grpc.Net.Client;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BankServer.domain.bank
 {
@@ -19,6 +20,9 @@ namespace BankServer.domain.bank
         private string _frozen;
         private Queue<Message> _queue { get; set; } = new Queue<Message>();
         private QueuedCommandHandler _cmdHandler;
+
+        private uint _lastKnownSequenceNumber = 0;
+        private List<ClientRequest> _clientRequests;
 
         public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler, BankSlotManager slotManager)
         {
@@ -156,12 +160,119 @@ namespace BankServer.domain.bank
                 Logger.LogDebug("CompareAndSwap sent");
                 client.CompareAndSwapAsync(new CompareAndSwapReq { Slot = _slotManager.GetCurrentSlot(), Leader = leader, Address = address });
             }
+        }
+
+        private void BroadcastListPendingRequests(List<List<ClientRequest>> _responses, object signalAcceptSeqNum)
+        {
+            try {
+                List<int> bankAddresses = _config.GetBankServerIDs();
+                foreach (int id in bankAddresses)
+                {
+                        (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
+                        Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
+                        GrpcChannel channel = GrpcChannel.ForAddress("http://" + bankHost + ":" + bankPort);
+                        BankService.BankServiceClient client = new BankService.BankServiceClient(channel);
+                        Task ret = RequestListPendingRequestsAsync(channel, _responses, signalAcceptSeqNum);
+                }
+            }
+            catch (Exception e) {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        private async Task<ListPendingRequestsResp> RequestListPendingRequestsAsync(GrpcChannel channel, List<List<ClientRequest>> _responses, object signalAcceptSeqNum) {
+            BankService.BankServiceClient _client = new BankService.BankServiceClient(channel);
+            Logger.LogDebug("ListPendingRequests sent");
+            ListPendingRequestsResp response = await _client.ListPendingRequestsAsync(new ListPendingRequestsReq { LastKnownSeqNumber = _lastKnownSequenceNumber }) ;
+            lock(_responses)
+            {
+                List<ClientRequestMsg> clientPendingRequests = response.PendingRequests.ToList();
+                List<ClientRequest> _pendingRequests = new List<ClientRequest>();
+                foreach (ClientRequestMsg clientReq in clientPendingRequests) {
+                    _pendingRequests.Add(new ClientRequest(clientReq.ClientId, clientReq.Commited));
+                }
+                _responses.Add(_pendingRequests);
+                Monitor.Pulse(signalAcceptSeqNum);
+            }
+            return response;
+        }
+
+        private void WaitForMajority(List<List<ClientRequest>> _responses, object signalAcceptSeqNum)
+        {
+            lock (signalAcceptSeqNum)
+            {
+                while (_responses.Count() < Math.Ceiling((decimal)_numberOfProcesses / 2)) {
+                    Monitor.Wait(signalAcceptSeqNum);
+                }
+            }
+        }
+
+        private void ProposeAndCommitSeqNumbers(List<List<ClientRequest>> _clientPendingRequests) { 
 
         }
 
         public void Cleanup()
         {
+            List<List<ClientRequest>> clientPendingRequests = new List<List<ClientRequest>>();
+            object signalAcceptSeqNum = new object();
+            BroadcastListPendingRequests(clientPendingRequests, signalAcceptSeqNum);
+            WaitForMajority(clientPendingRequests, signalAcceptSeqNum);
+            clientPendingRequests = FilterProposedButNotCommitedRequests(clientPendingRequests);
+            ProposeAndCommitSeqNumbers(clientPendingRequests);
+        }
 
+
+        public List<List<ClientRequest>> FilterProposedButNotCommitedRequests(List<List<ClientRequest>> _clientRequests)
+        {
+            List<List<ClientRequest>> _pendingClientRequests = new List<List<ClientRequest>>();
+            foreach (List<ClientRequest> clientRequests in _clientRequests)
+            {
+                int _replicaId = _clientRequests.IndexOf(clientRequests);
+                _pendingClientRequests[_replicaId] = new List<ClientRequest>();
+                for (int seqNum = 0; seqNum < clientRequests.Count; seqNum++)
+                {
+                    if (!hasBeenCommited(_clientRequests, seqNum)) {
+                        _pendingClientRequests[_replicaId].Add(new ClientRequest(clientRequests[seqNum].GetClientId(), false));
+                    }
+                }
+            }
+            return _pendingClientRequests;
+        }
+        
+        public bool hasBeenCommited(List<List<ClientRequest>> _clientRequests, int seqNum)
+        {
+            foreach (List<ClientRequest> clientRequests in _clientRequests) {
+                try {
+                    if (clientRequests[seqNum].isCommited()) return true;
+                } catch (ArgumentOutOfRangeException _) {
+                    Console.WriteLine("Sequence Number has not been proposed yet");
+                }
+            }
+            return false;
+        }
+
+        public List<ClientRequest> GetClientRequests() {
+            return _clientRequests;
+        }
+    }
+    public class ClientRequest
+    {
+        private uint _clientId;
+        private bool _commited;
+
+        public ClientRequest(uint clientId, bool state)
+        {
+            _clientId = clientId;
+            _commited = state;
+        }
+
+        public uint GetClientId() {
+            return _clientId;
+        }
+
+        public bool isCommited() {
+            return _commited;
         }
     }
 }
