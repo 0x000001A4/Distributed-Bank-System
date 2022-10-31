@@ -121,6 +121,11 @@ namespace BankServer.utils
             }
         }
 
+        public static void NewLine()
+        {
+            Console.WriteLine();
+        }
+
         private static void setDefaultColors()
         {
             Console.BackgroundColor = ConsoleColor.Black;
