@@ -8,13 +8,13 @@ namespace BankServer.services
     {
         BankServerState _state;
         ServerConfiguration _config;
-        int _processId;
+        uint _processId;
         BankManager _bankManager;
         ITwoPhaseCommit _2PC;
         int logPosition;
 
 
-        public ClientServiceImpl(ServerConfiguration config,int processId, BankManager bankManager,
+        public ClientServiceImpl(ServerConfiguration config,uint processId, BankManager bankManager,
             ITwoPhaseCommit _2pc, BankServerState state)
         {
             _state = state;

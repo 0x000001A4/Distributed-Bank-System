@@ -71,21 +71,21 @@ namespace BankServer
             Logger.DebugOn();
             Logger.LogInfo("Bank Server started");
             ServerConfiguration config = ServerConfiguration.ReadConfigFromFile(args[0]);
+            int processID = int.Parse(args[1]);
             BankManager bankManager = new BankManager();
 
 
             QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
             BankSlotManager bankSlotManager = new BankSlotManager(config);
-            BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler,bankSlotManager);
+            BankServerState bankServerState = new BankServerState(processID, config, cmdHandler,bankSlotManager);
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
 
             BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit,config,bankServerState);
-            ClientServiceImpl _clientService = new ClientServiceImpl(config, int.Parse(args[1]), bankManager, twoPhaseCommit, bankServerState);
+            ClientServiceImpl _clientService = new ClientServiceImpl(config, (uint)processID, bankManager, twoPhaseCommit, bankServerState);
             PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState);
             cmdHandler.AddPaxosResultHandlerService(_paxosResultHandlerService);
             cmdHandler.AddClientService(_clientService);
 
-            int processID = int.Parse(args[1]);
             (string hostname, int portNum) = config.GetBankHostnameAndPortByProcess(processID);
 
             BankServerStateInterceptor _interceptor = new BankServerStateInterceptor(bankServerState);

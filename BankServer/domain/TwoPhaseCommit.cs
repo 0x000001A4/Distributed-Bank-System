@@ -18,7 +18,7 @@ namespace BankServer.domain
 
     public interface ITwoPhaseCommit
     {
-        void Start(uint slot, uint clientID);
+        void Start(uint slot, uint clientID, uint senderID);
         void AcceptProposedSeqNum(int seqToAccept);
         bool WaitForCommit(uint clientID);
         void HandleCommit(int seqToCommit, uint clientID);
@@ -49,11 +49,11 @@ namespace BankServer.domain
 
 
 
-        public void Start(uint slot, uint clientID,int processID)
+        public void Start(uint slot, uint clientID, uint senderID)
         {
             int seqToPropose;
             lock (this) { seqToPropose = getSeqNumToPropose(); }
-            if (propose(slot, seqToPropose))
+            if (propose(slot, seqToPropose, senderID))
             {
                 sendCommit(seqToPropose, clientID);
             }
@@ -114,11 +114,11 @@ namespace BankServer.domain
         }
 
 
-        private bool propose(uint slot, int seqToPropose,int processID)
+        private bool propose(uint slot, int seqToPropose, uint senderID)
         {
             List<ProposeResp> respReceived = new List<ProposeResp>();
             object signal = new object();
-            _bankFrontend.SendProposeSeqNumToAllBanks(slot, seqToPropose, respReceived, processID,signal);
+            _bankFrontend.SendProposeSeqNumToAllBanks(slot, seqToPropose, respReceived, senderID, signal);
             return waitForMajority(_bankFrontend.GetNumberOfBanks(), respReceived, signal);
         }
 

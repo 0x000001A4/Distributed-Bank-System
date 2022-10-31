@@ -26,7 +26,7 @@ namespace BankServer.domain.bank
         }
 
         public void SendProposeSeqNumToAllBanks(uint slot, int seqToPropose, List<ProposeResp> respReceived, 
-            int processID,object signalAcceptSeqNum)
+            uint processID,object signalAcceptSeqNum)
         {
             foreach (GrpcChannel channel in _bankChannels)
             {
