@@ -76,8 +76,8 @@ namespace BankServer
 
             QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
             BankSlotManager bankSlotManager = new BankSlotManager(config);
-            BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler,bankSlotManager);
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
+            BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler, bankSlotManager, twoPhaseCommit);
 
             BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit, config, bankServerState);
             ClientServiceImpl _clientService = new ClientServiceImpl(config, (uint)processID, bankManager, twoPhaseCommit, bankServerState);

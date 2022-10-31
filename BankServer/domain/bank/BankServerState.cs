@@ -20,11 +20,9 @@ namespace BankServer.domain.bank
         private string _frozen;
         private Queue<Message> _queue { get; set; } = new Queue<Message>();
         private QueuedCommandHandler _cmdHandler;
+        private ITwoPhaseCommit _2PC;
 
-        private uint _lastKnownSequenceNumber = 0;
-        private List<ClientRequest> _clientRequests;
-
-        public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler, BankSlotManager slotManager)
+        public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler, BankSlotManager slotManager, ITwoPhaseCommit _2pc)
         {
             _slotManager = slotManager;
             _numberOfProcesses = (uint)config.GetNumberOfBankServers();
@@ -32,6 +30,7 @@ namespace BankServer.domain.bank
             _processId = (uint)processId;
             _frozen = config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
             _cmdHandler = cmdHandler;
+            _2PC = _2pc;
         }
 
         public void Enqueue(Message _msg)
@@ -184,7 +183,7 @@ namespace BankServer.domain.bank
         private async Task<ListPendingRequestsResp> RequestListPendingRequestsAsync(GrpcChannel channel, List<List<ClientRequest>> _responses, object signalAcceptSeqNum) {
             BankService.BankServiceClient _client = new BankService.BankServiceClient(channel);
             Logger.LogDebug("ListPendingRequests sent");
-            ListPendingRequestsResp response = await _client.ListPendingRequestsAsync(new ListPendingRequestsReq { LastKnownSeqNumber = _lastKnownSequenceNumber }) ;
+            ListPendingRequestsResp response = await _client.ListPendingRequestsAsync(new ListPendingRequestsReq { LastKnownSeqNumber = (uint)_2PC.GetSequenceNumber() }) ;
             lock(_responses)
             {
                 List<ClientRequestMsg> clientPendingRequests = response.PendingRequests.ToList();
@@ -208,8 +207,13 @@ namespace BankServer.domain.bank
             }
         }
 
-        private void ProposeAndCommitSeqNumbers(List<List<ClientRequest>> _clientPendingRequests) { 
-
+        private void ProposeAndCommitSeqNumbers(List<List<ClientRequest>> _clientPendingRequests) {
+            foreach(List<ClientRequest> clientRequests in _clientPendingRequests)
+            {
+                for (int seqNum = 0; seqNum < clientRequests.Count; seqNum++) {
+                    _2PC.StartAsCleanup(_slotManager.GetCurrentSlot(), clientRequests[seqNum].GetClientId(), _processId, seqNum);
+                }
+            }
         }
 
         public void Cleanup()
@@ -252,9 +256,6 @@ namespace BankServer.domain.bank
             return false;
         }
 
-        public List<ClientRequest> GetClientRequests() {
-            return _clientRequests;
-        }
     }
     public class ClientRequest
     {

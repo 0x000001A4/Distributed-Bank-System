@@ -19,9 +19,12 @@ namespace BankServer.domain
     public interface ITwoPhaseCommit
     {
         void Start(uint slot, uint clientID, uint senderID);
+        void StartAsCleanup(uint slot, uint clientID, uint senderID, int seqNum);
         void AcceptProposedSeqNum(int seqToAccept);
         bool WaitForCommit(uint clientID);
         void HandleCommit(int seqToCommit, uint clientID);
+        List<ClientRequest> GetClientRequests();
+        int GetSequenceNumber();
     }
 
     public class TwoPhaseCommit : ITwoPhaseCommit
@@ -32,6 +35,7 @@ namespace BankServer.domain
         private List<bool> _seqNumbersCommitedState;
         private Dictionary<uint, ClientState> _clientsState;
         private int _seqNumber = 0;
+        private List<ClientRequest> _clientRequests = new List<ClientRequest>();
 
         public TwoPhaseCommit(ServerConfiguration config)
         {
@@ -45,9 +49,10 @@ namespace BankServer.domain
             }
         }
 
-
-
-
+        public int GetSequenceNumber()
+        {
+            return _seqNumber;
+        }
 
         public void Start(uint slot, uint clientID, uint senderID)
         {
@@ -55,7 +60,14 @@ namespace BankServer.domain
             lock (this) { seqToPropose = getSeqNumToPropose(); }
             if (propose(slot, seqToPropose, senderID))
             {
+                _clientRequests.Add(new ClientRequest(clientID, false));
                 sendCommit(seqToPropose, clientID);
+            }
+        }
+
+        public void StartAsCleanup(uint slot, uint clientID, uint senderID, int seqNum) {
+            if (propose(slot, seqNum, senderID)) {
+                sendCommit(seqNum, clientID);
             }
         }
 
@@ -216,6 +228,11 @@ namespace BankServer.domain
                 Logger.NewLine();
                 Logger.LogError(e.Message);
             }
+        }
+
+        public List<ClientRequest> GetClientRequests()
+        {
+            return _clientRequests;
         }
     }
 }

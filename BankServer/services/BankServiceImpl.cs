@@ -82,7 +82,7 @@ namespace BankServer.services
 
         public ListPendingRequestsResp doListPendingRequests(ListPendingRequestsReq request)
         {
-            List<ClientRequest> _clientRequests = _state.GetClientRequests();
+            List<ClientRequest> _clientRequests = _2PC.GetClientRequests();
             List<ClientRequestMsg> _pendingRequests = new List<ClientRequestMsg>();
             for (int seqNum = 0; seqNum < _clientRequests.Count; seqNum++)
             {
