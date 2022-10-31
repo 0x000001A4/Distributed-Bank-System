@@ -1,27 +1,25 @@
-﻿using Grpc.Core;
-using BankServer.domain;
-using System.Net.Sockets;
-using BankServer.utils;
+﻿using BankServer.domain;
 using BankServer.domain.bank;
+using BankServer.utils;
 
 namespace BankServer.services
 {
     public partial class ClientServiceImpl : ClientService.ClientServiceBase
     {
+        BankServerState _state;
         ServerConfiguration _config;
         int _processId;
-        BankSlotManager _bankSlotManager;
         BankManager _bankManager;
         ITwoPhaseCommit _2PC;
         int logPosition;
 
 
-        public ClientServiceImpl(ServerConfiguration config,int processId, BankSlotManager bankSlotManager,
-            BankManager bankManager, ITwoPhaseCommit _2pc )
+        public ClientServiceImpl(ServerConfiguration config,int processId, BankManager bankManager,
+            ITwoPhaseCommit _2pc, BankServerState state)
         {
+            _state = state;
             _bankManager = bankManager;
             _config = config;
-            _bankSlotManager = bankSlotManager;
             _processId = processId;
             _2PC = _2pc;
             logPosition = 0;
@@ -34,7 +32,7 @@ namespace BankServer.services
 
             foreach (int id in bankIds)
             {
-                if (_config.GetServerSuspectedInSlot((uint)id, _bankSlotManager.GetCurrentSlot()) == SuspectState.NOTSUSPECTED)
+                if (_config.GetServerSuspectedInSlot((uint)id, _state.GetSlotManager().GetCurrentSlot()) == SuspectState.NOTSUSPECTED)
                 {
                    
                     leaderId = (uint)id;

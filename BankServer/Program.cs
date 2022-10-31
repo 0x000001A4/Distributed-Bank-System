@@ -78,11 +78,9 @@ namespace BankServer
             BankSlotManager bankSlotManager = new BankSlotManager(config);
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler,bankSlotManager);
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
-            ClientServiceImpl clientService = new ClientServiceImpl(config, int.Parse(args[1]),bankSlotManager,bankManager,twoPhaseCommit);
-            BankServiceImpl bankService     = new BankServiceImpl(twoPhaseCommit);
 
-
-            ClientServiceImpl _clientService = new ClientServiceImpl(bankManager, bankServerState);
+            BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit);
+            ClientServiceImpl _clientService = new ClientServiceImpl(config, int.Parse(args[1]), bankManager, twoPhaseCommit, bankServerState);
             PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState);
             cmdHandler.AddPaxosResultHandlerService(_paxosResultHandlerService);
             cmdHandler.AddClientService(_clientService);
@@ -99,7 +97,7 @@ namespace BankServer
             {
                 Services = {
                     CompareAndSwapService.BindService(_paxosResultHandlerService).Intercept(_interceptor),
-                    ClientService.BindService(clientService).Intercept(_interceptor),
+                    ClientService.BindService(_clientService).Intercept(_interceptor),
                     BankService.BindService(bankService)
                 },
                 

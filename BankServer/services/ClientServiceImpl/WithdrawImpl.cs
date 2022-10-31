@@ -9,14 +9,14 @@ namespace BankServer.services
         {
             Logger.LogDebug("Withdraw received.");
             //Logger.LogDebug(_state.IsFrozen().ToString());
-            //if (!_state.IsFrozen())
-            //{
-            WithdrawResp response = doWithdraw(request);
-            Logger.LogDebug("End of Withdraw");
-            return Task.FromResult(response);                     //Rick Ve Isto
-            //}
+            if (!_state.IsFrozen())
+            {
+                WithdrawResp response = doWithdraw(request);
+                Logger.LogDebug("End of Withdraw");
+                return Task.FromResult(response);
+            }
             // Request got queued and will be handled later
-            //throw new Exception("The server is frozen.");
+            throw new Exception("The server is frozen.");
         }
 
         public WithdrawResp doWithdraw(WithdrawReq request)

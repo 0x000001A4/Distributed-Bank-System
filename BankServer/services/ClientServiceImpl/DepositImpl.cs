@@ -17,13 +17,13 @@ namespace BankServer.services
                 return Task.FromResult(response);
             }
             // Request got queued and will be handled later
-            //throw new Exception("The server is frozen.");
+            throw new Exception("The server is frozen.");
         }
 
-        private DepositResp doDeposit(DepositReq request){
+        public DepositResp doDeposit(DepositReq request){
             if (verifyImLeader())
             {
-                _2PC.Start(_bankSlotManager.GetCurrentSlot(), request.Client.ClientID);
+                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID);
             }
             _2PC.WaitForCommit(request.Client.ClientID);
             string response = _bankManager.Deposit((int) request.Client.ClientID,request.Amount);

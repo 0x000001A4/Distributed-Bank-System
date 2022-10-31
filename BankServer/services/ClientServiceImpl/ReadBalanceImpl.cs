@@ -9,14 +9,14 @@ namespace BankServer.services
         {
             Logger.LogDebug("Read received.");
             //Logger.LogDebug(_state.IsFrozen().ToString());
-            //if (!_state.IsFrozen())
-            //{
+            if (!_state.IsFrozen())
+            {
             ReadResp response = doRead(request);
             Logger.LogDebug("End of Read");
-            return Task.FromResult(response);                     //Rick Ve Isto
-            //}
+            return Task.FromResult(response);
+            }
             // Request got queued and will be handled later
-            //throw new Exception("The server is frozen.");
+            throw new Exception("The server is frozen.");
         }
 
         public ReadResp doRead(ReadReq request)
