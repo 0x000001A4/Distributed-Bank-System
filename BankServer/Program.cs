@@ -4,6 +4,7 @@ using BankServer.utils;
 using BankServer.services;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
+using BankServer.domain.bank;
 
 namespace BankServer
 {
@@ -67,9 +68,9 @@ namespace BankServer
             QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
             BankSlotManager bankSlotManager = new BankSlotManager(config);
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler,bankSlotManager);
-            List<bool> phaseCommitList = new List<bool>();
-            ClientServiceImpl clientService = new ClientServiceImpl(config, int.Parse(args[1]),bankSlotManager,bankManager,phaseCommitList);
-            BankServiceImpl bankService = new bankServiceImpl(phaseCommitList);
+            ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
+            ClientServiceImpl clientService = new ClientServiceImpl(config, int.Parse(args[1]),bankSlotManager,bankManager,twoPhaseCommit);
+            BankServiceImpl bankService     = new BankServiceImpl(twoPhaseCommit);
 
             SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
             slotTimer.Execute();
@@ -90,7 +91,8 @@ namespace BankServer
             {
                 Services = {
                     CompareAndSwapService.BindService(_paxosResultHandlerService).Intercept(_interceptor),
-                    ClientService.BindService(clientService)
+                    ClientService.BindService(clientService),
+                    BankService.BindService(bankService)
                 },
                 
                 Ports = { serverPort }

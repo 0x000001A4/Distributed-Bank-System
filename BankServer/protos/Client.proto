@@ -37,10 +37,7 @@ message WithdrawResp {
 /*  Read */
 
 message ReadReq {
-	Client client = 1;
-	string address = 3;
-	
-	
+	Client client = 1;	
 }
 
 message ReadResp {

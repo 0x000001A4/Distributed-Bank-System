@@ -20,26 +20,13 @@ namespace BankServer.services
             //throw new Exception("The server is frozen.");
         }
 
-        public DepositResp doDeposit(DepositReq request){
-            /* Consensus */
-            int logPos;
+        private DepositResp doDeposit(DepositReq request){
             if (verifyImLeader())
             {
-                logPos = before2pc();
-                IncrementLog();
-                Propose2PC.executePropose((uint)_processId, _bankSlotManager.GetCurrentSlot(), _config, logPosition, request.Address);
-                after2pc(logPosition);
-
-
+                _2PC.Start(_bankSlotManager.GetCurrentSlot(), request.Client.ClientID);
             }
-            else
-            {
-                while(getLogPosition(logPos))
-            }
+            _2PC.WaitForCommit(request.Client.ClientID);
             string response = _bankManager.Deposit((int) request.Client.ClientID,request.Amount);
-           
-            
-            
             return new DepositResp() { Response = response};
         }
     }

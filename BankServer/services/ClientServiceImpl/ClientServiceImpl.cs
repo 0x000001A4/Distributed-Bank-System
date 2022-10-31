@@ -2,6 +2,7 @@
 using BankServer.domain;
 using System.Net.Sockets;
 using BankServer.utils;
+using BankServer.domain.bank;
 
 namespace BankServer.services
 {
@@ -11,17 +12,18 @@ namespace BankServer.services
         int _processId;
         BankSlotManager _bankSlotManager;
         BankManager _bankManager;
-        List<bool> _log2PC;
+        ITwoPhaseCommit _2PC;
         int logPosition;
 
 
-        public ClientServiceImpl(ServerConfiguration config,int processId, BankSlotManager bankSlotManager, BankManager bankManager, List<bool> lista )
+        public ClientServiceImpl(ServerConfiguration config,int processId, BankSlotManager bankSlotManager,
+            BankManager bankManager, ITwoPhaseCommit _2pc )
         {
             _bankManager = bankManager;
             _config = config;
             _bankSlotManager = bankSlotManager;
             _processId = processId;
-            _log2PC = lista;
+            _2PC = _2pc;
             logPosition = 0;
         }
 
@@ -42,24 +44,6 @@ namespace BankServer.services
             }
             return false;
         }
-        public void IncrementLog()
-        {
-            logPosition += 1;
-        }
 
-        public int before2pc()
-        {
-            _log2PC[logPosition] = false;
-            return logPosition;
-        }
-        public void after2pc(int pos)
-        {
-            _log2PC[pos] = true;
-        }
-
-        public bool getLogPosition(int pos)
-        {
-            return _log2PC[pos];
-        }
     }
 }

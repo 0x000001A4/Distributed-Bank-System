@@ -1,8 +1,8 @@
 ﻿syntax = "proto3";
 
 service BankService {
-  rpc Propose (ProposeReq) returns (AcceptResp);
-  rpc Commit (CommitReq) returns (CommitResp);
+  rpc ProposeSeqNum (ProposeReq) returns (ProposeResp);
+  rpc CommitSeqNum (CommitReq) returns (CommitResp);
  
   
 }
@@ -10,12 +10,10 @@ service BankService {
 /*  Propose */
 message ProposeReq {
 	uint32 slot = 1;
-	uint32 processId = 2;
-	uint32 seqNumber = 3;
-	
+	uint32 seqNumber = 2;
 }
 
-message AcceptResp {
+message ProposeResp {
 	bool ack = 1;
 	
 }
@@ -23,7 +21,7 @@ message AcceptResp {
 /*  Commit */
 
 message CommitReq {
-	string address = 1;
+	uint32 clientID = 1;
 	uint32 seqNumber = 2;
 	
 }
