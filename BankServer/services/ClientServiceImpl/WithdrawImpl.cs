@@ -26,11 +26,10 @@ namespace BankServer.services
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {
                 Logger.LogInfo("CURRENT slott " + currentSlot);
-                _2PC.Start(currentSlot, request.Client.ClientID, _state.GetProcessId());
-                string response = _bankManager.Withdraw((int)request.Client.ClientID, request.Amount);
-                return new WithdrawResp() { Response = response };
+                Thread thread = new Thread(() => _2PC.Start(currentSlot, request.Client.ClientID, _state.GetProcessId()));
+                thread.Start();
             }
-            else if(_2PC.WaitForCommit(request.Client.ClientID))
+            if (_2PC.WaitForCommit(request.Client.ClientID))
             {
                 string response = _bankManager.Withdraw((int)request.Client.ClientID, request.Amount);
                 return new WithdrawResp() { Response = response };

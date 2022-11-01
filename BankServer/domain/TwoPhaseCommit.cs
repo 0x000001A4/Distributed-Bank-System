@@ -210,7 +210,7 @@ namespace BankServer.domain
         private object getClientLock(uint clientID)
         {
             checkifClientExists(clientID);
-            return _clientsState[clientID];
+            return _clientsState[clientID].Lock;
         }
         private int getClientSeqNum(uint clientID)
         {
