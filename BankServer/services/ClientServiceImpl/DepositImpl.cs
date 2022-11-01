@@ -24,16 +24,15 @@ namespace BankServer.services
             Console.WriteLine("Verifying if Im leader");
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
 
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ;
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ; // while hasnt started yet
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId())
             {
                 Console.WriteLine("Starting 2PC");
-                _2PC.Start(currentSlot, request.Client.ClientID, _state.GetProcessId());
-                string response = _bankManager.Deposit((int)request.Client.ClientID, request.Amount);
-                return new DepositResp() { Response = response };
+                Thread thread = new Thread(() =>_2PC.Start(currentSlot, request.Client.ClientID, _state.GetProcessId()));
+                thread.Start();
             }
 
-            else if (_2PC.WaitForCommit(request.Client.ClientID))
+            if (_2PC.WaitForCommit(request.Client.ClientID))
             {
                 string response = _bankManager.Deposit((int)request.Client.ClientID, request.Amount);
                 return new DepositResp() { Response = response };
