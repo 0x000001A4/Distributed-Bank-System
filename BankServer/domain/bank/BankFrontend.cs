@@ -50,7 +50,7 @@ namespace BankServer.domain.bank
 
 
 
-        public void SendCommitSeqNumToAllBanks(int seqToCommit, uint clientID)
+        public void SendCommitSeqNumToAllBanks(int seqToCommit, int clientID)
         {
             foreach (GrpcChannel channel in _bankChannels)
             {

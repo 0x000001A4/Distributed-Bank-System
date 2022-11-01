@@ -22,57 +22,49 @@ namespace BankServer
             ServerCallContext context,
             UnaryServerMethod<TRequest, TResponse> continuation)
         {
-            try
-            {
-                // Wait while first slot did not start
-                while (!_state.isConfigured()) ;
+            // Wait while first slot did not start
+            while (!_state.isConfigured()) ;
                 
-                if (_state.IsFrozen())
-                {
-                    Type requestType = typeof(TRequest);
-                    Message? _msg = null;
-                    string sender = context.Peer;
-
-                    // Handling Compare And Swap Responses sent by learners
-                    if (requestType == typeof(CompareAndSwapResp)) {
-                        _msg = new Message((CompareAndSwapResp)(object)request, sender);
-                    }
-
-                    else if (requestType == typeof(DepositReq)) {
-                        _msg = new Message((DepositReq)(object)request, sender);
-                    }
-
-                    else if (requestType == typeof(WithdrawReq)) {
-                        _msg = new Message((WithdrawReq)(object)request, sender);
-                    }
-
-                    else if (requestType == typeof(ReadReq)) {
-                        _msg = new Message((ReadReq)(object)request, sender);
-                    }
-
-                    else if (requestType == typeof(ListPendingRequestsReq)) {
-                        _msg = new Message((ListPendingRequestsReq)(object)request, sender);
-                    }
-
-                    else if (requestType == typeof(ProposeReq)) {
-                        _msg = new Message((ProposeReq)(object)request, sender);
-                    }
-
-                    else if (requestType == typeof(CommitReq)) {
-                        _msg = new Message((CommitReq)(object)request, sender);
-                    }
-                        
-                    if (_msg != null) _state.Enqueue(_msg);
-
-                    else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
-                }
-                return await continuation(request, context);
-            }
-            catch (Exception ex)
+            if (_state.IsFrozen())
             {
-                Logger.LogError("Interceptor:" + ex.Message + " (l. 49)");
-                throw;
+                Type requestType = typeof(TRequest);
+                Message? _msg = null;
+                string sender = context.Peer;
+
+                // Handling Compare And Swap Responses sent by learners
+                if (requestType == typeof(CompareAndSwapResp)) {
+                    _msg = new Message((CompareAndSwapResp)(object)request, sender);
+                }
+
+                else if (requestType == typeof(DepositReq)) {
+                    _msg = new Message((DepositReq)(object)request, sender);
+                }
+
+                else if (requestType == typeof(WithdrawReq)) {
+                    _msg = new Message((WithdrawReq)(object)request, sender);
+                }
+
+                else if (requestType == typeof(ReadReq)) {
+                    _msg = new Message((ReadReq)(object)request, sender);
+                }
+
+                else if (requestType == typeof(ListPendingRequestsReq)) {
+                    _msg = new Message((ListPendingRequestsReq)(object)request, sender);
+                }
+
+                else if (requestType == typeof(ProposeReq)) {
+                    _msg = new Message((ProposeReq)(object)request, sender);
+                }
+
+                else if (requestType == typeof(CommitReq)) {
+                    _msg = new Message((CommitReq)(object)request, sender);
+                }
+                        
+                if (_msg != null) _state.Enqueue(_msg);
+
+                else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
             }
+            return await continuation(request, context);
         }
     }
 

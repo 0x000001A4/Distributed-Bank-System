@@ -47,8 +47,6 @@ namespace BoneyServer {
 				}
 
 				return await continuation(request, context);
-
-			
 		}
 	}
 	public class BoneyServer

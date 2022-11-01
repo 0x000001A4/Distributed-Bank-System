@@ -68,7 +68,7 @@ namespace BankClient.domain
                 Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
-                Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
+                Client protoClient = new Client { ClientID = (int)clientID, ClientRequestSeqNumb = opeSeqNumb };
                 DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
                 Task ret = DepositAsync(request,client,responseReceived);
             }
@@ -85,7 +85,7 @@ namespace BankClient.domain
                 Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
-                Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
+                Client protoClient = new Client { ClientID = (int)clientID, ClientRequestSeqNumb = opeSeqNumb };
                 WithdrawReq request = new WithdrawReq { Client = protoClient, Amount = amount };
                 Task ret = WithdrawAsync(request, client, responseReceived);
 
@@ -103,7 +103,7 @@ namespace BankClient.domain
                 Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
-                Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
+                Client protoClient = new Client { ClientID = (int)clientID, ClientRequestSeqNumb = opeSeqNumb };
                 ReadReq request = new ReadReq { Client = protoClient,};
                 Task ret = ReadAsync(request, client, responseReceived);
 

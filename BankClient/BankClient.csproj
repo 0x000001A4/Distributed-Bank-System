@@ -12,6 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="client-script-21.cs">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>client-script-21.txt</LastGenOutput>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>client-script-21.txt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.21.9" />
     <PackageReference Include="Grpc.Net.Client" Version="2.49.0" />
     <PackageReference Include="Grpc.Tools" Version="2.50.0">
@@ -22,6 +32,10 @@
 
   <ItemGroup>
     <Protobuf Include="protos\Client.proto" GrpcServices="Both" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>

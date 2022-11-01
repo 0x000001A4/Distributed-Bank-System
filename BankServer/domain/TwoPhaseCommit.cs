@@ -18,11 +18,11 @@ namespace BankServer.domain
 
     public interface ITwoPhaseCommit
     {
-        void Start(uint slot, uint clientID, uint senderID);
-        void StartAsCleanup(uint slot, uint clientID, uint senderID, int seqNum);
+        void Start(uint slot, int clientID, uint senderID);
+        void StartAsCleanup(uint slot, int clientID, uint senderID, int seqNum);
         void AcceptProposedSeqNum(int seqToAccept);
-        bool WaitForCommit(uint clientID);
-        void HandleCommit(int seqToCommit, uint clientID);
+        bool WaitForCommit(int clientID);
+        void HandleCommit(int seqToCommit, int clientID);
         List<ClientRequest> GetClientRequests();
         int GetSequenceNumber();
     }
@@ -33,7 +33,7 @@ namespace BankServer.domain
         // false -> proposed, not commited
         // true  -> proposed, commited
         private List<bool> _seqNumbersCommitedState;
-        private Dictionary<uint, ClientState> _clientsState;
+        private Dictionary<int, ClientState> _clientsState;
         private int _seqNumber = 0;
         private List<ClientRequest> _clientRequests = new List<ClientRequest>();
 
@@ -41,9 +41,9 @@ namespace BankServer.domain
         {
             _bankFrontend = new BankFrontend(config);
             _seqNumbersCommitedState = new List<bool>();
-            _clientsState = new Dictionary<uint, ClientState>();
+            _clientsState = new Dictionary<int, ClientState>();
             List<int> clientIDs = config.GetClientIDs();
-            foreach(uint clientID in clientIDs)
+            foreach(int clientID in clientIDs)
             {
                 _clientsState.Add(clientID, new ClientState());
             }
@@ -54,18 +54,18 @@ namespace BankServer.domain
             return _seqNumber;
         }
 
-        public void Start(uint slot, uint clientID, uint senderID)
+        public void Start(uint slot, int clientID, uint senderID)
         {
             int seqToPropose;
             lock (this) { seqToPropose = getSeqNumToPropose(); }
             if (propose(slot, seqToPropose, senderID))
             {
-                _clientRequests.Add(new ClientRequest(clientID, false));
+                _clientRequests.Add(new ClientRequest(clientID, (uint)seqToPropose, false));
                 sendCommit(seqToPropose, clientID);
             }
         }
 
-        public void StartAsCleanup(uint slot, uint clientID, uint senderID, int seqNum) {
+        public void StartAsCleanup(uint slot, int clientID, uint senderID, int seqNum) {
             if (propose(slot, seqNum, senderID)) {
                 sendCommit(seqNum, clientID);
             }
@@ -76,7 +76,7 @@ namespace BankServer.domain
             initializeAllPrevSeqNumsUpTo(seqToAccept);
         }
 
-        public bool WaitForCommit(uint clientID)
+        public bool WaitForCommit(int clientID)
         {
             Console.WriteLine("Waiting for commit ");
 
@@ -99,7 +99,7 @@ namespace BankServer.domain
             }
         }
 
-        public void HandleCommit(int seqToCommit, uint clientID)
+        public void HandleCommit(int seqToCommit, int clientID)
         {
             Console.WriteLine($"handlingCommit: seqNum {seqToCommit}, clientId {clientID}");
             checkSeqNum(seqToCommit);
@@ -167,7 +167,7 @@ namespace BankServer.domain
             }
         }
 
-        private void sendCommit(int seqToCommit, uint clientID)
+        private void sendCommit(int seqToCommit, int clientID)
         {
             Console.WriteLine("Sending Commit to all banks");
             _bankFrontend.SendCommitSeqNumToAllBanks(seqToCommit, clientID);
@@ -189,7 +189,7 @@ namespace BankServer.domain
             _seqNumbersCommitedState.Add(false);
             return _seqNumber++;
         }
-        private void resetClientSeqNum(uint clientID)
+        private void resetClientSeqNum(int clientID)
         {
             _clientsState[clientID].SeqNum = -1;
         }
@@ -197,28 +197,28 @@ namespace BankServer.domain
         {
             _seqNumbersCommitedState[pos] = true;
         }
-        private void setClientAsCommited(uint clientID, int seq)
+        private void setClientAsCommited(int clientID, int seq)
         {
             checkifClientExists(clientID);
             _clientsState[clientID].SeqNum = seq;
         }
-        private void setClientAsProposed(uint clientID)
+        private void setClientAsProposed(int clientID)
         {
             checkifClientExists(clientID);
             _clientsState[clientID] = new ClientState();
         }
-        private object getClientLock(uint clientID)
+        private object getClientLock(int clientID)
         {
             checkifClientExists(clientID);
             return _clientsState[clientID].Lock;
         }
-        private int getClientSeqNum(uint clientID)
+        private int getClientSeqNum(int clientID)
         {
             checkifClientExists(clientID);
             return _clientsState[clientID].SeqNum;
         }
 
-        private void checkifClientExists(uint clientID)
+        private void checkifClientExists(int clientID)
         {
             try
             {

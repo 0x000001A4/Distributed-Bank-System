@@ -20,7 +20,8 @@ message ListPendingRequestsResp {
 
 message ClientRequestMsg {
 	bool commited = 1;
-	uint32 clientId = 2;
+	uint32 seqNum = 2;
+	int32 clientId = 3;
 }
 
 /*  Propose */
@@ -38,7 +39,7 @@ message ProposeResp {
 /*  Commit */
 
 message CommitReq {
-	uint32 clientID = 1;
+	int32 clientID = 1;
 	uint32 seqNumber = 2;
 	
 }

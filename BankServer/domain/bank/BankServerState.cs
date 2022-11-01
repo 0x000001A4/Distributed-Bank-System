@@ -201,7 +201,7 @@ namespace BankServer.domain.bank
                 List<ClientRequestMsg> clientPendingRequests = response.PendingRequests.ToList();
                 List<ClientRequest> _pendingRequests = new List<ClientRequest>();
                 foreach (ClientRequestMsg clientReq in clientPendingRequests) {
-                    _pendingRequests.Add(new ClientRequest(clientReq.ClientId, clientReq.Commited));
+                    _pendingRequests.Add(new ClientRequest(clientReq.ClientId, clientReq.SeqNum, clientReq.Commited));
                 }
                 _responses.Add(_pendingRequests);
                 Monitor.Pulse(signalAcceptSeqNum);
@@ -219,12 +219,10 @@ namespace BankServer.domain.bank
             }
         }
 
-        private void ProposeAndCommitSeqNumbers(List<List<ClientRequest>> _clientPendingRequests) {
-            foreach(List<ClientRequest> clientRequests in _clientPendingRequests)
-            {
-                for (int seqNum = 0; seqNum < clientRequests.Count; seqNum++) {
-                    _2PC.StartAsCleanup(_slotManager.GetCurrentSlot(), clientRequests[seqNum].GetClientId(), _processId, seqNum);
-                }
+        private void ProposeAndCommitSeqNumbers(List<ClientRequest> _clientPendingRequests) {
+            foreach(ClientRequest clientRequest in _clientPendingRequests) {
+                uint seqNum = clientRequest.GetSeqNum();
+                _2PC.StartAsCleanup(_slotManager.GetCurrentSlot(), clientRequest.GetClientId(), _processId, (int)seqNum);
             }
         }
 
@@ -232,29 +230,20 @@ namespace BankServer.domain.bank
         {
             List<List<ClientRequest>> clientPendingRequests = new List<List<ClientRequest>>();
             object signalAcceptSeqNum = new object();
-            Console.WriteLine("Print 1");
             BroadcastListPendingRequests(clientPendingRequests, signalAcceptSeqNum);
-            Console.WriteLine("Print 2");
             WaitForMajority(clientPendingRequests, signalAcceptSeqNum);
-            Console.WriteLine("Print 3");
-            clientPendingRequests = FilterProposedButNotCommitedRequests(clientPendingRequests);
-            Console.WriteLine("Print 4");
-            ProposeAndCommitSeqNumbers(clientPendingRequests);
-            Console.WriteLine("Print 5");
+            List<ClientRequest> _clientPendingRequests = FilterProposedButNotCommitedRequests(clientPendingRequests);
+            ProposeAndCommitSeqNumbers(_clientPendingRequests);
         }
 
-
-        public List<List<ClientRequest>> FilterProposedButNotCommitedRequests(List<List<ClientRequest>> _clientRequests)
+        public List<ClientRequest> FilterProposedButNotCommitedRequests(List<List<ClientRequest>> _clientRequests)
         {
-            List<List<ClientRequest>> _pendingClientRequests = new List<List<ClientRequest>>();
+            List<ClientRequest> _pendingClientRequests = new List<ClientRequest>();
             foreach (List<ClientRequest> clientRequests in _clientRequests)
             {
-                int _replicaId = _clientRequests.IndexOf(clientRequests);
-                _pendingClientRequests[_replicaId] = new List<ClientRequest>();
-                for (int seqNum = 0; seqNum < clientRequests.Count; seqNum++)
-                {
-                    if (!hasBeenCommited(_clientRequests, seqNum)) {
-                        _pendingClientRequests[_replicaId].Add(new ClientRequest(clientRequests[seqNum].GetClientId(), false));
+                for (int seqNum = 0; seqNum < clientRequests.Count; seqNum++) {
+                    if (clientRequests[seqNum].GetClientId() != -1 && !hasBeenCommited(_clientRequests, seqNum)) {
+                        _pendingClientRequests.Add(new ClientRequest(clientRequests[seqNum].GetClientId(), (uint)seqNum, false));
                     }
                 }
             }
@@ -276,21 +265,28 @@ namespace BankServer.domain.bank
     }
     public class ClientRequest
     {
-        private uint _clientId;
+        private int _clientId;
+        private uint _seqNum;
         private bool _commited;
 
-        public ClientRequest(uint clientId, bool state)
+        public ClientRequest(int clientId, uint seqNum, bool state)
         {
             _clientId = clientId;
+            _seqNum = seqNum;
             _commited = state;
         }
 
-        public uint GetClientId() {
+        public int GetClientId() {
             return _clientId;
         }
 
         public bool isCommited() {
             return _commited;
+        }
+
+        public uint GetSeqNum()
+        {
+            return _seqNum;
         }
     }
 }

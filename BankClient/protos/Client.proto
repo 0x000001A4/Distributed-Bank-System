@@ -48,6 +48,6 @@ message ReadResp {
 
 
 message Client {
-	uint32 clientID = 1;
+	int32 clientID = 1;
 	uint32 clientRequestSeqNumb = 2;
 }

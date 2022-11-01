@@ -63,6 +63,7 @@ namespace BankServer.services
                 ClientRequest clientRequest = _clientRequests[seqNum];
                 _pendingRequests.Add(new ClientRequestMsg {
                     ClientId = clientRequest.GetClientId(),
+                    SeqNum = clientRequest.GetSeqNum(),
                     Commited = clientRequest.isCommited()
                 });
             }
