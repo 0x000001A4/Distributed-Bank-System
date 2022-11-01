@@ -64,6 +64,18 @@ namespace BankServer.domain.bank
             else if (msgId == 4) {
                 _cmdHandler.handleReadReq(_msg.GetReadReq(), _sender);
             }
+
+            else if (msgId == 5) {
+                _cmdHandler.handleListPendingRequestsReq(_msg.GetListPendingRequestsReq(), _sender);
+            }
+
+            else if (msgId == 6) {
+                _cmdHandler.handleProposeReq(_msg.GetProposeReq(), _sender);
+            }
+
+            else if (msgId == 7) {
+                _cmdHandler.handleCommitReq(_msg.GetCommitReq(), _sender);
+            }
         }
 
         public void AddServer(Server server)
@@ -111,7 +123,6 @@ namespace BankServer.domain.bank
 
         public void HandleQueuedMessages()
         {
-            // If yes handle Queued messages!
             while (_queue.Count > 0)
             {
                 Message msg = _queue.Dequeue();

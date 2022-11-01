@@ -4,6 +4,9 @@ service BankService {
   rpc ProposeSeqNum (ProposeReq) returns (ProposeResp);
   rpc CommitSeqNum (CommitReq) returns (CommitResp);
   rpc ListPendingRequests (ListPendingRequestsReq) returns (ListPendingRequestsResp);
+  rpc AckListPendingRequests (ListPendingRequestsResp) returns (ListPendingRequestsResp);
+  rpc AckPropose (ProposeResp) returns (ProposeResp);
+  rpc AckCommit (CommitResp) returns (CommitResp);
 }
 
 /* ListPendingRequests */

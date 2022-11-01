@@ -24,18 +24,19 @@ namespace BoneyServer.services
             Logger.LogDebug(_state.IsFrozen().ToString());
             if (!_state.IsFrozen()) {
                 doCompareAndSwap(request);
-                Logger.LogDebug("End of CompareAndSwap");
-                return Task.FromResult(new CompareAndSwapResp());
+                return Task.FromResult(doCompareAndSwap(request));
             }
             // Request got queued and will be handled later
             throw new Exception("The server is frozen.");
         }
 
-        public void doCompareAndSwap(CompareAndSwapReq request) {
+        public CompareAndSwapResp doCompareAndSwap(CompareAndSwapReq request) {
             PaxosValue value = new PaxosValue(request.Leader, request.Slot);
             Logger.LogDebug("CompareAndSwapServiceImpl: CompareAndSwap received (CompareAndSwapServiceImpl.cs: Line 36)");
             uint primary = _state.GetSlotManager().GetSlotValue((int)request.Slot);
             _multiPaxos.Start(value, request.Address, primary);
+            Logger.LogDebug("End of CompareAndSwap");
+            return new CompareAndSwapResp() { };
         }
     }
 }

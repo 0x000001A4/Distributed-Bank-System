@@ -15,6 +15,9 @@ namespace BankServer.domain {
         private DepositReq? depositReq = null;
         private WithdrawReq? withdrawReq = null;
         private ReadReq? readReq = null;
+        private ListPendingRequestsReq? listPendingRequestsReq = null;
+        private ProposeReq? proposeReq = null;
+        private CommitReq? commitReq = null;
 
         public Message(CompareAndSwapResp _request, string _sender) {
 			compareAndSwapResp = _request;
@@ -43,6 +46,27 @@ namespace BankServer.domain {
             requestId = 4;
         }
 
+        public Message(ListPendingRequestsReq _request, string _sender)
+        {
+            listPendingRequestsReq = _request;
+            sender = _sender;
+            requestId = 5;
+        }
+
+        public Message(ProposeReq _request, string _sender)
+        {
+            proposeReq = _request;
+            sender = _sender;
+            requestId = 6;
+        }
+
+        public Message(CommitReq _request, string _sender)
+        {
+            commitReq = _request;
+            sender = _sender;
+            requestId = 7;
+        }
+
         public uint GetRequestId() {
             return requestId;
         }
@@ -65,6 +89,20 @@ namespace BankServer.domain {
             return readReq;
         }
 
+        public ListPendingRequestsReq? GetListPendingRequestsReq()
+        {
+            return listPendingRequestsReq;
+        }
+
+        public ProposeReq? GetProposeReq()
+        {
+            return proposeReq;
+        }
+
+        public CommitReq? GetCommitReq()
+        {
+            return commitReq;
+        }
 
         public string GetSender() {
             return sender;

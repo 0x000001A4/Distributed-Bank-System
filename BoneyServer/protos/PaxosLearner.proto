@@ -3,7 +3,7 @@ import "CompareAndSwap.proto";
 
 service PaxosLearnerService {
 	rpc LearnCommand (LearnCommandReq) returns (LearnCommandResp);
-	rpc SendLearnCommandResponse (LearnCommandResp) returns (LearnCommandResp);
+	rpc AckLearnCommandResponse (LearnCommandResp) returns (LearnCommandResp);
 }
 
 message LearnCommandReq {

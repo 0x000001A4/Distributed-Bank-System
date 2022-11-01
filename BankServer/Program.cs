@@ -24,8 +24,9 @@ namespace BankServer
         {
             try
             {
+                // Wait while first slot did not start
                 while (!_state.isConfigured()) ;
-
+                
                 if (_state.IsFrozen())
                 {
                     Type requestType = typeof(TRequest);
@@ -49,6 +50,18 @@ namespace BankServer
                         _msg = new Message((ReadReq)(object)request, sender);
                     }
 
+                    else if (requestType == typeof(ListPendingRequestsReq)) {
+                        _msg = new Message((ListPendingRequestsReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(ProposeReq)) {
+                        _msg = new Message((ProposeReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(CommitReq)) {
+                        _msg = new Message((CommitReq)(object)request, sender);
+                    }
+                        
                     if (_msg != null) _state.Enqueue(_msg);
 
                     else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
@@ -78,11 +91,12 @@ namespace BankServer
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler, twoPhaseCommit);
 
-            BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit, bankServerState);
+            BankServiceImpl _bankService = new BankServiceImpl(twoPhaseCommit, bankServerState);
             ClientServiceImpl _clientService = new ClientServiceImpl(config, bankManager, twoPhaseCommit, bankServerState);
             PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState);
             cmdHandler.AddPaxosResultHandlerService(_paxosResultHandlerService);
             cmdHandler.AddClientService(_clientService);
+            cmdHandler.AddBankService(_bankService);
 
             (string hostname, int portNum) = config.GetBankHostnameAndPortByProcess(processID);
 
@@ -96,7 +110,7 @@ namespace BankServer
                 Services = {
                     CompareAndSwapService.BindService(_paxosResultHandlerService).Intercept(_interceptor),
                     ClientService.BindService(_clientService).Intercept(_interceptor),
-                    BankService.BindService(bankService)
+                    BankService.BindService(_bankService).Intercept(_interceptor)
                 },
                 
                 Ports = { serverPort }

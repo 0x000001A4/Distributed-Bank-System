@@ -2,7 +2,9 @@
 
 service CompareAndSwapService {
   rpc CompareAndSwap (CompareAndSwapReq) returns (CompareAndSwapResp);
-  rpc HandlePaxosResult (CompareAndSwapResp) returns (CompareAndSwapResp);
+  rpc HandlePaxosResult (CompareAndSwapResp) returns (HandlePaxosResultResp);
+  rpc AckCompareAndSwap (CompareAndSwapResp) returns (CompareAndSwapResp);
+  rpc AckHandlePaxosResult (HandlePaxosResultResp) returns (HandlePaxosResultResp);
 }
 
 message CompareAndSwapReq {
@@ -14,4 +16,7 @@ message CompareAndSwapReq {
 message CompareAndSwapResp {
 	uint32 slot = 1;
 	uint32 primary = 2;
+}
+
+message HandlePaxosResultResp {
 }
