@@ -20,7 +20,7 @@ message ListPendingRequestsResp {
 
 message ClientRequestMsg {
 	bool commited = 1;
-	uint32 seqNum = 2;
+	int32 seqNum = 2;
 	int32 clientId = 3;
 }
 

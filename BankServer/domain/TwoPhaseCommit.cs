@@ -4,18 +4,6 @@ using BankServer.domain.bank;
 
 namespace BankServer.domain
 {
-    internal class ClientState
-    {
-        public int SeqNum;
-        public readonly object Lock;
-        public ClientState()
-        {
-            SeqNum = -1;
-            Lock = new object();
-        }
-    }
-
-
     public interface ITwoPhaseCommit
     {
         void Start(uint slot, int clientID, uint senderID);
@@ -25,75 +13,83 @@ namespace BankServer.domain
         void HandleCommit(int seqToCommit, int clientID);
         List<ClientRequest> GetClientRequests();
         int GetSequenceNumber();
+
+        void UpdateSequenceNumber(int sequenceNumber);
+    }
+
+    internal class ClientState
+    {
+        public static readonly int NOT_INITIALIZED = -1;
+        public int SeqNum;
+        public readonly object Lock;
+        public ClientState()
+        {
+            SeqNum = NOT_INITIALIZED;
+            Lock = new object();
+        }
     }
 
     public class TwoPhaseCommit : ITwoPhaseCommit
     {
         BankFrontend _bankFrontend;
-        // false -> proposed, not commited
-        // true  -> proposed, commited
-        private List<bool> _seqNumbersCommitedState;
         private Dictionary<int, ClientState> _clientsState;
-        private int _seqNumber = 0;
         private List<ClientRequest> _clientRequests = new List<ClientRequest>();
+        private int _seqNumber = 0;
 
         public TwoPhaseCommit(ServerConfiguration config)
         {
             _bankFrontend = new BankFrontend(config);
-            _seqNumbersCommitedState = new List<bool>();
+            _clientRequests = new List<ClientRequest>();
             _clientsState = new Dictionary<int, ClientState>();
             List<int> clientIDs = config.GetClientIDs();
-            foreach(int clientID in clientIDs)
+            foreach (int clientID in clientIDs)
             {
                 _clientsState.Add(clientID, new ClientState());
             }
         }
 
-        public int GetSequenceNumber()
-        {
-            return _seqNumber;
-        }
-
         public void Start(uint slot, int clientID, uint senderID)
         {
+            Logger.LogDebug2PC($"Start: start");
             int seqToPropose;
             lock (this) { seqToPropose = getSeqNumToPropose(); }
             if (propose(slot, seqToPropose, senderID))
+                _clientRequests.Add(new ClientRequest(clientID, seqToPropose, false));
             {
-                _clientRequests.Add(new ClientRequest(clientID, (uint)seqToPropose, false));
                 sendCommit(seqToPropose, clientID);
+                Logger.LogDebug2PC($"Start: succesfully commited (seq: {seqToPropose}, clientID: {clientID})");
             }
-        }
-
-        public void StartAsCleanup(uint slot, int clientID, uint senderID, int seqNum) {
-            if (propose(slot, seqNum, senderID)) {
-                sendCommit(seqNum, clientID);
-            }
+            Logger.LogDebug2PC($"Start: received at least one NACK (could not commit)");
         }
 
         public void AcceptProposedSeqNum(int seqToAccept)
         {
+            Logger.LogDebug2PC($"AcceptProposedSeqNum: start");
             initializeAllPrevSeqNumsUpTo(seqToAccept);
+            Logger.LogDebug2PC($"AcceptProposedSeqNum: end");
         }
 
         public bool WaitForCommit(int clientID)
         {
-            Console.WriteLine("Waiting for commit ");
-
+            Logger.LogDebug2PC($"WaitForCommit: start");
+            Logger.LogDebug2PC($"WaitForCommit: trying to aquire lock for client {clientID}");
             lock (getClientLock(clientID))
             {
+                Logger.LogDebug2PC($"WaitForCommit: lock aquired for client {clientID}");
                 TimeoutTimer timeout = new TimeoutTimer();
-                do 
+                do
                 {
-                    if (timeout.TimedOut()) {
+                    if (timeout.TimedOut())
+                    {
+                        Logger.LogDebug2PC($"WaitForCommit: TimedOut {clientID}");
                         return false;
                     }
-                    Logger.LogInfo("before" + clientID);
+                    Logger.LogDebug2PC($"WaitForCommit: releasing lock for client {clientID}");
                     Monitor.Wait(getClientLock(clientID));
-                    Logger.LogInfo("after" + clientID);
+                    Logger.LogDebug2PC($"WaitForCommit: received a pulse");
                 }
                 while (hasntCommitedAllSeqNumsUntil(getClientSeqNum(clientID)));
-
+                Logger.LogDebug2PC($"WaitForCommit: All seqNums before {getClientSeqNum(clientID)} have been received");
                 resetClientSeqNum(clientID);
                 return true;
             }
@@ -101,22 +97,61 @@ namespace BankServer.domain
 
         public void HandleCommit(int seqToCommit, int clientID)
         {
-            Console.WriteLine($"handlingCommit: seqNum {seqToCommit}, clientId {clientID}");
+            Logger.LogDebug2PC($"HandleCommit: start of handling commit");
             checkSeqNum(seqToCommit);
+            Logger.LogDebug2PC($"HandleCommit: trying to aquire lock for client {clientID}");
+            Logger.LogDebug2PC($"HandleCommit: lock aquired for client {clientID}");
+            setSeqNumAsCommited(seqToCommit);
+            setClientAsCommited(clientID, seqToCommit);
+            Logger.LogDebug2PC($"HandleCommit: notifying all clients waiting on previous commits");
+            notifyAllClientsWaitingOnPrevCommits();
+            Logger.LogDebug2PC($"HandleCommit: Successfully notified all clients waiting on prev commits");
 
-            lock (getClientLock(clientID)) {
-                setSeqNumAsCommited(seqToCommit);
-                setClientAsCommited(clientID, seqToCommit);
-                notifyAllClientsWaitingOnPrevCommits();
-            }
         }
+
+
+        public List<ClientRequest> GetClientRequests() {
+            return _clientRequests;
+
+        }
+
+        public void StartAsCleanup(uint slot, int clientID, uint senderID, int seqNum)
+        {
+            Logger.LogDebug2PC($"StartAsCleanup: starting");
+            if (propose(slot, seqNum, senderID))
+            {
+                sendCommit(seqNum, clientID);
+                Logger.LogDebug2PC($"StartAsCleanup: ended with a majority of ACK (commited)");
+            }
+            Logger.LogDebug2PC($"StartAsCleanup: ended at least one NACK (could not commit)");
+        }
+
+        public int GetSequenceNumber()
+        {
+            return _seqNumber;
+        }
+
+
+        public void UpdateSequenceNumber(int seqNumber)
+        {
+            _seqNumber = seqNumber;
+            initializeAllPrevSeqNumsUpTo(seqNumber);
+        }
+
+
 
         private void notifyAllClientsWaitingOnPrevCommits()
         {
-            foreach(var clientState in _clientsState) {
-                Console.WriteLine("PUUUUUUUUUUULSE:" + clientState.Key);
-                Monitor.Pulse(getClientLock(clientState.Key));
+            Logger.LogDebug2PC($"Pulsing: start");
+            foreach (var clientState in _clientsState)
+            {
+                lock (clientState.Value.Lock)
+                {
+                    Monitor.Pulse(clientState.Value.Lock);
+                }
+                
             }
+            Logger.LogDebug2PC($"Pulsing: pulsed to all clients");
         }
 
 
@@ -126,8 +161,7 @@ namespace BankServer.domain
         {
             for (int seq = 0; seq <= seqNum; seq++)
             {
-                bool commited = _seqNumbersCommitedState[seqNum];
-                Console.WriteLine($"SeqNum: {seqNum} is commited? ${commited}");
+                bool commited = _clientRequests[seqNum].isCommited();
                 if (!commited) return true;
             }
             return false;
@@ -143,50 +177,47 @@ namespace BankServer.domain
         }
 
 
-        private bool waitForMajority(int numberOfBanks, List<ProposeResp> responsePropose, 
+        private bool waitForMajority(int numberOfBanks, List<ProposeResp> responsePropose,
             object signalAcceptSeqNum)
         {
             lock (signalAcceptSeqNum)
             {
                 while (responsePropose.Count() < Math.Ceiling((decimal)numberOfBanks / 2))
                 {
-                    Console.WriteLine($"received {responsePropose.Count} proposes");
                     Monitor.Wait(signalAcceptSeqNum);
                 }
 
                 foreach (ProposeResp resp in responsePropose)
                 {
-                    if (!resp.Ack)
-                    {
-                        Console.WriteLine("Got false as response :(");
-                        return false;
-                    }
+                    if (!resp.Ack) return false;
                 }
-                Console.WriteLine("Waited for majority :)");
+
                 return true;
             }
         }
 
         private void sendCommit(int seqToCommit, int clientID)
         {
-            Console.WriteLine("Sending Commit to all banks");
+            _clientRequests[seqToCommit].Commit();
+            
             _bankFrontend.SendCommitSeqNumToAllBanks(seqToCommit, clientID);
         }
 
         private void initializeAllPrevSeqNumsUpTo(int seq)
         {
-            if (seq > _seqNumber)
+            Logger.LogDebug2PC($"initializeAllPrevSeqNumsUpTo: current seq: " + seq);
+            if (seq >= _seqNumber)
             {
-                for (int i = _seqNumber+1; i <= seq; i++)
+                for (int seqCounter = _seqNumber; seqCounter <= seq; seqCounter++)
                 {
-                    _seqNumbersCommitedState.Add(false);
+                    _clientRequests.Add(new ClientRequest(-1, seqCounter, false));
                 }
             }
+            Logger.LogDebug2PC($"initializeAllPrevSeqNumsUpTo: initiialzied all to false up to : " + seq);
         }
 
         private int getSeqNumToPropose() // TODO: seqnumber may not be linear!
         {
-            _seqNumbersCommitedState.Add(false);
             return _seqNumber++;
         }
         private void resetClientSeqNum(int clientID)
@@ -195,7 +226,7 @@ namespace BankServer.domain
         }
         private void setSeqNumAsCommited(int pos)
         {
-            _seqNumbersCommitedState[pos] = true;
+            _clientRequests[pos].Commit();
         }
         private void setClientAsCommited(int clientID, int seq)
         {
@@ -224,7 +255,8 @@ namespace BankServer.domain
             {
                 var catchError = _clientsState[clientID];
             }
-            catch(KeyNotFoundException e){
+            catch (Exception e)
+            {
                 Logger.LogError("Client does not exist. TwoPhaseCommit.cs (checkifClientExists())");
                 Logger.NewLine();
                 Logger.LogError(e.Message);
@@ -233,21 +265,18 @@ namespace BankServer.domain
 
         private void checkSeqNum(int seq)
         {
+            Logger.LogDebug2PC($"checkSeqNum: start");
             try
             {
-                var catchError = _seqNumbersCommitedState[seq];
+                var catchError = _clientRequests[seq];
             }
-            catch(IndexOutOfRangeException e)
+            catch (Exception e)
             {
                 Logger.LogError("SequenceNumber does not exist. TwoPhaseCommit.cs (checkSeqNum())");
                 Logger.NewLine();
                 Logger.LogError(e.Message);
             }
-        }
-
-        public List<ClientRequest> GetClientRequests()
-        {
-            return _clientRequests;
+            Logger.LogDebug2PC($"checkSeqNum: start");
         }
     }
 }

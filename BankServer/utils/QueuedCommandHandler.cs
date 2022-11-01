@@ -1,12 +1,5 @@
 ﻿using BankServer.services;
-using BankServer.domain;
 using Grpc.Net.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
 
 namespace BankServer.utils
 {
@@ -53,7 +46,7 @@ namespace BankServer.utils
             }
             DepositResp response = _clientService.doDeposit(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckDeposit(response);
+            _client.AckDeposit(response); // TODO: ????
         }
 
         public void handleWithdrawReq(WithdrawReq request, string sender)
@@ -65,7 +58,7 @@ namespace BankServer.utils
             }
             WithdrawResp response = _clientService.doWithdraw(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckWithdraw(response);
+            _client.AckWithdraw(response); // TODO: ????
         }
 
         public void handleReadReq(ReadReq request, string sender)
@@ -77,7 +70,7 @@ namespace BankServer.utils
             }
             ReadResp response = _clientService.doRead(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckReadBalance(response);
+            _client.AckReadBalance(response); // TODO: ????
         }
 
         public void handleListPendingRequestsReq(ListPendingRequestsReq request, string sender)
@@ -89,7 +82,7 @@ namespace BankServer.utils
             }
             ListPendingRequestsResp response = _bankService.doListPendingRequests(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckListPendingRequests(response);
+            _client.AckListPendingRequests(response); // TODO: ????
         }
 
         public void handleProposeReq(ProposeReq request, string sender)

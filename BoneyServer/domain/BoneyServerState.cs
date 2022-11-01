@@ -48,19 +48,19 @@ namespace BoneyServer.domain
             string _sender = _msg.GetSender();
             uint msgId = _msg.GetRequestId();
 
-            if (msgId == 1) {
+            if (msgId == Message.COMPARE_AND_SWAP) {
                 _cmdHandler.handleCompareAndSwap(_msg.GetCompareAndSwapRequest(), _sender);
             }
 
-            else if (msgId == 2) {
+            else if (msgId == Message.PREPARE) {
                 _cmdHandler.handlePrepare(_msg.GetPrepareRequest(), _sender);
             }
         
-            else if (msgId == 3) {
+            else if (msgId == Message.ACCEPT) {
                 _cmdHandler.handleAccept(_msg.GetAcceptRequest(), _sender);
             }
             
-            else if (msgId == 4) {
+            else if (msgId == Message.LEARN_COMMAND) {
                 _cmdHandler.handleLearnCommand(_msg.GetLearnCommandRequest(), _sender);
             }
         }

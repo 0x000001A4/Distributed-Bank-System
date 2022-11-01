@@ -19,38 +19,46 @@ namespace BankServer.services
 
         public override Task<ProposeResp> ProposeSeqNum(ProposeReq request, ServerCallContext context)
         {
+            Logger.LogDebug("ProposeSeqNum received");
             if (!_state.IsFrozen()) {
                 return Task.FromResult(doPropose(request));
             }
+            Logger.LogDebug("ProposeSeqNum end frozen");
             throw new Exception("The server is frozen");
         }
 
         public ProposeResp doPropose(ProposeReq request) {
             bool _isPrimary = (request.PrimaryBankID == (uint)_state.GetSlotManager().GetPrimaryOnSlot(request.Slot));
             if (_isPrimary) _2PC.AcceptProposedSeqNum((int)request.SeqNumber);
+            Logger.LogDebug("ProposeSeqNum end not frozen");
             return new ProposeResp { Ack = _isPrimary };
         }
 
 
         public override Task<CommitResp> CommitSeqNum(CommitReq request, ServerCallContext context)
         {
+            Logger.LogDebug("CommitSeqNum received");
             if (!_state.IsFrozen()) {
                 return Task.FromResult(doCommit(request));
             }
+            Logger.LogDebug("CommitSeqNum end frozen");
             throw new Exception("The server is frozen");
         }
 
         public CommitResp doCommit(CommitReq request)
         {
             _2PC.HandleCommit((int)request.SeqNumber, request.ClientID);
+            Logger.LogDebug("CommitSeqNum end not frozen");
             return new CommitResp() { };
         }
 
         public override Task<ListPendingRequestsResp> ListPendingRequests(ListPendingRequestsReq request, ServerCallContext context)
         {
+            Logger.LogDebug("ListPendingRequests received");
             if (!_state.IsFrozen()) {
                 return Task.FromResult(doListPendingRequests(request));
             }
+            Logger.LogDebug("ListPendingRequests end frozen");
             throw new Exception("The server is frozen.");
         }
 
@@ -70,6 +78,7 @@ namespace BankServer.services
 
             var response = new ListPendingRequestsResp { };
             response.PendingRequests.Add(_pendingRequests);
+            Logger.LogDebug("ListPendingRequests end not frozen");
             return response;
         }
     }

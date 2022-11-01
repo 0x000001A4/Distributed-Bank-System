@@ -173,7 +173,17 @@ namespace BankServer.domain.bank
             }
         }
 
-        private void BroadcastListPendingRequests(List<List<ClientRequest>> _responses, object signalAcceptSeqNum)
+        public void Cleanup()
+        {
+            List<List<ClientRequest>> clientPendingRequests = new List<List<ClientRequest>>();
+            object signalAcceptSeqNum = new object();
+            broadcastListPendingRequests(clientPendingRequests, signalAcceptSeqNum);
+            WaitForMajority(clientPendingRequests, signalAcceptSeqNum);
+            List<ClientRequest> _clientPendingRequests = FilterProposedButNotCommitedRequests(clientPendingRequests);
+            ProposeAndCommitSeqNumbers(_clientPendingRequests);
+        }
+
+        private void broadcastListPendingRequests(List<List<ClientRequest>> _responses, object signalAcceptSeqNum)
         {
             try {
                 List<int> bankAddresses = _config.GetBankServerIDs();
@@ -216,24 +226,28 @@ namespace BankServer.domain.bank
                 while (_responses.Count() < Math.Ceiling((decimal)_numberOfProcesses / 2)) {
                     Monitor.Wait(signalAcceptSeqNum);
                 }
+                updateMaxSeqNumSeen(_responses);
             }
+        }
+
+        private void updateMaxSeqNumSeen(List<List<ClientRequest>> _responses)
+        {
+            int maxSeqSeen = 0;
+            foreach (List<ClientRequest> log in _responses)
+            {
+                if (log.Count > maxSeqSeen)
+                {
+                    maxSeqSeen = log.Count - 1;
+                }
+            }
+            _2PC.UpdateSequenceNumber(maxSeqSeen);
         }
 
         private void ProposeAndCommitSeqNumbers(List<ClientRequest> _clientPendingRequests) {
             foreach(ClientRequest clientRequest in _clientPendingRequests) {
-                uint seqNum = clientRequest.GetSeqNum();
+                int seqNum = clientRequest.GetSeqNum();
                 _2PC.StartAsCleanup(_slotManager.GetCurrentSlot(), clientRequest.GetClientId(), _processId, (int)seqNum);
             }
-        }
-
-        public void Cleanup()
-        {
-            List<List<ClientRequest>> clientPendingRequests = new List<List<ClientRequest>>();
-            object signalAcceptSeqNum = new object();
-            BroadcastListPendingRequests(clientPendingRequests, signalAcceptSeqNum);
-            WaitForMajority(clientPendingRequests, signalAcceptSeqNum);
-            List<ClientRequest> _clientPendingRequests = FilterProposedButNotCommitedRequests(clientPendingRequests);
-            ProposeAndCommitSeqNumbers(_clientPendingRequests);
         }
 
         public List<ClientRequest> FilterProposedButNotCommitedRequests(List<List<ClientRequest>> _clientRequests)
@@ -243,7 +257,7 @@ namespace BankServer.domain.bank
             {
                 for (int seqNum = 0; seqNum < clientRequests.Count; seqNum++) {
                     if (clientRequests[seqNum].GetClientId() != -1 && !hasBeenCommited(_clientRequests, seqNum)) {
-                        _pendingClientRequests.Add(new ClientRequest(clientRequests[seqNum].GetClientId(), (uint)seqNum, false));
+                        _pendingClientRequests.Add(new ClientRequest(clientRequests[seqNum].GetClientId(), seqNum, false));
                     }
                 }
             }
@@ -265,11 +279,12 @@ namespace BankServer.domain.bank
     }
     public class ClientRequest
     {
+        
         private int _clientId;
-        private uint _seqNum;
+        private int _seqNum;
         private bool _commited;
 
-        public ClientRequest(int clientId, uint seqNum, bool state)
+        public ClientRequest(int clientId, int seqNum, bool state)
         {
             _clientId = clientId;
             _seqNum = seqNum;
@@ -284,9 +299,29 @@ namespace BankServer.domain.bank
             return _commited;
         }
 
-        public uint GetSeqNum()
+        public int GetSeqNum()
         {
             return _seqNum;
+        }
+
+        public bool hasSeqNum()
+        {
+            return _seqNum != ClientState.NOT_INITIALIZED;
+        }
+
+        public bool hasClientId()
+        {
+            return _clientId != ClientState.NOT_INITIALIZED;
+        }
+
+        public void Commit()
+        {
+            _commited = true;
+        }
+
+        public void SetSeqNum(int seqNum)
+        {
+            _seqNum =  seqNum;
         }
     }
 }
