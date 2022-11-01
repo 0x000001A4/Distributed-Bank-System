@@ -56,6 +56,7 @@ namespace BankServer.domain
             if (propose(slot, seqToPropose, senderID))
                 _clientRequests.Add(new ClientRequest(clientID, seqToPropose, false));
             {
+                Logger.LogDebug2PC($"Start: before commit (seq: {seqToPropose}, clientID: {clientID})");
                 sendCommit(seqToPropose, clientID);
                 Logger.LogDebug2PC($"Start: succesfully commited (seq: {seqToPropose}, clientID: {clientID})");
             }
@@ -147,7 +148,10 @@ namespace BankServer.domain
             {
                 lock (clientState.Value.Lock)
                 {
-                    Monitor.Pulse(clientState.Value.Lock);
+                    if (clientState.Value.SeqNum != ClientState.NOT_INITIALIZED)
+                    {
+                        Monitor.Pulse(clientState.Value.Lock);
+                    }
                 }
                 
             }
@@ -198,8 +202,9 @@ namespace BankServer.domain
 
         private void sendCommit(int seqToCommit, int clientID)
         {
+            Logger.LogDebug2PC($"SeqNum received: {seqToCommit}, highest seqNum: {_clientRequests.Count()}");
+            //checkSeqNum(seqToCommit);
             _clientRequests[seqToCommit].Commit();
-            
             _bankFrontend.SendCommitSeqNumToAllBanks(seqToCommit, clientID);
         }
 
@@ -226,6 +231,7 @@ namespace BankServer.domain
         }
         private void setSeqNumAsCommited(int pos)
         {
+            checkSeqNum(pos);
             _clientRequests[pos].Commit();
         }
         private void setClientAsCommited(int clientID, int seq)

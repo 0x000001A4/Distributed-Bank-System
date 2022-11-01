@@ -8,7 +8,6 @@ namespace BankServer.services
         public override Task<ReadResp> ReadBalance(ReadReq request, ServerCallContext context)
         {
             Logger.LogDebug("Read received.");
-            Logger.LogDebug(_state.IsFrozen().ToString());
             if (!_state.IsFrozen()) {
                 ReadResp response = doRead(request);
                 Logger.LogDebug("End of Read when not frozen");
@@ -23,7 +22,9 @@ namespace BankServer.services
         {
 
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ;
+            Logger.LogDebug($"ReadBalance: slot is {currentSlot}");
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0);
+            Logger.LogDebug($"ReadBalance: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {
                 Logger.LogDebug("Starting 2PC");
@@ -33,7 +34,7 @@ namespace BankServer.services
             Logger.LogDebug("Waiting for commit started...");
             if (_2PC.WaitForCommit(request.Client.ClientID))
             {
-                double balance = _bankManager.Read((int)request.Client.ClientID);
+                double balance = _bankManager.Read();
                 Logger.LogDebug("Waited succesfully, sending the response");
                 return new ReadResp() { Balance = balance };
             }

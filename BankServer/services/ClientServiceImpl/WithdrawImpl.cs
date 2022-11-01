@@ -23,7 +23,9 @@ namespace BankServer.services
         public WithdrawResp doWithdraw(WithdrawReq request)
         {
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ;
+            Logger.LogDebug($"Withdraw: slot is {currentSlot}");
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0);
+            Logger.LogDebug($"Withdraw: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {
                 Logger.LogDebug("Starting 2PC");
@@ -33,7 +35,7 @@ namespace BankServer.services
             Logger.LogDebug("Waiting for commit started...");
             if (_2PC.WaitForCommit(request.Client.ClientID))
             {
-                string response = _bankManager.Withdraw((int)request.Client.ClientID, request.Amount);
+                string response = _bankManager.Withdraw(request.Amount);
                 Logger.LogDebug("Waited succesfully, sending the response");
                 return new WithdrawResp() { Response = response };
             }

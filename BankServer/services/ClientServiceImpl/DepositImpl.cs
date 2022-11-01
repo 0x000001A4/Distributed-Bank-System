@@ -23,7 +23,10 @@ namespace BankServer.services
 
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
 
+            Logger.LogDebug($"Deposit: slot is {currentSlot}");
             while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ; // while hasnt started yet
+            Logger.LogDebug($"Deposit: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
+
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId())
             {
                 Logger.LogDebug("Starting 2PC");
@@ -33,7 +36,7 @@ namespace BankServer.services
             Logger.LogDebug("Waiting for commit started...");
             if (_2PC.WaitForCommit(request.Client.ClientID))
             {
-                string response = _bankManager.Deposit((int)request.Client.ClientID, request.Amount);
+                string response = _bankManager.Deposit(request.Amount);
                 Logger.LogDebug("Waited succesfully, sending the response");
                 return new DepositResp() { Response = response };
             }

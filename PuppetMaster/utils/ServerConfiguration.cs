@@ -75,7 +75,7 @@ namespace PuppetMaster.utils
                 }
                 else if (words[0] == "S")
                 {
-                    _numberSlots = int.Parse(words[1]);
+                    _numberSlots = int.Parse(words[1]) + 1;
 
                 }
                 else if (words[0] == "T")
@@ -122,7 +122,8 @@ namespace PuppetMaster.utils
                         {
                             _serverState[global, end] = pal1;
                             _serverSuspect[global, end] = pal2;
-
+                            Logger.LogDebug($"State for slot {global} and process {end} is {pal1}");
+                            Logger.LogDebug($"Suspected for slot {global} and process {end} is {pal2}");
                             end++;
                         }
                         count = 1;
@@ -313,7 +314,7 @@ namespace PuppetMaster.utils
 
         public bool ExceededMaxSlots(uint slot)
         {
-            return slot > _numberOfSlots;
+            return slot >= _numberOfSlots;
         }
 
         public bool hasFinished()

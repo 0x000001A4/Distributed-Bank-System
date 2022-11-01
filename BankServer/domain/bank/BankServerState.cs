@@ -94,9 +94,21 @@ namespace BankServer.domain.bank
         public void Update(uint tick)
         {
             var _prevSlotStatus = _frozen;
+            _slotManager.IncrementSlot();
+
+            Logger.LogDebug("BankSlotManager update");
+            if (_slotManager.GetCurrentSlot() > _slotManager.GetMaxSlots())
+            {
+                Logger.LogInfo("Max number of slots reached. Freezing process.");
+                while (true) ;
+
+            }
 
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
+            Logger.LogDebug($"Current state: {_frozen}");
+            Logger.LogDebug($"Process id: {_processId}");
+            Logger.LogDebug($"Current slot: {_slotManager.GetCurrentSlot()}");
 
             // Set Configuration as complete (Needed to avoid crashing bank servers while they are configurating)
             _config.setAsConfigured();
@@ -107,16 +119,7 @@ namespace BankServer.domain.bank
                 HandleQueuedMessages();
             }
 
-            Logger.LogDebug("BankSlotManager update");
-            if (_slotManager.GetCurrentSlot() > _slotManager.GetMaxSlots())
-            {
-                Logger.LogInfo("Max number of slots reached. Freezing process.");
-                while (true) ;
-
-            }
-
             BroadcastCompareAndSwap();
-            _slotManager.IncrementSlot();
             Logger.LogDebug("BankSlotManager end of update");
         }
 

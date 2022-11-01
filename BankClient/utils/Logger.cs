@@ -23,12 +23,18 @@ namespace BankClient.utils
             _debug = true;
         }
 
+        private static int getThreadId()
+        {
+            return Thread.CurrentThread.ManagedThreadId;
+        }
+
+
         public static void LogInfo(string message)
         {
             lock (mutex)
             {
                 setColors(ConsoleColor.Cyan, ConsoleColor.Black);
-                Console.Write(INFO);
+                Console.Write(INFO + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                 setColors(ConsoleColor.Black, ConsoleColor.Cyan);
                 Console.WriteLine(" " + message);
                 setDefaultColors();
@@ -41,7 +47,7 @@ namespace BankClient.utils
             lock (mutex)
             {
                 setColors(ConsoleColor.Red, ConsoleColor.White);
-                Console.Write(ERROR);
+                Console.Write(ERROR + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                 setColors(ConsoleColor.Black, ConsoleColor.Red);
                 Console.WriteLine(" " + message);
                 setDefaultColors();
@@ -55,7 +61,7 @@ namespace BankClient.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.DarkGray, ConsoleColor.Black);
-                    Console.Write(DEBUG);
+                    Console.Write(DEBUG + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.DarkGray);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -71,7 +77,7 @@ namespace BankClient.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.Green, ConsoleColor.White);
-                    Console.Write(PROPOSER);
+                    Console.Write(PROPOSER + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.Green);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -86,7 +92,7 @@ namespace BankClient.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.Yellow, ConsoleColor.Black);
-                    Console.Write(ACCEPTOR);
+                    Console.Write(ACCEPTOR + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.Yellow);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -101,7 +107,7 @@ namespace BankClient.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.Magenta, ConsoleColor.White);
-                    Console.Write(LEARNER);
+                    Console.Write(LEARNER + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.Magenta);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -114,10 +120,25 @@ namespace BankClient.utils
             lock (mutex)
             {
                 setColors(ConsoleColor.DarkYellow, ConsoleColor.White);
-                Console.Write(EVENT);
+                Console.Write(EVENT + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                 setColors(ConsoleColor.Black, ConsoleColor.DarkYellow);
                 Console.WriteLine(" " + message);
                 setDefaultColors();
+            }
+        }
+
+        public static void LogDebug2PC(string message)
+        {
+            lock (mutex)
+            {
+                if (_debug)
+                {
+                    setColors(ConsoleColor.Magenta, ConsoleColor.White);
+                    Console.Write(DEBUG + getThreadId() + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
+                    setColors(ConsoleColor.Black, ConsoleColor.Magenta);
+                    Console.WriteLine(" " + message);
+                    setDefaultColors();
+                }
             }
         }
 

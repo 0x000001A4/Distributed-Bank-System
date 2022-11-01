@@ -5,7 +5,7 @@ namespace BankServer.domain.bank
     public class BankSlotManager {
 
         Slots<uint> _slots;
-        uint _slot = 1;
+        uint _slot = 0;
         ServerConfiguration _config;
         int _maxSlots;
 

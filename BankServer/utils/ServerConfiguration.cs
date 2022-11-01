@@ -122,7 +122,8 @@ namespace BankServer.utils
                         {
                             _serverState[global, end] = pal1;
                             _serverSuspect[global, end] = pal2;
-
+                            Logger.LogDebug($"State for slot {global} and process {end} is {pal1}");
+                            Logger.LogDebug($"Suspected for slot {global} and process {end} is {pal2}");
                             end++;
                         }
                         count = 1;
@@ -143,7 +144,6 @@ namespace BankServer.utils
                 .SetTimeOfFirstSlot(_timeOfFirstSlot)
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
-
 
             return config;
 

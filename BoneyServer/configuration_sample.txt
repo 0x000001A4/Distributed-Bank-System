@@ -2,9 +2,10 @@ P 1 boney http://127.0.0.1:10000
 P 4 bank http://127.0.0.1:10004
 P 5 bank http://127.0.0.1:10005
 P 7 client client-script-21
+P 8 client client-script-13
 S 3
-T 08:38:40
-D 5000 
-F 1 (1, N, NS) (4, N, NS) (5, N, NS)
-F 2 (1, N, NS) (4, N, NS) (5, N, NS)
+T 19:44:15
+D 4000 
+F 1 (1, N, NS) (4, F, NS) (5, F, NS)
+F 2 (1, N, NS) (4, F, NS) (5, F, NS)
 F 3 (1, N, NS) (4, N, NS) (5, N, NS)
