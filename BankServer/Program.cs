@@ -75,9 +75,8 @@ namespace BankServer
             int processID = int.Parse(args[1]);
 
             QueuedCommandHandler cmdHandler = new QueuedCommandHandler();
-            BankSlotManager bankSlotManager = new BankSlotManager(config);
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
-            BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler, bankSlotManager, twoPhaseCommit);
+            BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler, twoPhaseCommit);
 
             BankServiceImpl bankService = new BankServiceImpl(twoPhaseCommit, bankServerState);
             ClientServiceImpl _clientService = new ClientServiceImpl(config, bankManager, twoPhaseCommit, bankServerState);
@@ -104,7 +103,8 @@ namespace BankServer
             };
             bankServerState.AddServer(server);
 
-            SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),config.GetSlotFisrtTime());
+            SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),
+                config.GetSlotFisrtTime(),(uint)config.GetNumberOfSlots());
             slotTimer.Execute();
 
             server.Start();

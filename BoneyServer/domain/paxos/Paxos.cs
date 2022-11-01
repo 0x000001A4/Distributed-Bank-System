@@ -33,6 +33,7 @@ namespace BoneyServer.domain.paxos
         private uint _sourceLeaderNumber;
         private uint? _leaderProcessID;                   // The process it suspects to be the leader
         private List<string> _boneyAdress;
+        int counter = 0;
 
         private uint Instance { get; set; } = 0;
 
@@ -133,10 +134,12 @@ namespace BoneyServer.domain.paxos
 
         public void UpdateServers(Dictionary<uint, string> servers)
         {
+            counter++;
             if (servers.Count == 0) throw new Exception("Paxos must be composed of at least 1 server!");
             
             _paxosServers = servers;
             updateLeader();
+            Logger.LogEvent(counter.ToString());
         }
 
         public PaxosInstance GetPaxosInstance(uint instanceId)

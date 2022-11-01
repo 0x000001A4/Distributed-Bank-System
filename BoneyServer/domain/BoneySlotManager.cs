@@ -8,14 +8,12 @@ namespace BoneyServer.domain
     public class BoneySlotManager
     {
         private Slots<uint> _processSlots;
-        private uint _currentSlot;
         private readonly uint _maxSlot;
 
         public BoneySlotManager(uint maxNumOfSlots)
         {
             _processSlots = new Slots<uint>(maxNumOfSlots);
             _maxSlot = maxNumOfSlots;
-            _currentSlot = 0;
         }
 
         public uint FillSlot(int slotNum, uint slotVal)
@@ -39,10 +37,6 @@ namespace BoneyServer.domain
         {
             return _processSlots[slotNum];
         }
-
-        public void IncrementCurrentSlot() { _currentSlot++; }
-
-        public uint GetCurrentSlot() { return _currentSlot; }
 
         public uint GetMaxSlot()
         {

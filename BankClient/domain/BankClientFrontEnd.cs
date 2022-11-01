@@ -6,9 +6,19 @@ namespace BankClient.domain
     public class BankClientFrontend
     {
         ServerConfiguration _config;
+        List<GrpcChannel> _channels;
         public BankClientFrontend(ServerConfiguration config)
         {
             _config = config;
+
+            _channels = new List<GrpcChannel>();
+            List<int> bankAdresses = _config.GetBankServerIDs();
+            foreach (int id in bankAdresses)
+            {
+                (string host, int port) = _config.GetBankHostnameAndPortByProcess(id);
+                GrpcChannel channel = GrpcChannel.ForAddress("http://" + host + ":" + port);
+                _channels.Add(channel);
+            }
         }
 
 
@@ -52,18 +62,14 @@ namespace BankClient.domain
         }
         public void Deposit(uint clientID, uint opeSeqNumb,double amount)
         {
-            List<int> bankAdresses = _config.GetBankServerIDs();
             List<DepositResp> responseReceived = new List<DepositResp>();
-            foreach (int id in bankAdresses)
+            foreach (GrpcChannel channel in _channels)
             {
-                (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
-                Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                string address = "http://" + bankHost + ":" + bankPort;
-                GrpcChannel channel = GrpcChannel.ForAddress(address);
+                Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
-                DepositReq request = new DepositReq { Client = protoClient, Amount = amount,Address = address };
+                DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
                 Task ret = DepositAsync(request,client,responseReceived);
             }
             WaitForDeposit(responseReceived);
@@ -73,19 +79,15 @@ namespace BankClient.domain
 
         public void Withdraw(uint clientID, uint opeSeqNumb, double amount)
         {
-            List<int> bankAdresses = _config.GetBankServerIDs();
             List<WithdrawResp> responseReceived = new List<WithdrawResp>();
-            foreach (int id in bankAdresses)
+            foreach (GrpcChannel channel in _channels)
             {
-                (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
-                Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                string address = "http://" + bankHost + ":" + bankPort;
-                GrpcChannel channel = GrpcChannel.ForAddress(address);
+                Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 WithdrawReq request = new WithdrawReq { Client = protoClient, Amount = amount };
-                WithdrawAsync(request, client, responseReceived);
+                Task ret = WithdrawAsync(request, client, responseReceived);
 
             }
             WaitForWithdraw(responseReceived);
@@ -95,19 +97,15 @@ namespace BankClient.domain
 
         public void ReadBalance(uint clientID, uint opeSeqNumb)
         {
-            List<int> bankAdresses = _config.GetBankServerIDs();
             List<ReadResp> responseReceived = new List<ReadResp>();
-            foreach (int id in bankAdresses)
+            foreach (GrpcChannel channel in _channels)
             {
-                (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess(id);
-                Logger.LogDebug($"Sending to {bankHost}:{bankPort}");
-                string address = "http://" + bankHost + ":" + bankPort;
-                GrpcChannel channel = GrpcChannel.ForAddress(address);
+                Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = clientID, ClientRequestSeqNumb = opeSeqNumb };
                 ReadReq request = new ReadReq { Client = protoClient,};
-                ReadAsync(request, client, responseReceived);
+                Task ret = ReadAsync(request, client, responseReceived);
 
             }
             WaitForRead(responseReceived);

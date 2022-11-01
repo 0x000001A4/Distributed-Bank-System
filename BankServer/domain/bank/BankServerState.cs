@@ -22,9 +22,9 @@ namespace BankServer.domain.bank
         private QueuedCommandHandler _cmdHandler;
         private ITwoPhaseCommit _2PC;
 
-        public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler, BankSlotManager slotManager, ITwoPhaseCommit _2pc)
+        public BankServerState(int processId, ServerConfiguration config, QueuedCommandHandler cmdHandler, ITwoPhaseCommit _2pc)
         {
-            _slotManager = slotManager;
+            _slotManager = new BankSlotManager(config);
             _numberOfProcesses = (uint)config.GetNumberOfBankServers();
             _config = config;
             _processId = (uint)processId;
@@ -71,22 +71,17 @@ namespace BankServer.domain.bank
             _server = server;
         }
 
-        private void stopServerIfExceededMaxSlots()
+        public void Stop()
         {
-            if (_config.ExceededMaxSlots(_slotManager.GetCurrentSlot()))
-            {
-                HandleQueuedMessages();
-                Logger.LogInfo("Boney Server State: Max number of slots reached. Shutting process down after processing queued requests.");
-                _server.ShutdownAsync().Wait();
-            }
+            HandleQueuedMessages();
+            Logger.LogInfo("Bank Server State: Max number of slots reached. Shutting process down after processing queued requests.");
+            _server.ShutdownAsync().Wait();
         }
 
 
-        public void Update()
+        public void Update(uint tick)
         {
             var _prevSlotStatus = _frozen;
-            _slotManager.IncrementSlot();
-            stopServerIfExceededMaxSlots();
 
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
@@ -109,6 +104,7 @@ namespace BankServer.domain.bank
             }
 
             BroadcastCompareAndSwap();
+            _slotManager.IncrementSlot();
             Logger.LogDebug("BankSlotManager end of update");
         }
 

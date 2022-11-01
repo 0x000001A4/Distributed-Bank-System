@@ -30,7 +30,7 @@ namespace BoneyServer.domain
             _paxos = paxos;
             _config = config;
             _processId = processId;
-            _frozen = config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
+            _frozen = config.GetFrozenStateOfProcessInSlot(_processId, 1);
             _cmdHandler = cmdHandler;
         }
 
@@ -40,10 +40,7 @@ namespace BoneyServer.domain
         }
 
 
-        public void IncrementSlot()
-        {
-            _slotManager.IncrementCurrentSlot();
-        }
+
 
 
         public void HandleQueuedMessage(Message _msg)
@@ -68,31 +65,32 @@ namespace BoneyServer.domain
             }
         }
 
-        public void Update() {
+        public void Update(uint tick) {
             // Save previous slot boney server state Status (frozen/not frozen) and incrementSlot
             var _prevSlotStatus = _frozen;
-            IncrementSlot();
-            stopServerIfExceededMaxSlots();
-
+            //Logger.LogInfo("slotNumber: " + _slotManager.GetCurrentSlot());
             // Update servers' suspicions for new slot.
             Dictionary<uint, string> servers = new Dictionary<uint, string>();
             List<int> boneysID = _config.GetBoneyServerIDs();
+
             foreach (int id in boneysID) {
-                servers.Add((uint)id, _config.GetServerSuspectedInSlot((uint)id, _slotManager.GetCurrentSlot()));
+                servers.Add((uint)id, _config.GetServerSuspectedInSlot((uint)id, tick));
             }
             _paxos.UpdateServers(servers);
 
             // Update servers' own frozen state for new slot.
-            _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
+            _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, tick);
 
             // Set Configuration as complete (Needed to avoid crashing boney servers while they are configurating)
             _config.setAsConfigured();
 
             // Check if boney server just unfroze!
 
-            if (_slotManager.GetCurrentSlot() > 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) {
+            if (tick > 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) {
                 HandleQueuedMessages();
             }
+            
+            Logger.LogInfo("After verification: ");
         }
 
         public void HandleQueuedMessages() {
@@ -106,14 +104,11 @@ namespace BoneyServer.domain
             }
         }
 
-        private void stopServerIfExceededMaxSlots()
+        public void Stop()
         {
-            if (_config.ExceededMaxSlots(_slotManager.GetCurrentSlot()))
-            {
-                HandleQueuedMessages();
-                Logger.LogInfo("Boney Server State: Max number of slots reached. Shutting process down after processing queued requests.");
-                _server.ShutdownAsync().Wait();
-            }
+            HandleQueuedMessages();
+            Logger.LogInfo("Boney Server State: Max number of slots reached. Shutting process down after processing queued requests.");
+            _server.ShutdownAsync().Wait();
         }
 
         public bool IsFrozen()

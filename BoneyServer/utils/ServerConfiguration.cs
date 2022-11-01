@@ -75,7 +75,7 @@ namespace BoneyServer.utils
                 }
                 else if (words[0] == "S")
                 {
-                    _numberSlots = int.Parse(words[1]);
+                    _numberSlots = int.Parse(words[1]) + 1;
 
                 }
                 else if (words[0] == "T")
@@ -313,7 +313,7 @@ namespace BoneyServer.utils
 
         public bool ExceededMaxSlots(uint slot)
         {
-            return slot > _numberOfSlots;
+            return slot >= _numberOfSlots;
         }
 
         public bool hasFinished()

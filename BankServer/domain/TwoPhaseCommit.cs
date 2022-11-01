@@ -88,7 +88,9 @@ namespace BankServer.domain
                     if (timeout.TimedOut()) {
                         return false;
                     }
+                    Logger.LogInfo("before" + clientID);
                     Monitor.Wait(getClientLock(clientID));
+                    Logger.LogInfo("after" + clientID);
                 }
                 while (hasntCommitedAllSeqNumsUntil(getClientSeqNum(clientID)));
 

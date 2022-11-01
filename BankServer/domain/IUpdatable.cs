@@ -8,6 +8,7 @@ namespace BankServer.domain
 {
     public interface IUpdatable
     {
-        void Update();
+        void Update(uint tick);
+        void Stop();
     }
 }

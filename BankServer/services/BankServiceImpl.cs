@@ -21,6 +21,8 @@ namespace BankServer.services
         {
             if (!_state.IsFrozen())
             {
+                Logger.LogInfo("request slot: " + request.Slot);
+                Logger.LogInfo("request Primary: " + request.PrimaryBankID);
                 bool _isPrimary = (request.PrimaryBankID == (uint)_state.GetSlotManager().GetPrimaryOnSlot(request.Slot));
                 if (_isPrimary) _2PC.AcceptProposedSeqNum((int)request.SeqNumber);
                 return Task.FromResult(new ProposeResp() { Ack = _isPrimary });

@@ -29,9 +29,11 @@ namespace BankServer.services
             {
                 Console.WriteLine("Starting 2PC");
                 _2PC.Start(currentSlot, request.Client.ClientID, _state.GetProcessId());
+                string response = _bankManager.Deposit((int)request.Client.ClientID, request.Amount);
+                return new DepositResp() { Response = response };
             }
 
-            if (_2PC.WaitForCommit(request.Client.ClientID))
+            else if (_2PC.WaitForCommit(request.Client.ClientID))
             {
                 string response = _bankManager.Deposit((int)request.Client.ClientID, request.Amount);
                 return new DepositResp() { Response = response };

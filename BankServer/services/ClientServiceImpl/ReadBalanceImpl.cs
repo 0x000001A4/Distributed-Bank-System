@@ -25,10 +25,12 @@ namespace BankServer.services
             while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0) ;
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {
-                _2PC.Start(_state.GetSlotManager().GetCurrentSlot(), request.Client.ClientID, _state.GetProcessId());
+                _2PC.Start(currentSlot, request.Client.ClientID, _state.GetProcessId());
+                double balance = _bankManager.Read((int)request.Client.ClientID);
+                return new ReadResp() { Balance = balance };
             }
 
-            if (_2PC.WaitForCommit(request.Client.ClientID))
+            else if (_2PC.WaitForCommit(request.Client.ClientID))
             {
                 double balance = _bankManager.Read((int)request.Client.ClientID);
                 return new ReadResp() { Balance = balance };

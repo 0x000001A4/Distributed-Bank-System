@@ -23,12 +23,13 @@ namespace BankServer.utils
             _debug = true;
         }
 
+
         public static void LogInfo(string message)
         {
             lock (mutex)
             {
                 setColors(ConsoleColor.Cyan, ConsoleColor.Black);
-                Console.Write(INFO);
+                Console.Write(INFO + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                 setColors(ConsoleColor.Black, ConsoleColor.Cyan);
                 Console.WriteLine(" " + message);
                 setDefaultColors();
@@ -41,7 +42,7 @@ namespace BankServer.utils
             lock (mutex)
             {
                 setColors(ConsoleColor.Red, ConsoleColor.White);
-                Console.Write(ERROR);
+                Console.Write(ERROR + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                 setColors(ConsoleColor.Black, ConsoleColor.Red);
                 Console.WriteLine(" " + message);
                 setDefaultColors();
@@ -55,7 +56,7 @@ namespace BankServer.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.DarkGray, ConsoleColor.Black);
-                    Console.Write(DEBUG);
+                    Console.Write(DEBUG + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.DarkGray);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -71,7 +72,7 @@ namespace BankServer.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.Green, ConsoleColor.White);
-                    Console.Write(PROPOSER);
+                    Console.Write(PROPOSER + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.Green);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -86,7 +87,7 @@ namespace BankServer.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.Yellow, ConsoleColor.Black);
-                    Console.Write(ACCEPTOR);
+                    Console.Write(ACCEPTOR + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.Yellow);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -101,7 +102,7 @@ namespace BankServer.utils
                 if (_debug)
                 {
                     setColors(ConsoleColor.Magenta, ConsoleColor.White);
-                    Console.Write(LEARNER);
+                    Console.Write(LEARNER + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                     setColors(ConsoleColor.Black, ConsoleColor.Magenta);
                     Console.WriteLine(" " + message);
                     setDefaultColors();
@@ -114,7 +115,7 @@ namespace BankServer.utils
             lock (mutex)
             {
                 setColors(ConsoleColor.DarkYellow, ConsoleColor.White);
-                Console.Write(EVENT);
+                Console.Write(EVENT + " " + DateTime.Now.ToString("hh.mm.ss.ffffff") + ":");
                 setColors(ConsoleColor.Black, ConsoleColor.DarkYellow);
                 Console.WriteLine(" " + message);
                 setDefaultColors();

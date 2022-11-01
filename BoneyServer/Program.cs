@@ -20,7 +20,7 @@ namespace BoneyServer {
 			TRequest request,
 			ServerCallContext context,
 			UnaryServerMethod<TRequest, TResponse> continuation) {
-			try {
+			
 				while (!_state.isConfigured()) ;
 
 				if (_state.IsFrozen()) {
@@ -48,10 +48,7 @@ namespace BoneyServer {
 
 				return await continuation(request, context);
 
-			} catch (Exception ex) {
-				Logger.LogError("Interceptor:" + ex.Message + " (l. 45)");
-				throw ex;
-			}
+			
 		}
 	}
 	public class BoneyServer
@@ -96,7 +93,8 @@ namespace BoneyServer {
             };
 			boneyServerState.AddServer(server);
 
-            SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(), config.GetSlotFisrtTime());
+            SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(),
+				config.GetSlotFisrtTime(),(uint)config.GetNumberOfSlots());
             slotTimer.Execute();
 
 			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";

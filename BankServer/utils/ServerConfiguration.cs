@@ -1,7 +1,5 @@
-﻿using Grpc.Core;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using BankServer.domain;
 
 namespace BankServer.utils
 {
@@ -77,7 +75,7 @@ namespace BankServer.utils
                 }
                 else if (words[0] == "S")
                 {
-                    _numberSlots = int.Parse(words[1]);
+                    _numberSlots = int.Parse(words[1]) + 1;
 
                 }
                 else if (words[0] == "T")
@@ -189,7 +187,7 @@ namespace BankServer.utils
 
         public ServerConfiguration SetNumberOfSlots(int numberOfSlots)
         {
-            _numberOfSlots = numberOfSlots+1;
+            _numberOfSlots = numberOfSlots;
             return this;
         }
 
@@ -241,6 +239,12 @@ namespace BankServer.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
+
+        public string GetClientScriptNameById(int id)
+        {
+            return _clients.GetValueOrDefault(id);
+        }
+
         public string GetServerStateInSlot(uint serverID, uint slotNumber)
         {
             return _serverStatePerSlot[slotNumber, serverID];
@@ -281,7 +285,7 @@ namespace BankServer.utils
         {
             return _clients.ContainsKey(id);
         }
-        
+
         public List<int> GetBoneyServerIDs()
         {
             return _boneyServersHostnames.Keys.ToList();
@@ -309,7 +313,7 @@ namespace BankServer.utils
 
         public bool ExceededMaxSlots(uint slot)
         {
-            return slot > _numberOfSlots;
+            return slot >= _numberOfSlots;
         }
 
         public bool hasFinished()
@@ -322,3 +326,4 @@ namespace BankServer.utils
         }
     }
 }
+
