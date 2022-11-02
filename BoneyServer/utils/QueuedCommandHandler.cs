@@ -77,7 +77,7 @@ namespace BoneyServer.utils
             LearnCommandResp learnCommandResponse = _paxosLearnerService.doLearnCommand(request);
             PaxosLearnerService.PaxosLearnerServiceClient _client =
                 new PaxosLearnerService.PaxosLearnerServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckLearnCommandResponse(learnCommandResponse);
+            _client.AckLearnCommand(learnCommandResponse);
         }
     }
 }

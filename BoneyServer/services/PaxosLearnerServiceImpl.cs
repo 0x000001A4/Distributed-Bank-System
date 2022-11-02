@@ -85,7 +85,11 @@ namespace BoneyServer.services
                 throw new Exception();
             }
             return new LearnCommandResp();
-        } 
+        }
+
+        public override Task<LearnCommandResp> AckLearnCommand (LearnCommandResp response, ServerCallContext context) {
+            return Task.FromResult(response);
+        }
 
         private bool MajorityAccepted(PaxosInstance currentInstanceInfo) {
             return currentInstanceInfo.AcceptedCommands >= (int)(_numberOfBoneys/2)+1;

@@ -34,5 +34,9 @@ namespace BankServer.services
             _state.GetSlotManager().SetPrimaryOnSlot(request.Slot, _primary);
             return new HandlePaxosResultResp() { };
         }
+
+        public override Task<HandlePaxosResultResp> AckHandlePaxosResult(HandlePaxosResultResp response, ServerCallContext context) {
+            return Task.FromResult(response);
+        }
     }
 }

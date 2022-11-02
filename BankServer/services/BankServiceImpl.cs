@@ -34,6 +34,10 @@ namespace BankServer.services
             return new ProposeResp { Ack = _isPrimary };
         }
 
+        public override Task<ProposeResp> AckPropose(ProposeResp response, ServerCallContext context) {
+            return Task.FromResult(response);
+        }
+
 
         public override Task<CommitResp> CommitSeqNum(CommitReq request, ServerCallContext context)
         {
@@ -50,6 +54,10 @@ namespace BankServer.services
             _2PC.HandleCommit((int)request.SeqNumber, request.ClientID);
             Logger.LogDebug("CommitSeqNum end not frozen");
             return new CommitResp() { };
+        }
+
+        public override Task<CommitResp> AckCommit(CommitResp response, ServerCallContext context) {
+            return Task.FromResult(response);
         }
 
         public override Task<ListPendingRequestsResp> ListPendingRequests(ListPendingRequestsReq request, ServerCallContext context)
@@ -80,6 +88,11 @@ namespace BankServer.services
             response.PendingRequests.Add(_pendingRequests);
             Logger.LogDebug("ListPendingRequests end not frozen");
             return response;
+        }
+
+        public override Task<ListPendingRequestsResp> AckListPendingRequests(ListPendingRequestsResp response, ServerCallContext context)
+        {
+            return Task.FromResult(response);
         }
     }
 }

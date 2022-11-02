@@ -53,7 +53,11 @@ namespace BoneyServer.services
 			}
 		}
 
-		public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
+        public override Task<PromiseResp> AckPromise(PromiseResp response, ServerCallContext context) {
+            return Task.FromResult(response);
+        }
+
+        public override Task<AcceptedResp> Accept(AcceptReq request, ServerCallContext context) {
 			Logger.LogDebugAcceptor($"Received ACCEPT!( value: ( primary: {request.Value.Leader}," +
 				$" slot: {request.Value.Slot} ) ," +
 				$"  w_ts: {request.LeaderNumber} )" +
@@ -71,5 +75,9 @@ namespace BoneyServer.services
 			if (accepted) Acceptor.SendAccepted(request);
 			return new AcceptedResp();
 		}
-	}
+
+        public override Task<AcceptedResp> AckAccepted(AcceptedResp response, ServerCallContext context) {
+            return Task.FromResult(response);
+        }
+    }
 }

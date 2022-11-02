@@ -38,5 +38,9 @@ namespace BoneyServer.services
             Logger.LogDebug("End of CompareAndSwap");
             return new CompareAndSwapResp() { };
         }
+    
+        public override Task<CompareAndSwapResp> AckCompareAndSwap(CompareAndSwapResp response, ServerCallContext context) {
+            return Task.FromResult(response);
+        }
     }
 }
