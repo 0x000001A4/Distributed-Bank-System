@@ -27,24 +27,24 @@ namespace BoneyServer.domain.paxos
         /// <param name="value">Paxos value to propose</param>
         /// <param name="sourceLeaderNumber">Write timestamp</param>
         /// <param name="instance">Paxos instance</param>
-        public static void ProposerWork(PaxosValue value, uint sourceLeaderNumber, uint instance)
+        public static void ProposerWork(PaxosValue value, uint sourceLeaderNumber, uint instance, List<PaxosInstance> paxosInstances)
         {
             Logger.LogDebugProposer("New proposer for instance " + instance);
             List<ProposerVector> promisses = new List<ProposerVector>(); // used to store all promisses received
-            sendPrepareAsync(sourceLeaderNumber, instance, promisses);
+            sendPrepareAsync(sourceLeaderNumber, instance, promisses, paxosInstances);
             Logger.LogDebugProposer($"Prepare({sourceLeaderNumber}) sent.");
             Logger.LogDebugProposer("Waiting for a majority of promisses...");
-            waitForMajority(promisses);
+            waitForMajority(promisses, instance, paxosInstances);
             Logger.LogDebugProposer("Received a majority of promisses.");
             ProposerVector valueToSend = selectValueToSend(value, sourceLeaderNumber, instance, promisses);
             sendAccept(valueToSend);
         }
 
-        private static void sendPrepareAsync(uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)
+        private static void sendPrepareAsync(uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses, List<PaxosInstance> paxosInstances)
         {
             foreach (var channel in _boneyChannels) {
                 try { 
-                    Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses);
+                    Task ret = PrepareAsync(channel, sourceLeaderNumber, instance, promisses, paxosInstances);
                 } catch (Exception e) {
                     Console.WriteLine(e);
                     throw e;
@@ -52,7 +52,7 @@ namespace BoneyServer.domain.paxos
             }
         }
 
-        public static async Task PrepareAsync(GrpcChannel channel, uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)
+        public static async Task PrepareAsync(GrpcChannel channel, uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses, List<PaxosInstance> paxosInstances)
         {
             PaxosAcceptorService.PaxosAcceptorServiceClient client = new PaxosAcceptorService.PaxosAcceptorServiceClient(channel);
             PromiseResp reply = await client.PrepareAsync(new PrepareReq { LeaderNumber = sourceLeaderNumber, PaxosInstance = instance });
@@ -60,7 +60,7 @@ namespace BoneyServer.domain.paxos
 
             if (!reply.PromisseFlag) // promisse has greater readTS than the sent in prepare
             {
-                Logger.LogDebugProposer("Proposer canceled proposing becuase received a NACK from " + channel.Target);
+                Logger.LogDebugProposer("Proposer canceled proposing becuase received an ACK from " + channel.Target);
                 Thread.CurrentThread.Interrupt();
             }
             else if (reply.Value == null) // promisse has null value
@@ -76,14 +76,23 @@ namespace BoneyServer.domain.paxos
                 promisse = new ProposerVector(new PaxosValue(processElected, slot), reply.WriteTimeStamp, reply.PaxosInstance);
             }
             
-            promisses.Add(promisse);
-            Logger.LogDebugProposer($"Received {promisses.Count()}/{_boneyChannels.Count()} promisses");
+            lock (paxosInstances[(int)instance].GetLock())
+            {
+                promisses.Add(promisse);
+                Monitor.Pulse(paxosInstances[(int)instance].GetLock());
+                Logger.LogDebugProposer($"Received {promisses.Count()}/{_boneyChannels.Count()} promisses");
+            } 
         }
 
-        // TODO: it is currently actively waiting
-        private static void waitForMajority(List<ProposerVector> promisses)
+        private static void waitForMajority(List<ProposerVector> promisses, uint instance, List<PaxosInstance> paxosInstances)
         {
-            while (promisses.Count() < Math.Ceiling((decimal)_boneyChannels.Count() / 2));
+            lock (paxosInstances[(int)instance].GetLock())
+            {
+                while (promisses.Count() < Math.Ceiling((decimal)_boneyChannels.Count() / 2))
+                {
+                    Monitor.Wait(paxosInstances[(int)instance].GetLock());
+                }
+            }
         }
 
         private static ProposerVector selectValueToSend(PaxosValue value, uint sourceLeaderNumber, uint instance, List<ProposerVector> promisses)

@@ -68,7 +68,6 @@ namespace BoneyServer.domain
         public void Update(uint tick) {
             // Save previous slot boney server state Status (frozen/not frozen) and incrementSlot
             var _prevSlotStatus = _frozen;
-            //Logger.LogInfo("slotNumber: " + _slotManager.GetCurrentSlot());
             // Update servers' suspicions for new slot.
             Dictionary<uint, string> servers = new Dictionary<uint, string>();
             List<int> boneysID = _config.GetBoneyServerIDs();

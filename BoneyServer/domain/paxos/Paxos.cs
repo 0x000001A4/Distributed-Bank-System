@@ -71,10 +71,10 @@ namespace BoneyServer.domain.paxos
                 if (slotState.NotStarted() && iAmLeader())
                 {
                     slotState.StartConsensus();
-                    Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance)));
-                    _paxosInstances.Add(new PaxosInstance());
-                    proposer.Start();
+                    Thread proposer = new Thread(new ThreadStart(() => Proposer.ProposerWork(value, _sourceLeaderNumber, Instance, _paxosInstances)));
+                    _paxosInstances.Add(new PaxosInstance() { Value = value });
                     Instance++;
+                    proposer.Start();
 
                     // If an instance for slot has already begun, enqueue the request not to start a new instance
 
@@ -228,6 +228,7 @@ namespace BoneyServer.domain.paxos
     /// </summary>
     public class PaxosInstance
     {
+        private object _lock = new object();
         private PaxosValue? _value;
         private uint _writeTimeStamp;
         private uint _readTimeStamp;
@@ -238,6 +239,8 @@ namespace BoneyServer.domain.paxos
             get { return _value; }
             set { _value = value; }
         }
+
+        public object GetLock() { return _lock; }
 
         public uint WriteTimeStamp
         {

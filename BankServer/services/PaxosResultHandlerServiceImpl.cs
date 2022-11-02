@@ -32,6 +32,10 @@ namespace BankServer.services
                 _state.Cleanup();
             }
             _state.GetSlotManager().SetPrimaryOnSlot(request.Slot, _primary);
+            if (_state.GetSlotManager().GetCurrentSlot() > 1 && _state.hasUnfrozed()) {
+                _state.HandleQueuedMessages();
+            }
+
             return new HandlePaxosResultResp() { };
         }
 

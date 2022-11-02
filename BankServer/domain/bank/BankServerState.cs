@@ -18,6 +18,7 @@ namespace BankServer.domain.bank
         private ServerConfiguration _config;
 
         private string _frozen;
+        private bool _unfrozed = false;
         private Queue<Message> _queue { get; set; } = new Queue<Message>();
         private QueuedCommandHandler _cmdHandler;
         private ITwoPhaseCommit _2PC;
@@ -33,6 +34,11 @@ namespace BankServer.domain.bank
             _2PC = _2pc;
         }
 
+        public bool hasUnfrozed()
+        {
+            return _unfrozed;
+        }
+
         public uint GetProcessId()
         {
             return _processId;
@@ -43,6 +49,10 @@ namespace BankServer.domain.bank
             _queue.Enqueue(_msg);
         }
 
+        public bool isQueueEmpty()
+        {
+            return _queue.Count == 0;
+        }
 
         public void HandleQueuedMessage(Message _msg)
         {
@@ -99,25 +109,24 @@ namespace BankServer.domain.bank
             if (_slotManager.GetCurrentSlot() > _slotManager.GetMaxSlots())
             {
                 Logger.LogInfo("Max number of slots reached. Freezing process.");
-                while (true) ;
-
+                while (true);
             }
 
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
             if (_frozen == FrozenState.FROZEN) Logger.LogDebug("Server is frozen.");
+            if (_prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) _unfrozed = true;
+            else _unfrozed = false;
+
 
             // Set Configuration as complete (Needed to avoid crashing bank servers while they are configurating)
             _config.setAsConfigured();
 
-            // Check if bankServer server just unfroze!
-            if (_slotManager.GetCurrentSlot() > 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN)
-            {
-                HandleQueuedMessages();
+            if (_frozen == FrozenState.UNFROZEN) {
+                Logger.LogDebug("Broadcast");
+                BroadcastCompareAndSwap();
             }
-            Logger.LogDebug("Broadcast");
-            BroadcastCompareAndSwap();
-            Logger.LogDebug("BankSlotManager end of update");
+            Logger.LogDebug("BankServerState: end of update");
         }
 
 
@@ -184,7 +193,7 @@ namespace BankServer.domain.bank
                 GrpcChannel channel = GrpcChannel.ForAddress("http://" + boneyHost + ":" + boneyPort);
                 CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
-                Logger.LogDebug("CompareAndSwap sent");
+                Logger.LogDebug($"CompareAndSwap sent for Slot:{_slotManager.GetCurrentSlot()} with leader chosen: ${leader}");
                 client.CompareAndSwapAsync(new CompareAndSwapReq { Slot = _slotManager.GetCurrentSlot(), Leader = leader, Address = address });
             }
         }

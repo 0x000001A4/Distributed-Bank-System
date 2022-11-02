@@ -23,7 +23,7 @@ namespace BankServer.services
 
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
             Logger.LogDebug($"ReadBalance: slot is {currentSlot}");
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0);
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 && !_state.isQueueEmpty()) ;
             Logger.LogDebug($"ReadBalance: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {

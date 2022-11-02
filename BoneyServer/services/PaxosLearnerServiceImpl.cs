@@ -80,7 +80,7 @@ namespace BoneyServer.services
                         }
                     }
                 }
-            }catch(Exception e) { 
+            } catch(Exception e) { 
                 Logger.LogError(e.Message + "(Learner l. 84)");
                 throw new Exception();
             }

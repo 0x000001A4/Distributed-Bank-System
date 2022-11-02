@@ -25,11 +25,12 @@ namespace BankServer.domain.bank
             {
                 if (_config.GetServerSuspectedInSlot((uint)id, _slot) == SuspectState.NOTSUSPECTED)
                 {
+                    Console.WriteLine($"Leader chosen {leaderId} for slot {_slot} is @@@@@  {_config.GetServerSuspectedInSlot((uint)id, _slot)}");
                     leaderId = (uint)id;
                     break;
                 }
             }
-            Logger.LogDebug($"Leader chosen {leaderId}");
+            Logger.LogDebug($"Leader chosen {leaderId} for slot {_slot}");
             return leaderId;
         }
 
