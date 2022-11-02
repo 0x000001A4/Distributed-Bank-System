@@ -96,7 +96,6 @@ namespace BankServer.domain.bank
             var _prevSlotStatus = _frozen;
             _slotManager.IncrementSlot();
 
-            Logger.LogDebug("BankSlotManager update");
             if (_slotManager.GetCurrentSlot() > _slotManager.GetMaxSlots())
             {
                 Logger.LogInfo("Max number of slots reached. Freezing process.");
@@ -106,9 +105,7 @@ namespace BankServer.domain.bank
 
             // Update servers' own frozen state for new slot.
             _frozen = _config.GetFrozenStateOfProcessInSlot(_processId, _slotManager.GetCurrentSlot());
-            Logger.LogDebug($"Current state: {_frozen}");
-            Logger.LogDebug($"Process id: {_processId}");
-            Logger.LogDebug($"Current slot: {_slotManager.GetCurrentSlot()}");
+            if (_frozen == FrozenState.FROZEN) Logger.LogDebug("Server is frozen.");
 
             // Set Configuration as complete (Needed to avoid crashing bank servers while they are configurating)
             _config.setAsConfigured();
@@ -126,12 +123,28 @@ namespace BankServer.domain.bank
 
         public void HandleQueuedMessages()
         {
+            Logger.LogDebug("BankServerState: Dequeueing " + _queue.Count + " messages");
+            dequeueAllCompareAndSwaps();
             while (_queue.Count > 0)
             {
                 Message msg = _queue.Dequeue();
                 Logger.LogDebug($"Dequeued: {msg} with MessageId: {msg.GetRequestId()}");
                 HandleQueuedMessage(msg);
                 Logger.LogDebug($"Exited HandleQueuedMessage with Message Id: {msg.GetRequestId()}");
+            }
+        }
+
+        private void dequeueAllCompareAndSwaps()
+        {
+            Queue<Message> _compareAndSwapsReceived = new Queue<Message>(_queue.Where(x => x.GetRequestId()==Message.COMPARE_AND_SWAP));
+            _queue = new Queue<Message>(_queue.Where(x => x.GetRequestId() != Message.COMPARE_AND_SWAP));
+
+            Logger.LogDebug($"dequeueAllCompareAndSwaps: Dequeue {_compareAndSwapsReceived.Count} compareAndSwapes");
+            while (_compareAndSwapsReceived.Count > 0)
+            {
+                Message msg = _compareAndSwapsReceived.Dequeue();
+                Logger.LogDebug($"dequeueAllCompareAndSwaps: CompareAndSwap dequeued");
+                HandleQueuedMessage(msg);
             }
         }
 

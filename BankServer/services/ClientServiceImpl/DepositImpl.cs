@@ -8,13 +8,14 @@ namespace BankServer.services
     {
         public override Task<DepositResp> Deposit(DepositReq request, ServerCallContext context)
         {
-            Logger.LogDebug("Deposit received.");
+            Logger.LogDebug("DepositImpl: Deposit received");
+            Logger.LogDebug($"DepositImpl: server is frozen: {_state.IsFrozen()}");
             if (!_state.IsFrozen()) {
                 DepositResp response = doDeposit(request);
-                Logger.LogDebug("End of Deposit");
+                Logger.LogDebug("End of Deposit not frozen");
                 return Task.FromResult(response);
             }
-            Logger.LogDebug("End of Deposit");
+            Logger.LogDebug("End of Deposit frozen");
             // Request got queued and will be handled later
             throw new Exception("The server is frozen.");
         }

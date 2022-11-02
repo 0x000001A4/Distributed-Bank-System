@@ -8,8 +8,15 @@ using System.Threading.Tasks;
 namespace BankServer.domain {
 
 	public class Message {
+        public static readonly uint COMPARE_AND_SWAP = 1;
+        public static readonly uint DEPOSIT = 2;
+        public static readonly uint WITHDRAW = 3;
+        public static readonly uint READ = 4;
+        public static readonly uint LIST_PENDING = 5;
+        public static readonly uint PROPOSE = 6;
+        public static readonly uint COMMIT = 7;
 
-		private uint requestId;
+        private uint requestId;
         private string sender;
 		private CompareAndSwapResp? compareAndSwapResp = null;
         private DepositReq? depositReq = null;

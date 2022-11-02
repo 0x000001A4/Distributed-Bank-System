@@ -31,10 +31,13 @@ namespace BankServer.utils
                 Console.WriteLine("Unexpected behaviour");
                 throw new Exception();
             }
+            Logger.LogDebug("QueuedCommandHandler: before invoking handlePaxosResult for CompareAndSwap");
             HandlePaxosResultResp response = _paxosResultHandlerService.doHandlePaxosResult(paxosResult);
+            Logger.LogDebug("QueuedCommandHandler: after invoking handlePaxosResult for CompareAndSwap");
             CompareAndSwapService.CompareAndSwapServiceClient _client =
                 new CompareAndSwapService.CompareAndSwapServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckHandlePaxosResult(response);
+            _client.AckHandlePaxosResultAsync(response);
+            Logger.LogDebug("QueuedCommandHandler: after sending some Ack");
         }
 
         public void handleDepositReq(DepositReq request, string sender)
@@ -46,7 +49,7 @@ namespace BankServer.utils
             }
             DepositResp response = _clientService.doDeposit(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckDeposit(response); // TODO: ????
+            _client.AckDeposit(response);
         }
 
         public void handleWithdrawReq(WithdrawReq request, string sender)
@@ -58,7 +61,7 @@ namespace BankServer.utils
             }
             WithdrawResp response = _clientService.doWithdraw(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckWithdraw(response); // TODO: ????
+            _client.AckWithdraw(response); 
         }
 
         public void handleReadReq(ReadReq request, string sender)
@@ -70,7 +73,7 @@ namespace BankServer.utils
             }
             ReadResp response = _clientService.doRead(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckReadBalance(response); // TODO: ????
+            _client.AckReadBalance(response);
         }
 
         public void handleListPendingRequestsReq(ListPendingRequestsReq request, string sender)
@@ -82,7 +85,7 @@ namespace BankServer.utils
             }
             ListPendingRequestsResp response = _bankService.doListPendingRequests(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress(sender));
-            _client.AckListPendingRequests(response); // TODO: ????
+            _client.AckListPendingRequests(response);
         }
 
         public void handleProposeReq(ProposeReq request, string sender)

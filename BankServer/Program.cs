@@ -22,49 +22,71 @@ namespace BankServer
             ServerCallContext context,
             UnaryServerMethod<TRequest, TResponse> continuation)
         {
-            // Wait while first slot did not start
-            while (!_state.isConfigured()) ;
-                
-            if (_state.IsFrozen())
+            try
             {
-                Type requestType = typeof(TRequest);
-                Message? _msg = null;
-                string sender = context.Peer;
+                // Wait while first slot did not start
+                while (!_state.isConfigured()) ;
 
-                // Handling Compare And Swap Responses sent by learners
-                if (requestType == typeof(CompareAndSwapResp)) {
-                    _msg = new Message((CompareAndSwapResp)(object)request, sender);
+                if (_state.IsFrozen())
+                {
+                    Type requestType = typeof(TRequest);
+                    Message? _msg = null;
+                    string sender = context.Peer;
+
+                    // Handling Compare And Swap Responses sent by learners
+                    if (requestType == typeof(CompareAndSwapResp))
+                    {
+                        Logger.LogDebug("Interceptor: caught a CompareAnsSwap message");
+                        _msg = new Message((CompareAndSwapResp)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(DepositReq))
+                    {
+                        Logger.LogDebug("Interceptor: caught a Deposit message");
+                        _msg = new Message((DepositReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(WithdrawReq))
+                    {
+                        Logger.LogDebug("Interceptor: caught a Withdraw message");
+                        _msg = new Message((WithdrawReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(ReadReq))
+                    {
+                        Logger.LogDebug("Interceptor: caught a Read message");
+                        _msg = new Message((ReadReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(ListPendingRequestsReq))
+                    {
+                        Logger.LogDebug("Interceptor: caught a ListPendingRequestReq message");
+                        _msg = new Message((ListPendingRequestsReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(ProposeReq))
+                    {
+                        Logger.LogDebug("Interceptor: caught a ProposeReq message");
+                        _msg = new Message((ProposeReq)(object)request, sender);
+                    }
+
+                    else if (requestType == typeof(CommitReq))
+                    {
+                        Logger.LogDebug("Interceptor: caught a CommitReq message");
+                        _msg = new Message((CommitReq)(object)request, sender);
+                    }
+
+                    if (_msg != null) _state.Enqueue(_msg);
+
+                    else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
                 }
-
-                else if (requestType == typeof(DepositReq)) {
-                    _msg = new Message((DepositReq)(object)request, sender);
-                }
-
-                else if (requestType == typeof(WithdrawReq)) {
-                    _msg = new Message((WithdrawReq)(object)request, sender);
-                }
-
-                else if (requestType == typeof(ReadReq)) {
-                    _msg = new Message((ReadReq)(object)request, sender);
-                }
-
-                else if (requestType == typeof(ListPendingRequestsReq)) {
-                    _msg = new Message((ListPendingRequestsReq)(object)request, sender);
-                }
-
-                else if (requestType == typeof(ProposeReq)) {
-                    _msg = new Message((ProposeReq)(object)request, sender);
-                }
-
-                else if (requestType == typeof(CommitReq)) {
-                    _msg = new Message((CommitReq)(object)request, sender);
-                }
-                        
-                if (_msg != null) _state.Enqueue(_msg);
-
-                else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
+                return await continuation(request, context);
             }
-            return await continuation(request, context);
+            catch (Exception ex)
+            {
+                Logger.LogInfo("Server is frozen, intercerceptor caught a message");
+                throw ex;
+            }
         }
     }
 

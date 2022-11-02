@@ -4,7 +4,7 @@ P 5 bank http://127.0.0.1:10005
 P 7 client client-script-21
 P 8 client client-script-13
 S 3
-T 23:55:30
+T 09:29:50
 D 4000 
 F 1 (1, N, NS) (4, F, NS) (5, F, NS)
 F 2 (1, N, NS) (4, F, NS) (5, F, NS)

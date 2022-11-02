@@ -106,15 +106,6 @@ namespace PuppetMaster.utils
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
 
-            Logger.LogDebug("aqui2" + config.GetFrozenStateOfProcessInSlot(1, 1));
-            Logger.LogDebug("aqui" +  config.GetFrozenStateOfProcessInSlot(4, 1));
-            Logger.LogDebug("aqui2" + config.GetFrozenStateOfProcessInSlot(5, 1));
-            Logger.LogDebug("aqui2" + config.GetFrozenStateOfProcessInSlot(1, 2));
-            Logger.LogDebug("aqui" + config.GetFrozenStateOfProcessInSlot(4, 2));
-            Logger.LogDebug("aqui2" + config.GetFrozenStateOfProcessInSlot(5, 2));
-            Logger.LogDebug("aqui2" + config.GetFrozenStateOfProcessInSlot(1, 3));
-            Logger.LogDebug("aqui" + config.GetFrozenStateOfProcessInSlot(4, 3));
-            Logger.LogDebug("aqui2" + config.GetFrozenStateOfProcessInSlot(5, 3));
             return config;
 
         }
