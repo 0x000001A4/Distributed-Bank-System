@@ -42,7 +42,7 @@ namespace BoneyServer.utils
 
             CompareAndSwapResp response = _casService.doCompareAndSwap(request);
             CompareAndSwapService.CompareAndSwapServiceClient _client =
-                new CompareAndSwapService.CompareAndSwapServiceClient(GrpcChannel.ForAddress(sender));
+                new CompareAndSwapService.CompareAndSwapServiceClient(GrpcChannel.ForAddress("http://" + sender));
             _client.AckCompareAndSwap(response);
         }
 
@@ -53,7 +53,7 @@ namespace BoneyServer.utils
             }
             PromiseResp response = _paxosAcceptorService.doPrepare(request);
             PaxosAcceptorService.PaxosAcceptorServiceClient _client =
-                new PaxosAcceptorService.PaxosAcceptorServiceClient(GrpcChannel.ForAddress(sender));
+                new PaxosAcceptorService.PaxosAcceptorServiceClient(GrpcChannel.ForAddress("http://" + sender));
             _client.AckPromise(response);
         }
 
@@ -64,7 +64,7 @@ namespace BoneyServer.utils
             }
             AcceptedResp acceptedResponse = _paxosAcceptorService.doAccept(request);
             PaxosAcceptorService.PaxosAcceptorServiceClient _client =
-                new PaxosAcceptorService.PaxosAcceptorServiceClient(GrpcChannel.ForAddress(sender));
+                new PaxosAcceptorService.PaxosAcceptorServiceClient(GrpcChannel.ForAddress("http://" + sender));
             _client.AckAccepted(acceptedResponse);
         }
 
@@ -76,7 +76,7 @@ namespace BoneyServer.utils
             }
             LearnCommandResp learnCommandResponse = _paxosLearnerService.doLearnCommand(request);
             PaxosLearnerService.PaxosLearnerServiceClient _client =
-                new PaxosLearnerService.PaxosLearnerServiceClient(GrpcChannel.ForAddress(sender));
+                new PaxosLearnerService.PaxosLearnerServiceClient(GrpcChannel.ForAddress("http://" + sender));
             _client.AckLearnCommand(learnCommandResponse);
         }
     }

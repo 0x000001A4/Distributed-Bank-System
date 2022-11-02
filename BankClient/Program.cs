@@ -1,6 +1,7 @@
 ﻿using BankClient.domain;
 using BankClient.utils;
 using Grpc.Core;
+using System.Globalization;
 
 namespace BankClient
 {
@@ -26,9 +27,12 @@ namespace BankClient
 					"generalConfigFilePath(string) clientScriptPath(string) clientID(int/uint)");
 				throw e;
 			}
-			Logger.LogInfo($"Starting Bank Client {clientID}");
 
+			Logger.LogInfo($"Starting Bank Client {clientID}");
+			TimeoutTimer.SetTimeout(globalConfig.GetSlotDuration());
 			ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig, clientID);
+
+
 			clientLogic.Start();
 
 			Logger.LogInfo("All commands executed");
@@ -40,15 +44,22 @@ namespace BankClient
 	public class ClientLogic
     {
 		private List<ICommand> _commands;
+		private int _timeToSleep;
 		public ClientLogic(List<ICommand> commands, ServerConfiguration globalConfig, uint clientID)
         {
 			_commands = commands;
 			FrontendCommandContext.Frontend = new BankClientFrontend(globalConfig);
 			FrontendCommandContext.ClientID = clientID;
-        }
+
+			DateTime dateTime = DateTime.ParseExact(globalConfig.GetSlotFisrtTime(), "HH:mm:ss",
+							CultureInfo.InvariantCulture);
+			var span = dateTime - DateTime.Now;
+			_timeToSleep = (int)span.TotalMilliseconds + globalConfig.GetSlotDuration();
+		}
 
 		public void Start()
         {
+			sleepUntilStartTime();
 			uint executionOrder = 1;
 			foreach(var command in _commands)
             {
@@ -63,6 +74,11 @@ namespace BankClient
                 executionOrder++;
             }
         }
+
+		private void sleepUntilStartTime()
+        {
+			Thread.Sleep(_timeToSleep);
+		}
     }
 
 }

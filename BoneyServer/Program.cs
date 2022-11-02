@@ -26,7 +26,7 @@ namespace BoneyServer {
 				if (_state.IsFrozen()) {
 					Type requestType = typeof(TRequest);
 					Message? _msg = null;
-					string sender = context.Peer;
+					string sender = context.Host;
 
                     if (requestType == typeof(CompareAndSwapReq)) {
 						_msg = new Message((CompareAndSwapReq)(object) request, sender);

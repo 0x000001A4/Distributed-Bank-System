@@ -1,4 +1,6 @@
-﻿namespace BankClient.domain
+﻿using BankClient.utils;
+
+namespace BankClient.domain
 {
     public interface ICommand
     {
@@ -25,7 +27,14 @@
 
         public void Execute(uint executionOrder)
         {
-            Frontend.ReadBalance(ClientID, executionOrder);
+            try 
+            { 
+                Frontend.ReadBalance(ClientID, executionOrder);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError(ex.Message);
+            }
         }
     }
 
@@ -40,7 +49,14 @@
         }
         public void Execute(uint executionOrder)
         {
-            Frontend.Deposit(ClientID, executionOrder, _ammount);
+            try
+            {
+                Frontend.Deposit(ClientID, executionOrder, _ammount);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError(ex.Message);
+            }
         }
     }
 
@@ -55,7 +71,14 @@
         }
         public void Execute(uint executionOrder)
         {
-            Frontend.Withdraw(ClientID, executionOrder, _ammount);
+            try 
+            { 
+                Frontend.Withdraw(ClientID, executionOrder, _ammount);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError(ex.Message);
+            }
         }
     }
 

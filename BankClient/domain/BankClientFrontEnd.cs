@@ -46,20 +46,7 @@ namespace BankClient.domain
 
         }
 
-        private static void WaitForDeposit(List<DepositResp> responseReceived)
-        {
-            while (responseReceived.Count() == 0) ;
-        }
 
-        private static void WaitForWithdraw(List<WithdrawResp> responseReceived)
-        {
-            while (responseReceived.Count() == 0) ;
-        }
-
-        private static void WaitForRead(List<ReadResp> responseReceived)
-        {
-            while (responseReceived.Count() == 0) ;
-        }
         public void Deposit(uint clientID, uint opeSeqNumb,double amount)
         {
             List<DepositResp> responseReceived = new List<DepositResp>();
@@ -72,9 +59,25 @@ namespace BankClient.domain
                 DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
                 Task ret = DepositAsync(request,client,responseReceived);
             }
-            WaitForDeposit(responseReceived);
-            Logger.LogDebug("Deposit Done with: " + responseReceived[0].Response);
-
+            if (!WaitForDeposit(responseReceived))
+            {
+                throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
+            }
+            else
+            {
+                Logger.LogDebug("Deposit Done with: " + responseReceived[0].Response);
+            }
+        }
+        private static bool WaitForDeposit(List<DepositResp> responseReceived)
+        {
+            TimeoutTimer timeout = new TimeoutTimer();
+            timeout.Start();
+            while (responseReceived.Count() == 0)
+            {
+                if (timeout.TimedOut()) return false;
+                
+            }
+            return true;
         }
 
         public void Withdraw(uint clientID, uint opeSeqNumb, double amount)
@@ -90,9 +93,27 @@ namespace BankClient.domain
                 Task ret = WithdrawAsync(request, client, responseReceived);
 
             }
-            WaitForWithdraw(responseReceived);
-            Logger.LogDebug("Withdraw Done with: " + responseReceived[0].Response);
+            if (!WaitForWithdraw(responseReceived))
+            {
+                throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
+            }
+            else
+            {
+                Logger.LogDebug("Withdraw Done with: " + responseReceived[0].Response);
+            }
+            
 
+        }
+
+        private static bool WaitForWithdraw(List<WithdrawResp> responseReceived)
+        {
+            TimeoutTimer timeout = new TimeoutTimer();
+            timeout.Start();
+            while (responseReceived.Count() == 0)
+            {
+                if (timeout.TimedOut()) return false;
+            }
+            return true;
         }
 
         public void ReadBalance(uint clientID, uint opeSeqNumb)
@@ -108,9 +129,27 @@ namespace BankClient.domain
                 Task ret = ReadAsync(request, client, responseReceived);
 
             }
-            WaitForRead(responseReceived);
-            Logger.LogDebug("Read Done with Balance: " + responseReceived[0].Balance);
+            if (!WaitForRead(responseReceived))
+            {
+                throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
+            }
+            else
+            {
+                Logger.LogDebug("Read Done with Balance: " + responseReceived[0].Balance);
+            }
             
+            
+        }
+
+        private static bool WaitForRead(List<ReadResp> responseReceived)
+        {
+            TimeoutTimer timeout = new TimeoutTimer();
+            timeout.Start();
+            while (responseReceived.Count() == 0)
+            {
+                if (timeout.TimedOut()) return false;
+            }
+            return true;
         }
     }
 }

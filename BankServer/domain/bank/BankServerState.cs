@@ -115,7 +115,7 @@ namespace BankServer.domain.bank
             {
                 HandleQueuedMessages();
             }
-
+            Logger.LogDebug("Broadcast");
             BroadcastCompareAndSwap();
             Logger.LogDebug("BankSlotManager end of update");
         }

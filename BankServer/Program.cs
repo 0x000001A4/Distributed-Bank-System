@@ -31,12 +31,11 @@ namespace BankServer
                 {
                     Type requestType = typeof(TRequest);
                     Message? _msg = null;
-                    string sender = context.Peer;
+                    string sender = context.Host;
 
                     // Handling Compare And Swap Responses sent by learners
                     if (requestType == typeof(CompareAndSwapResp))
                     {
-                        Logger.LogDebug("Interceptor: caught a CompareAnsSwap message");
                         _msg = new Message((CompareAndSwapResp)(object)request, sender);
                     }
 
