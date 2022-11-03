@@ -1,6 +1,8 @@
 ﻿using BankClient.domain;
 using BankClient.utils;
+using BankClient.services;
 using Grpc.Core;
+using Grpc.Core.Interceptors;
 using System.Globalization;
 
 namespace BankClient
@@ -25,15 +27,31 @@ namespace BankClient
 			{
 				Logger.LogError("Client process expected 3 input arguments:\n\t" +
 					"generalConfigFilePath(string) clientScriptPath(string) clientID(int/uint)");
-				throw e;
+				throw;
 			}
 
 			Logger.LogInfo($"Starting Bank Client {clientID}");
 			TimeoutTimer.SetTimeout(globalConfig.GetSlotDuration());
 			ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig, clientID);
 
+            (string hostname, int portNum) = globalConfig.GetClientHostnameAndPortByProcess((int)clientID);
 
-			clientLogic.Start();
+			ClientServiceImpl _clientServiceImpl = new ClientServiceImpl();
+
+            ServerPort serverPort;
+            Logger.LogDebug(hostname + ":" + portNum);
+            serverPort = new ServerPort(hostname, portNum, ServerCredentials.Insecure);
+            Server server = new Server
+            {
+				Services = {
+                    ClientService.BindService(_clientServiceImpl),
+                },
+
+                Ports = { serverPort }
+            };
+
+			server.Start();
+            clientLogic.Start();
 
 			Logger.LogInfo("All commands executed");
 			while (true);
@@ -55,9 +73,10 @@ namespace BankClient
 							CultureInfo.InvariantCulture);
 			var span = dateTime - DateTime.Now;
 			_timeToSleep = (int)span.TotalMilliseconds + globalConfig.GetSlotDuration();
-		}
 
-		public void Start()
+        }
+
+        public void Start()
         {
 			sleepUntilStartTime();
 			uint executionOrder = 1;

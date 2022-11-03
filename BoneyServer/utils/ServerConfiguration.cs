@@ -11,9 +11,9 @@ namespace BoneyServer.utils
     {
         private Dictionary<int, string> _boneyServersHostnames;
         private Dictionary<int, string> _bankServersHostnames;
-        private Dictionary<int, string> _clients;
-        List<Dictionary<int, string>> _frozenStatePerSlot;
-        List<Dictionary<int, string>> _sspectStatePerSlot;
+        private string[,] _serverStatePerSlot;      // TODO - edit to dynamic structure
+        private string[,] _serverSuspectedPerSlot;  // 
+        private Dictionary<int, string> _clientServersHostnames;
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
@@ -26,25 +26,32 @@ namespace BoneyServer.utils
             Dictionary<int, string> _boneyMap = new Dictionary<int, string>();
             Dictionary<int, string> _bankMap = new Dictionary<int, string>();
             Dictionary<int, string> _clientMap = new Dictionary<int, string>();
-            List<Dictionary<int, string>> _serverState = new List<Dictionary<int, string>>();
-            List<Dictionary<int, string>> _serverSuspect = new List<Dictionary<int, string>>();
-            _serverState.Add(new Dictionary<int, string>());    // just to start at index 1;
-            _serverSuspect.Add(new Dictionary<int, string>());  // same as above
+            string[,] _serverState;
+            string[,] _serverSuspect;
             int _numberSlots = 1;
             string _timeOfFirstSlot = "";
             int _slotDuration = 0;
             string[] lines = File.ReadAllLines(arg);
             string[] words;
+            int global = 1;
+            string pal1 = "";
+            string pal2 = "";
+            _serverState = new string[100, 100];
+            _serverSuspect = new string[100, 100];
             foreach (string line in lines)
             {
+
                 words = line.Split(' ');
                 if (words[0] == "P")
                 {
                     var expression = new Regex(@"http://(?<hostname>[^\n]+)");
                     if (words[2] == "boney")
                     {
+
                         var match = expression.Match(words[3]);
                         _boneyMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
+
+
                     }
 
                     if (words[2] == "bank")
@@ -63,11 +70,13 @@ namespace BoneyServer.utils
                             Logger.LogError("Please provide clients in the configuration file in the following format: \"P client configFileName\"");
                             throw;
                         }
+
                     }
                 }
                 else if (words[0] == "S")
                 {
-                    _numberSlots = int.Parse(words[1]) + 1;
+                    _numberSlots = int.Parse(words[1]);
+
                 }
                 else if (words[0] == "T")
                 {
@@ -79,26 +88,56 @@ namespace BoneyServer.utils
                 }
                 else if (words[0] == "F")
                 {
-                    Dictionary<int, string> tempFrozenState = new Dictionary<int, string>();
-                    Dictionary<int, string> tempSuspectState = new Dictionary<int, string>();
-                    var pattern = @"([0-9]+), ([NF]), (N?S)";
-                    MatchCollection matches = Regex.Matches(line, pattern);
-                    foreach (Match match in matches)
+                    int count = 1;
+                    int aux = 1;
+                    int end = 1;
+                    int bit = 1;
+                    string s = line;
+                    string[] data = s.Split(new string[] { "(", ")" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] data_final = new string[data.Length];
+                    for (int i = 0; i < data.Length; i++)
                     {
-                        int processID = int.Parse(match.Groups[1].Value);
-                        string frozenState = match.Groups[2].Value;
-                        string suspectState = match.Groups[3].Value;
-                        tempFrozenState.Add(processID, frozenState);
-                        tempSuspectState.Add(processID, suspectState);
+                        if (data[i] != null) data_final[i] = data[i];
                     }
-                    _serverState.Add(tempFrozenState);
-                    _serverSuspect.Add(tempSuspectState);
+                    foreach (string word in data_final)
+                    {
+                        string[] final = word.Split(", ");
+                        foreach (string palavra in final)
+                        {
+                            if (count == 1)
+                            {
+                                count = 0;
+                                continue;
+                            }
+                            if (palavra != null || palavra != "" || palavra != "\n")
+                            {
+                                if (bit == 1) pal1 = palavra;
+                                if (bit == 2) pal2 = palavra;
+                                if (bit == 1) bit = 2;
+                                else bit = 1;
+                            }
+
+                        }
+                        if (aux % 2 == 0)
+                        {
+                            _serverState[global, end] = pal1;
+                            _serverSuspect[global, end] = pal2;
+
+                            end++;
+                        }
+                        count = 1;
+                        aux++;
+
+                    }
+                    global++;
                 }
+
             }
             ServerConfiguration config = new ServerConfiguration();
             config
                 .SetBoneyServersHostnames(_boneyMap)
                 .SetBankServersHostnames(_bankMap)
+                .SetClientServersHostnames(_clientMap)
                 .SetServerStatePerSlot(_serverState)
                 .SetServerSuspectedPerSlot(_serverSuspect)
                 .SetClients(_clientMap)
@@ -106,8 +145,15 @@ namespace BoneyServer.utils
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
 
+
             return config;
 
+        }
+
+        public ServerConfiguration SetClientServersHostnames(Dictionary<int, string> clientServersHostnames)
+        {
+            _clientServersHostnames = clientServersHostnames;
+            return this;
         }
 
         public ServerConfiguration SetBoneyServersHostnames(Dictionary<int, string> boneyServersHostnames)
@@ -122,21 +168,21 @@ namespace BoneyServer.utils
             return this;
         }
 
-        public ServerConfiguration SetServerStatePerSlot(List<Dictionary<int, string>> serverStatePerSlot)
+        public ServerConfiguration SetServerStatePerSlot(string[,] serverStatePerSlot)
         {
-            _frozenStatePerSlot = serverStatePerSlot;
+            _serverStatePerSlot = serverStatePerSlot;
             return this;
         }
 
-        public ServerConfiguration SetServerSuspectedPerSlot(List<Dictionary<int, string>> serverSuspectedPerSlot)
+        public ServerConfiguration SetServerSuspectedPerSlot(string[,] serverSuspectedPerSlot)
         {
-            _sspectStatePerSlot = serverSuspectedPerSlot;
+            _serverSuspectedPerSlot = serverSuspectedPerSlot;
             return this;
         }
 
         public ServerConfiguration SetClients(Dictionary<int, string> clients)
         {
-            _clients = clients;
+            _clientServersHostnames = clients;
             return this;
         }
 
@@ -177,7 +223,7 @@ namespace BoneyServer.utils
 
         public Dictionary<int, string> GetClients()
         {
-            return _clients;
+            return _clientServersHostnames;
         }
 
         public (string, int) GetBoneyHostnameAndPortByProcess(int p)
@@ -188,13 +234,24 @@ namespace BoneyServer.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
+
         public (string, int) GetBankHostnameAndPortByProcess(int p)
         {
 
             var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
 
             var match = expression.Match(_bankServersHostnames.GetValueOrDefault(p));
+            string hostname = match.Groups["hostname"].Value;
 
+            int port = int.Parse(match.Groups["portnumber"].Value);
+            return (hostname, port);
+        }
+
+        public (string, int) GetClientHostnameAndPortByProcess(int p)
+        {
+            var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
+
+            var match = expression.Match(_clientServersHostnames.GetValueOrDefault(p));
             string hostname = match.Groups["hostname"].Value;
 
             int port = int.Parse(match.Groups["portnumber"].Value);
@@ -203,12 +260,12 @@ namespace BoneyServer.utils
 
         public string GetClientScriptNameById(int id)
         {
-            return _clients.GetValueOrDefault(id);
+            return _clientServersHostnames.GetValueOrDefault(id);
         }
 
         public string GetServerStateInSlot(uint serverID, uint slotNumber)
         {
-            return _frozenStatePerSlot[(int)slotNumber].GetValueOrDefault((int)serverID);
+            return _serverStatePerSlot[slotNumber, serverID];
         }
 
         public Dictionary<int, string> GetDic()
@@ -218,14 +275,14 @@ namespace BoneyServer.utils
 
 
 
-        public string GetServerSuspectedInSlot(uint processId, uint slotNumber)
+        public string GetServerSuspectedInSlot(uint serverID, uint slotNumber)
         {
-            return _sspectStatePerSlot[(int)slotNumber].GetValueOrDefault((int)processId);
+            return _serverSuspectedPerSlot[slotNumber, serverID];
         }
 
         public string GetFrozenStateOfProcessInSlot(uint processId, uint slotNumber)
         {
-            return _frozenStatePerSlot[(int)slotNumber].GetValueOrDefault((int)processId);
+            return _serverStatePerSlot[slotNumber, processId];
         }
         public int GetNumberOfBoneyServers()
         {
@@ -239,12 +296,12 @@ namespace BoneyServer.utils
 
         public int GetNumberOfClients()
         {
-            return _clients.Count();
+            return _clientServersHostnames.Count();
         }
 
         public bool CheckClientExists(int id)
         {
-            return _clients.ContainsKey(id);
+            return _clientServersHostnames.ContainsKey(id);
         }
 
         public List<int> GetBoneyServerIDs()
@@ -257,9 +314,9 @@ namespace BoneyServer.utils
             return _bankServersHostnames.Keys.ToList();
         }
 
-        public List<int> GetClientIDs()
+        public List<int> GetClientServersIDs()
         {
-            return _clients.Keys.ToList();
+            return _clientServersHostnames.Keys.ToList();
         }
 
         public List<string> GetBoneyServersPortsAndAddresses()
@@ -272,9 +329,14 @@ namespace BoneyServer.utils
             return _bankServersHostnames.Values.ToList();
         }
 
+        public List<string> GetClientServersPortsAndAddresses()
+        {
+            return _clientServersHostnames.Values.ToList();
+        }
+
         public bool ExceededMaxSlots(uint slot)
         {
-            return slot >= _numberOfSlots;
+            return slot > _numberOfSlots;
         }
 
         public bool hasFinished()

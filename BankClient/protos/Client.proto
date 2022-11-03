@@ -4,7 +4,13 @@ service ClientService {
   rpc Deposit (DepositReq) returns (DepositResp);
   rpc Withdraw (WithdrawReq) returns (WithdrawResp);
   rpc ReadBalance (ReadReq) returns (ReadResp);
-  
+  rpc AckDeposit (DepositResp) returns (AckResp);
+  rpc AckWithdraw (WithdrawResp) returns (AckResp);
+  rpc AckReadBalance (ReadResp) returns (AckResp);
+}
+
+message AckResp {
+
 }
 
 /*  Deposit */

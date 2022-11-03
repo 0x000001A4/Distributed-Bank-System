@@ -41,7 +41,7 @@ namespace BankServer.domain
             _bankFrontend = new BankFrontend(config);
             _clientRequests = new List<ClientRequest>();
             _clientsState = new Dictionary<int, ClientState>();
-            List<int> clientIDs = config.GetClientIDs();
+            List<int> clientIDs = config.GetClientServersIDs();
             foreach (int clientID in clientIDs)
             {
                 _clientsState.Add(clientID, new ClientState());

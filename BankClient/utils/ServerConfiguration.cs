@@ -13,7 +13,7 @@ namespace BankClient.utils
         private Dictionary<int, string> _bankServersHostnames;
         private string[,] _serverStatePerSlot;      // TODO - edit to dynamic structure
         private string[,] _serverSuspectedPerSlot;  // 
-        private Dictionary<int, string> _clients;
+        private Dictionary<int, string> _clientServersHostnames;
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
@@ -137,6 +137,7 @@ namespace BankClient.utils
             config
                 .SetBoneyServersHostnames(_boneyMap)
                 .SetBankServersHostnames(_bankMap)
+                .SetClientServersHostnames(_clientMap)
                 .SetServerStatePerSlot(_serverState)
                 .SetServerSuspectedPerSlot(_serverSuspect)
                 .SetClients(_clientMap)
@@ -147,6 +148,12 @@ namespace BankClient.utils
 
             return config;
 
+        }
+
+        public ServerConfiguration SetClientServersHostnames(Dictionary<int, string> clientServersHostnames)
+        {
+            _clientServersHostnames = clientServersHostnames;
+            return this;
         }
 
         public ServerConfiguration SetBoneyServersHostnames(Dictionary<int, string> boneyServersHostnames)
@@ -175,7 +182,7 @@ namespace BankClient.utils
 
         public ServerConfiguration SetClients(Dictionary<int, string> clients)
         {
-            _clients = clients;
+            _clientServersHostnames = clients;
             return this;
         }
 
@@ -216,7 +223,7 @@ namespace BankClient.utils
 
         public Dictionary<int, string> GetClients()
         {
-            return _clients;
+            return _clientServersHostnames;
         }
 
         public (string, int) GetBoneyHostnameAndPortByProcess(int p)
@@ -227,6 +234,7 @@ namespace BankClient.utils
             int port = int.Parse(match.Groups["portnumber"].Value);
             return (hostname, port);
         }
+
         public (string, int) GetBankHostnameAndPortByProcess(int p)
         {
 
@@ -239,9 +247,20 @@ namespace BankClient.utils
             return (hostname, port);
         }
 
+        public (string, int) GetClientHostnameAndPortByProcess(int p)
+        {
+            var expression = new Regex(@"(?<hostname>[^:]+):(?<portnumber>[0-9]+)");
+
+            var match = expression.Match(_clientServersHostnames.GetValueOrDefault(p));
+            string hostname = match.Groups["hostname"].Value;
+
+            int port = int.Parse(match.Groups["portnumber"].Value);
+            return (hostname, port);
+        }
+
         public string GetClientScriptNameById(int id)
         {
-            return _clients.GetValueOrDefault(id);
+            return _clientServersHostnames.GetValueOrDefault(id);
         }
 
         public string GetServerStateInSlot(uint serverID, uint slotNumber)
@@ -277,12 +296,12 @@ namespace BankClient.utils
 
         public int GetNumberOfClients()
         {
-            return _clients.Count();
+            return _clientServersHostnames.Count();
         }
 
         public bool CheckClientExists(int id)
         {
-            return _clients.ContainsKey(id);
+            return _clientServersHostnames.ContainsKey(id);
         }
 
         public List<int> GetBoneyServerIDs()
@@ -295,9 +314,9 @@ namespace BankClient.utils
             return _bankServersHostnames.Keys.ToList();
         }
 
-        public List<int> GetClientIDs()
+        public List<int> GetClientServersIDs()
         {
-            return _clients.Keys.ToList();
+            return _clientServersHostnames.Keys.ToList();
         }
 
         public List<string> GetBoneyServersPortsAndAddresses()
@@ -308,6 +327,11 @@ namespace BankClient.utils
         public List<string> GetBankServersPortsAndAddresses()
         {
             return _bankServersHostnames.Values.ToList();
+        }
+
+        public List<string> GetClientServersPortsAndAddresses()
+        {
+            return _clientServersHostnames.Values.ToList();
         }
 
         public bool ExceededMaxSlots(uint slot)
