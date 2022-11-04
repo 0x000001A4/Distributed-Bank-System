@@ -95,7 +95,6 @@ namespace BankServer.domain.bank
 
         public void Stop()
         {
-            HandleQueuedMessages();
             Logger.LogInfo("Bank Server State: Max number of slots reached. Shutting process down after processing queued requests.");
             _server.ShutdownAsync().Wait();
         }
@@ -106,10 +105,9 @@ namespace BankServer.domain.bank
             var _prevSlotStatus = _frozen;
             _slotManager.IncrementSlot();
 
-            if (_slotManager.GetCurrentSlot() > _slotManager.GetMaxSlots())
-            {
+            if (_slotManager.GetCurrentSlot() > _slotManager.GetMaxSlots()) {
                 Logger.LogInfo("Max number of slots reached. Freezing process.");
-                while (true);
+                Stop();
             }
 
             // Update servers' own frozen state for new slot.

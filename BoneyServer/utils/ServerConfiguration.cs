@@ -18,7 +18,7 @@ namespace BoneyServer.utils
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
-        private bool _started = false;
+        private bool _serverStateUpdated = false;
 
         public ServerConfiguration() { }
 
@@ -352,12 +352,17 @@ namespace BoneyServer.utils
 
         public bool hasFinished()
         {
-            return _started;
+            return _serverStateUpdated;
         }
         public void setAsConfigured()
         {
-            _started = true;
+            _serverStateUpdated = true;
         }
+        public void unsetConfigured()
+        {
+            _serverStateUpdated = false;
+        }
+
     }
 }
 

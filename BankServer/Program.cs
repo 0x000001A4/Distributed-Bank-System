@@ -5,6 +5,7 @@ using BankServer.services;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using BankServer.domain.bank;
+using Microsoft.Extensions.Logging;
 
 namespace BankServer
 {
@@ -22,77 +23,69 @@ namespace BankServer
             ServerCallContext context,
             UnaryServerMethod<TRequest, TResponse> continuation)
         {
-            try
-            {
-                // Wait while first slot did not start
-                while (!_state.isConfigured()) ;
+            // Wait while first slot did not start
+            while (!_state.isConfigured()) ;
 
-                if (_state.IsFrozen())
+            if (_state.IsFrozen())
+            {
+                Logger.LogDebug("Server is frozen");
+                Type requestType = typeof(TRequest);
+                Message? _msg = null;
+
+                // Handling Compare And Swap Responses sent by learners
+                if (requestType == typeof(CompareAndSwapResp))
                 {
-                    Logger.LogDebug("Server is frozen");
-                    Type requestType = typeof(TRequest);
-                    Message? _msg = null;
-
-                    // Handling Compare And Swap Responses sent by learners
-                    if (requestType == typeof(CompareAndSwapResp))
-                    {
-                        CompareAndSwapResp req = (CompareAndSwapResp)(object)request;
-                        _msg = new Message(req , req.Sender);
-                    }
-
-                    else if (requestType == typeof(DepositReq))
-                    {
-                        Logger.LogDebug("Interceptor: caught a Deposit message");
-                        DepositReq req = (DepositReq)(object)request;
-                        _msg = new Message(req, req.Sender);
-                    }
-
-                    else if (requestType == typeof(WithdrawReq))
-                    {
-                        WithdrawReq req = (WithdrawReq)(object)request;
-                        _msg = new Message(req, req.Sender);
-                        Logger.LogError($"Interceptor: caught a Withdraw message from {req.Sender}");
-                    }
-
-                    else if (requestType == typeof(ReadReq))
-                    {
-                        Logger.LogDebug("Interceptor: caught a Read message");
-                        ReadReq req = (ReadReq)(object)request;
-                        _msg = new Message(req, req.Sender);
-                    }
-
-                    else if (requestType == typeof(ListPendingRequestsReq))
-                    {
-                        Logger.LogDebug("Interceptor: caught a ListPendingRequestReq message");
-                        ListPendingRequestsReq req = (ListPendingRequestsReq)(object)request;
-                        _msg = new Message(req, req.Sender);
-                    }
-
-                    else if (requestType == typeof(ProposeReq))
-                    {
-                        Logger.LogDebug("Interceptor: caught a ProposeReq message");
-                        ProposeReq req = (ProposeReq)(object)request;
-                        _msg = new Message(req, req.Sender);
-                    }
-
-                    else if (requestType == typeof(CommitReq))
-                    {
-                        Logger.LogDebug("Interceptor: caught a CommitReq message");
-                        CommitReq req = (CommitReq)(object)request;
-                        _msg = new Message(req, req.Sender);
-                    }
-
-                    if (_msg != null) _state.Enqueue(_msg);
-
-                    else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
+                    CompareAndSwapResp req = (CompareAndSwapResp)(object)request;
+                    _msg = new Message(req, req.Sender);
                 }
-                return await continuation(request, context);
+
+                else if (requestType == typeof(DepositReq))
+                {
+                    Logger.LogDebug("Interceptor: caught a Deposit message");
+                    DepositReq req = (DepositReq)(object)request;
+                    _msg = new Message(req, req.Sender);
+                }
+
+                else if (requestType == typeof(WithdrawReq))
+                {
+                    WithdrawReq req = (WithdrawReq)(object)request;
+                    _msg = new Message(req, req.Sender);
+                    Logger.LogError($"Interceptor: caught a Withdraw message from {req.Sender}");
+                }
+
+                else if (requestType == typeof(ReadReq))
+                {
+                    Logger.LogDebug("Interceptor: caught a Read message");
+                    ReadReq req = (ReadReq)(object)request;
+                    _msg = new Message(req, req.Sender);
+                }
+
+                else if (requestType == typeof(ListPendingRequestsReq))
+                {
+                    Logger.LogDebug("Interceptor: caught a ListPendingRequestReq message");
+                    ListPendingRequestsReq req = (ListPendingRequestsReq)(object)request;
+                    _msg = new Message(req, req.Sender);
+                }
+
+                else if (requestType == typeof(ProposeReq))
+                {
+                    Logger.LogDebug("Interceptor: caught a ProposeReq message");
+                    ProposeReq req = (ProposeReq)(object)request;
+                    _msg = new Message(req, req.Sender);
+                }
+
+                else if (requestType == typeof(CommitReq))
+                {
+                    Logger.LogDebug("Interceptor: caught a CommitReq message");
+                    CommitReq req = (CommitReq)(object)request;
+                    _msg = new Message(req, req.Sender);
+                }
+
+                if (_msg != null) _state.Enqueue(_msg);
+
+                else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
             }
-            catch (Exception ex)
-            {
-                Logger.LogInfo("Server is frozen, intercerceptor caught a message");
-                throw ex;
-            }
+            return await continuation(request, context);
         }
     }
 
@@ -111,9 +104,10 @@ namespace BankServer
             ITwoPhaseCommit twoPhaseCommit = new TwoPhaseCommit(config);
             BankServerState bankServerState = new BankServerState(int.Parse(args[1]), config, cmdHandler, twoPhaseCommit);
 
+            object _lock = new object();
             BankServiceImpl _bankService = new BankServiceImpl(twoPhaseCommit, bankServerState);
-            ClientServiceImpl _clientService = new ClientServiceImpl(config, bankManager, twoPhaseCommit, bankServerState);
-            PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState);
+            ClientServiceImpl _clientService = new ClientServiceImpl(config, bankManager, twoPhaseCommit, bankServerState, _lock);
+            PaxosResultHandlerServiceImpl _paxosResultHandlerService = new PaxosResultHandlerServiceImpl(bankServerState, _lock);
             cmdHandler.AddPaxosResultHandlerService(_paxosResultHandlerService);
             cmdHandler.AddClientService(_clientService);
             cmdHandler.AddBankService(_bankService);
@@ -138,14 +132,12 @@ namespace BankServer
             bankServerState.AddServer(server);
 
             SlotTimer slotTimer = new SlotTimer(bankServerState, (uint)config.GetSlotDuration(),
-                config.GetSlotFisrtTime(),(uint)config.GetNumberOfSlots());
+                config.GetSlotFisrtTime(),(uint)config.GetNumberOfSlots(), config);
             slotTimer.Execute();
 
             server.Start();
 
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-
-
             while (true);
         }
     }

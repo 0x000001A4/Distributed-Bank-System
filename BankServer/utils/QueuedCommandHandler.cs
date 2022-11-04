@@ -34,7 +34,7 @@ namespace BankServer.utils
             HandlePaxosResultResp response = _paxosResultHandlerService.doHandlePaxosResult(paxosResult);
             CompareAndSwapService.CompareAndSwapServiceClient _client =
                 new CompareAndSwapService.CompareAndSwapServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            //_client.AckHandlePaxosResultAsync(response);
+            _client.AckHandlePaxosResultAsync(response);
         }
 
         public void handleDepositReq(DepositReq request, string sender)
@@ -52,7 +52,7 @@ namespace BankServer.utils
         {
             DepositResp response = _clientService.doDeposit(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            _client.AckDeposit(response);
+            _client.AckDepositAsync(response);
         }
 
         public void handleWithdrawReq(WithdrawReq request, string sender)
@@ -71,7 +71,7 @@ namespace BankServer.utils
             WithdrawResp response = _clientService.doWithdraw(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress("http://" + sender));
             Logger.LogDebug("sender is: " + sender);
-            _client.AckWithdraw(response);
+            _client.AckWithdrawAsync(response);
         }
 
         public void handleReadReq(ReadReq request, string sender)
@@ -88,7 +88,7 @@ namespace BankServer.utils
         {
             ReadResp response = _clientService.doRead(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            _client.AckReadBalance(response);
+            _client.AckReadBalanceAsync(response);
         }
 
         public void handleListPendingRequestsReq(ListPendingRequestsReq request, string sender)
@@ -100,7 +100,7 @@ namespace BankServer.utils
             }
             ListPendingRequestsResp response = _bankService.doListPendingRequests(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            _client.AckListPendingRequests(response);
+            _client.AckListPendingRequestsAsync(response);
         }
 
         public void handleProposeReq(ProposeReq request, string sender)
@@ -112,7 +112,7 @@ namespace BankServer.utils
             }
             ProposeResp response = _bankService.doPropose(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            _client.AckPropose(response);
+            _client.AckProposeAsync(response);
         }
 
         public void handleCommitReq(CommitReq request, string sender)
@@ -124,7 +124,7 @@ namespace BankServer.utils
             }
             CommitResp response = _bankService.doCommit(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            _client.AckCommit(response);
+            _client.AckCommitAsync(response);
         }
     }
 }

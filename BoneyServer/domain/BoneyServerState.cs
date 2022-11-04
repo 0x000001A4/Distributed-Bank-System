@@ -84,11 +84,10 @@ namespace BoneyServer.domain
             _config.setAsConfigured();
 
             // Check if boney server just unfroze!
-
-            if (tick > 1 && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) {
+            if (tick > 1 && tick < _slotManager.GetMaxSlots() && _prevSlotStatus == FrozenState.FROZEN && _frozen == FrozenState.UNFROZEN) {
+                Console.WriteLine($"Handling queued messages on slot {tick}");
                 HandleQueuedMessages();
             }
-            
             Logger.LogInfo("After verification: ");
         }
 
@@ -105,7 +104,6 @@ namespace BoneyServer.domain
 
         public void Stop()
         {
-            HandleQueuedMessages();
             Logger.LogInfo("Boney Server State: Max number of slots reached. Shutting process down after processing queued requests.");
             _server.ShutdownAsync().Wait();
         }

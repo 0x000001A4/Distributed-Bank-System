@@ -7,10 +7,12 @@ namespace BankServer.services
     public class PaxosResultHandlerServiceImpl : CompareAndSwapService.CompareAndSwapServiceBase
     {
         BankServerState _state;
+        private object _lock;
 
-        public PaxosResultHandlerServiceImpl(BankServerState state)
+        public PaxosResultHandlerServiceImpl(BankServerState state, object __lock)
         {
             _state = state;
+            _lock = __lock;
         }
 
         public override Task<HandlePaxosResultResp> HandlePaxosResult(CompareAndSwapResp request, ServerCallContext context)
@@ -29,10 +31,15 @@ namespace BankServer.services
             uint _prevPrimary = _state.GetSlotManager().GetPrimaryOnSlot(request.Slot);
             uint _primary = request.Primary;
             if (_prevPrimary > 0 && _prevPrimary != _primary) {
+                Logger.LogDebug($"Starting cleanup | previous primary: {_prevPrimary} ; current primary: {_primary}");
                 _state.Cleanup();
             }
             _state.GetSlotManager().SetPrimaryOnSlot(request.Slot, _primary);
-            if (_state.GetSlotManager().GetCurrentSlot() > 1 && _state.hasUnfrozed()) {
+
+            lock (_lock) { Monitor.Pulse(_lock); }
+
+            uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
+            if (currentSlot > 1 && currentSlot < _state.GetSlotManager().GetMaxSlots() && _state.hasUnfrozed()) {
                 _state.HandleQueuedMessages();
             }
 

@@ -67,7 +67,6 @@ namespace BoneyServer.domain.paxos
             {
                 uint slot = value.Slot;
                 PaxosSlotState slotState = _paxosSlotState[(int)slot];
-                Logger.LogDebug($"Starting proposer");
                 if (slotState.NotStarted() && iAmLeader())
                 {
                     slotState.StartConsensus();
@@ -75,6 +74,7 @@ namespace BoneyServer.domain.paxos
                     _paxosInstances.Add(new PaxosInstance() { Value = value });
                     Instance++;
                     proposer.Start();
+                    Logger.LogDebug($"Starting proposer");
 
                     // If an instance for slot has already begun, enqueue the request not to start a new instance
 
@@ -113,7 +113,7 @@ namespace BoneyServer.domain.paxos
 
             } catch(Exception e) {
                 Logger.LogError(e.Message);
-                throw e;
+                throw;
             }
         }
 
@@ -179,28 +179,29 @@ namespace BoneyServer.domain.paxos
                 }
             }
 
-            if (_leaderProcessID == minProcID) {
-                Logger.LogDebug("PAXOS: Leader hasn't changed.");
-            }
-            // if was not already leader and is elected as leader
-            else if (_leaderProcessID != _sourceProcessID && minProcID == _sourceProcessID)
+            if (minProcID != int.MaxValue)
             {
-                _sourceLeaderNumber += (uint)_paxosServers.Count();
-                Logger.LogDebug($"PAXOS: I was elected leader, updating LeaderNumber to {_sourceLeaderNumber}.");
+                if (_leaderProcessID == minProcID)
+                {
+                    Logger.LogDebug("PAXOS: Leader hasn't changed.");
+                }
+                // if was not already leader and is elected as leader
+                else if (_leaderProcessID != _sourceProcessID && minProcID == _sourceProcessID)
+                {
+                    _sourceLeaderNumber += (uint)_paxosServers.Count();
+                    Logger.LogDebug($"PAXOS: I was elected leader, updating LeaderNumber to {_sourceLeaderNumber}.");
+                }
+                // another process is elected leader
+                else if (minProcID != _sourceProcessID)
+                {
+                    Logger.LogDebug($"PAXOS: Process {minProcID} was elected Leader.");
+                }
+                _leaderProcessID = minProcID;
             }
-            // another process is elected leader
-            else if (minProcID != _sourceProcessID) {
-                Logger.LogDebug($"PAXOS: Process {minProcID} was elected Leader.");
-            }
-
-            _leaderProcessID = minProcID;
+            else _leaderProcessID = null;
         }
 
         private bool iAmLeader() {
-            if (_leaderProcessID == null) {
-                Logger.LogError("Unexpected Behaviour: Leader should be chosen before starting consensus for primary (Paxos.cs  l.185)");
-                throw new Exception();
-            }
             return _leaderProcessID == _sourceProcessID;
         }
 

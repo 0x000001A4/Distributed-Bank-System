@@ -11,10 +11,11 @@ namespace BankServer.utils
         IUpdatable _updatable;
         uint _slotDuration;
         uint _maxTicks;
+        ServerConfiguration _config;
 
 
 
-        public SlotTimer(IUpdatable updatable, uint slotDuration, string initialTime, uint numTicks)
+        public SlotTimer(IUpdatable updatable, uint slotDuration, string initialTime, uint numTicks, ServerConfiguration config)
         {
             DateTime dateTime = DateTime.ParseExact(initialTime, "HH:mm:ss",
                                         CultureInfo.InvariantCulture);
@@ -24,6 +25,7 @@ namespace BankServer.utils
             _updatable = updatable;
             _slotDuration = slotDuration;
             _maxTicks = numTicks;
+            _config = config;
         }
 
         public void Execute()
@@ -52,6 +54,7 @@ namespace BankServer.utils
                     return true;
                 }
                 Logger.LogEvent("Tick");
+                _config.unsetConfigured();
                 updatable.Update(currentTick);
                 currentTick++;
             }

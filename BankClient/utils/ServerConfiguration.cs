@@ -18,7 +18,7 @@ namespace BankClient.utils
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
-        private bool _started = false;
+        private bool _serverStateUpdated = false;
 
         public ServerConfiguration() { }
 
@@ -71,7 +71,7 @@ namespace BankClient.utils
                         }
                         catch (Exception e)
                         {
-                            Logger.LogError("Please provide clients in the configuration file in the following format: \"P client configFileName hostname\"");
+                            Logger.LogError("Please provide clients in the configuration file in the following format: \"P client configFileName\"");
                             throw;
                         }
 
@@ -142,16 +142,14 @@ namespace BankClient.utils
                 .SetBoneyServersHostnames(_boneyMap)
                 .SetBankServersHostnames(_bankMap)
                 .SetClientServersHostnames(_clientMap)
-                .SetClientsScripts(_clientScriptsMap)
                 .SetServerStatePerSlot(_serverState)
                 .SetServerSuspectedPerSlot(_serverSuspect)
+                .SetClientsHostnames(_clientMap)
+                .SetClientsScripts(_clientScriptsMap)
                 .SetTimeOfFirstSlot(_timeOfFirstSlot)
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
-            foreach (var client in _clientMap)
-            {
-                Logger.LogDebug("serverconfig: " + client.Value.ToString());
-            }
+
 
             return config;
 
@@ -184,6 +182,12 @@ namespace BankClient.utils
         public ServerConfiguration SetServerSuspectedPerSlot(string[,] serverSuspectedPerSlot)
         {
             _serverSuspectedPerSlot = serverSuspectedPerSlot;
+            return this;
+        }
+
+        public ServerConfiguration SetClientsHostnames(Dictionary<int, string> clientsHostnames)
+        {
+            _clientServersHostnames = clientsHostnames;
             return this;
         }
 
@@ -262,7 +266,6 @@ namespace BankClient.utils
             string hostname = match.Groups["hostname"].Value;
 
             int port = int.Parse(match.Groups["portnumber"].Value);
-            Logger.LogDebug("Serverconfig getclienthost&port: " + hostname + port);
             return (hostname, port);
         }
 
@@ -349,12 +352,17 @@ namespace BankClient.utils
 
         public bool hasFinished()
         {
-            return _started;
+            return _serverStateUpdated;
         }
         public void setAsConfigured()
         {
-            _started = true;
+            _serverStateUpdated = true;
         }
+        public void unsetConfigured()
+        {
+            _serverStateUpdated = false;
+        }
+
     }
 }
 

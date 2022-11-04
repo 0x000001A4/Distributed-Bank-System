@@ -21,35 +21,35 @@ namespace BoneyServer {
 			ServerCallContext context,
 			UnaryServerMethod<TRequest, TResponse> continuation) {
 			
-				while (!_state.isConfigured()) ;
+			while (!_state.isConfigured()) ;
 
-				if (_state.IsFrozen()) {
-					Type requestType = typeof(TRequest);
-					Message? _msg = null;
+			if (_state.IsFrozen()) {
+				Type requestType = typeof(TRequest);
+				Message? _msg = null;
 
-                    if (requestType == typeof(CompareAndSwapReq)) {
-						CompareAndSwapReq req = (CompareAndSwapReq)(object)request;
-						_msg = new Message(req, req.Sender);
-					}
-                    else if (requestType == typeof(PrepareReq)) {
-						PrepareReq req = (PrepareReq)(object)request;
-						_msg = new Message(req, req.Sender);
-                    }
-                    else if (requestType == typeof(AcceptReq)) {
-						AcceptReq req = (AcceptReq)(object)request;
-						_msg = new Message(req, req.Sender);
-                    }
-					else if (requestType == typeof(LearnCommandReq)) {
-						LearnCommandReq req = (LearnCommandReq)(object)request;
-						_msg = new Message(req, req.Sender);
-					}
-
-					if (_msg != null) _state.Enqueue(_msg);
-
-					else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
+                if (requestType == typeof(CompareAndSwapReq)) {
+					CompareAndSwapReq req = (CompareAndSwapReq)(object)request;
+					_msg = new Message(req, req.Sender);
+				}
+                else if (requestType == typeof(PrepareReq)) {
+					PrepareReq req = (PrepareReq)(object)request;
+					_msg = new Message(req, req.Sender);
+                }
+                else if (requestType == typeof(AcceptReq)) {
+					AcceptReq req = (AcceptReq)(object)request;
+					_msg = new Message(req, req.Sender);
+                }
+				else if (requestType == typeof(LearnCommandReq)) {
+					LearnCommandReq req = (LearnCommandReq)(object)request;
+					_msg = new Message(req, req.Sender);
 				}
 
-				return await continuation(request, context);
+				if (_msg != null) _state.Enqueue(_msg);
+
+				else Logger.LogError("Interceptor: Can't queue message because it does not belong to any of specified types. (l. 39)");
+			}
+
+			return await continuation(request, context);
 		}
 	}
 	public class BoneyServer
@@ -95,7 +95,7 @@ namespace BoneyServer {
 			boneyServerState.AddServer(server);
 
             SlotTimer slotTimer = new SlotTimer(boneyServerState, (uint)config.GetSlotDuration(),
-				config.GetSlotFisrtTime(),(uint)config.GetNumberOfSlots());
+				config.GetSlotFisrtTime(),(uint)config.GetNumberOfSlots(), config);
             slotTimer.Execute();
 
 			string startupMessage = $"Started Boney server {processID} at hostname {hostname}:{port}";
@@ -103,7 +103,6 @@ namespace BoneyServer {
 			Logger.LogInfo(startupMessage);
 			
 			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-
 			while (true);
 		}
 

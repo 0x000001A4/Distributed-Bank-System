@@ -20,10 +20,14 @@ namespace BankServer.services
 
         public ReadResp doRead(ReadReq request)
         {
+            Logger.LogDebug($"ReadBalance: slot is {_state.GetSlotManager().GetCurrentSlot()}");
+            lock(_lock) {
+                while (_state.GetSlotManager().GetPrimaryOnSlot(_state.GetSlotManager().GetCurrentSlot()) == 0 || !_state.isQueueEmpty()) {
+                    Monitor.Wait(_lock);
+                }
+            }
 
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
-            Logger.LogDebug($"ReadBalance: slot is {currentSlot}");
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 || !_state.isQueueEmpty()) ;
             Logger.LogDebug($"ReadBalance: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {

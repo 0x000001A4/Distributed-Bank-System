@@ -22,9 +22,15 @@ namespace BankServer.services
 
         public WithdrawResp doWithdraw(WithdrawReq request)
         {
+            Logger.LogDebug($"Withdraw: slot is {_state.GetSlotManager().GetCurrentSlot()}");
+            
+            lock(_lock) {
+                while (_state.GetSlotManager().GetPrimaryOnSlot(_state.GetSlotManager().GetCurrentSlot()) == 0 || !_state.isQueueEmpty()) {
+                    Monitor.Wait(_lock);
+                }
+            }
+
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
-            Logger.LogDebug($"Withdraw: slot is {currentSlot}");
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 || !_state.isQueueEmpty()) ;
             Logger.LogDebug($"Withdraw: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {

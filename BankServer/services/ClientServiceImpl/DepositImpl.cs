@@ -22,10 +22,14 @@ namespace BankServer.services
 
         public DepositResp doDeposit(DepositReq request){
 
-            uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
+            Logger.LogDebug($"Deposit: slot is {_state.GetSlotManager().GetCurrentSlot()}");
 
-            Logger.LogDebug($"Deposit: slot is {currentSlot}");
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 || !_state.isQueueEmpty());
+            lock(_lock) {
+                while (_state.GetSlotManager().GetPrimaryOnSlot(_state.GetSlotManager().GetCurrentSlot()) == 0 || !_state.isQueueEmpty()) {
+                    Monitor.Wait(_lock);
+                }
+            }
+            uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
             Logger.LogDebug($"Deposit: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId())
