@@ -70,11 +70,11 @@ namespace BankClient.domain
         }
         private static bool WaitForDeposit(List<DepositResp> responseReceived)
         {
-            TimeoutTimer timeout = new TimeoutTimer();
-            timeout.Start();
+            //TimeoutTimer timeout = new TimeoutTimer();
+            //timeout.Start();
             while (responseReceived.Count() == 0)
             {
-                if (timeout.TimedOut()) return false;
+               // if (timeout.TimedOut()) return false;
                 
             }
             return true;
@@ -107,11 +107,11 @@ namespace BankClient.domain
 
         private static bool WaitForWithdraw(List<WithdrawResp> responseReceived)
         {
-            TimeoutTimer timeout = new TimeoutTimer();
-            timeout.Start();
+            //TimeoutTimer timeout = new TimeoutTimer();
+            //timeout.Start();
             while (responseReceived.Count() == 0)
             {
-                if (timeout.TimedOut()) return false;
+                //if (timeout.TimedOut()) return false;
             }
             return true;
         }
@@ -131,7 +131,7 @@ namespace BankClient.domain
             }
             if (!WaitForRead(responseReceived))
             {
-                throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
+                throw new Exception("Timed out. A majority of Bank servers is frozen, please try again later.");
             }
             else
             {
@@ -143,11 +143,11 @@ namespace BankClient.domain
 
         private static bool WaitForRead(List<ReadResp> responseReceived)
         {
-            TimeoutTimer timeout = new TimeoutTimer();
-            timeout.Start();
+            //TimeoutTimer timeout = new TimeoutTimer();
+            //timeout.Start();
             while (responseReceived.Count() == 0)
             {
-                if (timeout.TimedOut()) return false;
+                //if (timeout.TimedOut()) return false;
             }
             return true;
         }

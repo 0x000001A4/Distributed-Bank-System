@@ -14,6 +14,7 @@ namespace BankServer.utils
         private string[,] _serverStatePerSlot;      // TODO - edit to dynamic structure
         private string[,] _serverSuspectedPerSlot;  // 
         private Dictionary<int, string> _clientServersHostnames;
+        private Dictionary<int, string> _clientScripts;
         private string _timeOfFirstSlot;
         private int _numberOfSlots;
         private int _slotDuration;
@@ -26,6 +27,7 @@ namespace BankServer.utils
             Dictionary<int, string> _boneyMap = new Dictionary<int, string>();
             Dictionary<int, string> _bankMap = new Dictionary<int, string>();
             Dictionary<int, string> _clientMap = new Dictionary<int, string>();
+            Dictionary<int, string> _clientScriptsMap = new Dictionary<int, string>();
             string[,] _serverState;
             string[,] _serverSuspect;
             int _numberSlots = 1;
@@ -63,7 +65,9 @@ namespace BankServer.utils
                     {
                         try
                         {
-                            _clientMap.Add(int.Parse(words[1]), words[3]);
+                            var match = expression.Match(words[4]);
+                            _clientMap.Add(int.Parse(words[1]), match.Groups["hostname"].Value);
+                            _clientScriptsMap.Add(int.Parse(words[1]), words[3]);
                         }
                         catch (Exception e)
                         {
@@ -75,7 +79,7 @@ namespace BankServer.utils
                 }
                 else if (words[0] == "S")
                 {
-                    _numberSlots = int.Parse(words[1]);
+                    _numberSlots = int.Parse(words[1]) + 1;
 
                 }
                 else if (words[0] == "T")
@@ -140,7 +144,8 @@ namespace BankServer.utils
                 .SetClientServersHostnames(_clientMap)
                 .SetServerStatePerSlot(_serverState)
                 .SetServerSuspectedPerSlot(_serverSuspect)
-                .SetClients(_clientMap)
+                .SetClientsHostnames(_clientMap)
+                .SetClientsScripts(_clientScriptsMap)
                 .SetTimeOfFirstSlot(_timeOfFirstSlot)
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
@@ -180,9 +185,15 @@ namespace BankServer.utils
             return this;
         }
 
-        public ServerConfiguration SetClients(Dictionary<int, string> clients)
+        public ServerConfiguration SetClientsHostnames(Dictionary<int, string> clientsHostnames)
         {
-            _clientServersHostnames = clients;
+            _clientServersHostnames = clientsHostnames;
+            return this;
+        }
+
+        public ServerConfiguration SetClientsScripts(Dictionary<int, string> clientsScripts)
+        {
+            _clientScripts = clientsScripts;
             return this;
         }
 
@@ -260,7 +271,7 @@ namespace BankServer.utils
 
         public string GetClientScriptNameById(int id)
         {
-            return _clientServersHostnames.GetValueOrDefault(id);
+            return _clientScripts.GetValueOrDefault(id);
         }
 
         public string GetServerStateInSlot(uint serverID, uint slotNumber)

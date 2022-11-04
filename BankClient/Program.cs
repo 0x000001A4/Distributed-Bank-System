@@ -31,7 +31,7 @@ namespace BankClient
 			}
 
 			Logger.LogInfo($"Starting Bank Client {clientID}");
-			TimeoutTimer.SetTimeout(globalConfig.GetSlotDuration());
+			//TimeoutTimer.SetTimeout(globalConfig.GetSlotDuration());
 			ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig, clientID);
 
             (string hostname, int portNum) = globalConfig.GetClientHostnameAndPortByProcess((int)clientID);
@@ -53,7 +53,6 @@ namespace BankClient
 			server.Start();
             clientLogic.Start();
 
-			Logger.LogInfo("All commands executed");
 			while (true);
 		}
 
@@ -92,6 +91,7 @@ namespace BankClient
                 Logger.LogInfo(command.GetName() + " executed");
                 executionOrder++;
             }
+            Logger.LogInfo("All commands executed");
         }
 
 		private void sleepUntilStartTime()
