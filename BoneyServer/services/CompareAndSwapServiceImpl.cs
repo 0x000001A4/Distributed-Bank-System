@@ -29,9 +29,9 @@ namespace BoneyServer.services
             PaxosValue value = new PaxosValue(request.Leader, request.Slot);
             Logger.LogDebug("CompareAndSwapServiceImpl: CompareAndSwap received (CompareAndSwapServiceImpl.cs: Line 36)");
             uint primary = _state.GetSlotManager().GetSlotValue((int)request.Slot);
-            _multiPaxos.Start(value, request.Address, primary);
+            _multiPaxos.Start(value, request.Sender, primary);
             Logger.LogDebug("End of CompareAndSwap");
-            return new CompareAndSwapResp() { };
+            return new CompareAndSwapResp() { Sender = _state.GetHostname() };
         }
     
         public override Task<CompareAndSwapResp> AckCompareAndSwap(CompareAndSwapResp response, ServerCallContext context) {

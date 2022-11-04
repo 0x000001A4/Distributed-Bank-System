@@ -17,6 +17,7 @@ message AckResp {
 message DepositReq {
 	Client client = 1;
 	double amount = 2;
+	string sender = 3;
 	
 }
 
@@ -30,6 +31,7 @@ message DepositResp {
 message WithdrawReq {
 	Client client = 1;
 	double amount = 2;
+	string sender = 3;
 	
 }
 
@@ -42,6 +44,7 @@ message WithdrawResp {
 
 message ReadReq {
 	Client client = 1;
+	string sender = 2;
 	
 	
 }

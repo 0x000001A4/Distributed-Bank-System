@@ -26,19 +26,22 @@ namespace BoneyServer {
 				if (_state.IsFrozen()) {
 					Type requestType = typeof(TRequest);
 					Message? _msg = null;
-					string sender = context.Host;
 
                     if (requestType == typeof(CompareAndSwapReq)) {
-						_msg = new Message((CompareAndSwapReq)(object) request, sender);
+						CompareAndSwapReq req = (CompareAndSwapReq)(object)request;
+						_msg = new Message(req, req.Sender);
 					}
                     else if (requestType == typeof(PrepareReq)) {
-                        _msg = new Message((PrepareReq)(object) request, sender);
+						PrepareReq req = (PrepareReq)(object)request;
+						_msg = new Message(req, req.Sender);
                     }
                     else if (requestType == typeof(AcceptReq)) {
-                        _msg = new Message((AcceptReq)(object) request, sender);
+						AcceptReq req = (AcceptReq)(object)request;
+						_msg = new Message(req, req.Sender);
                     }
 					else if (requestType == typeof(LearnCommandReq)) {
-						_msg = new Message((LearnCommandReq)(object) request, sender);
+						LearnCommandReq req = (LearnCommandReq)(object)request;
+						_msg = new Message(req, req.Sender);
 					}
 
 					if (_msg != null) _state.Enqueue(_msg);

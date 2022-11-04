@@ -183,7 +183,7 @@ namespace BankServer.domain.bank
         {
             List<int> boneyAdresses = _config.GetBoneyServerIDs();
             (string bankHost, int bankPort) = _config.GetBankHostnameAndPortByProcess((int)_processId);
-            string address = "http://" + bankHost + ":" + bankPort;
+            string address = bankHost + ":" + bankPort;
             uint leader = _slotManager.ChooseLeader();
 
             foreach (int id in boneyAdresses)
@@ -194,7 +194,7 @@ namespace BankServer.domain.bank
                 CompareAndSwapService.CompareAndSwapServiceClient client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
 
                 Logger.LogDebug($"CompareAndSwap sent for Slot:{_slotManager.GetCurrentSlot()} with leader chosen: ${leader}");
-                client.CompareAndSwapAsync(new CompareAndSwapReq { Slot = _slotManager.GetCurrentSlot(), Leader = leader, Address = address });
+                client.CompareAndSwapAsync(new CompareAndSwapReq { Slot = _slotManager.GetCurrentSlot(), Leader = leader, Sender = address });
             }
         }
 

@@ -70,6 +70,7 @@ namespace BankServer.utils
         {
             WithdrawResp response = _clientService.doWithdraw(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress("http://" + sender));
+            Logger.LogDebug("sender is: " + sender);
             _client.AckWithdraw(response);
         }
 

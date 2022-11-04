@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BankClient.utils;
 
 namespace BankClient.services
 {
@@ -19,25 +20,43 @@ namespace BankClient.services
 
         public override Task<AckResp> AckDeposit(DepositResp response, ServerCallContext context)
         {
-            Console.WriteLine($"Deposit ack received: {response.Response}");
-            Monitor.Pulse(_bankClientFrontend);
-            Thread.CurrentThread.Interrupt();
+            Logger.LogDebug($"Deposit ack received: {response.Response}");
+            lock (_bankClientFrontend)
+            {
+                _bankClientFrontend.AddDepoitResponse(response);
+                Monitor.Pulse(_bankClientFrontend);
+            }
+            //Thread.CurrentThread.Interrupt();
+            Logger.LogDebug($"end of deposit");
             return Task.FromResult(new AckResp() { });
         }
 
         public override Task<AckResp> AckWithdraw(WithdrawResp response, ServerCallContext context)
         {
-            Console.WriteLine($"Withdraw ack received: {response.Response}");
-            Monitor.Pulse(_bankClientFrontend);
+            Logger.LogDebug($"Withdraw Ack received: {response.Response}");
+            lock(_bankClientFrontend)
+            {
+                _bankClientFrontend.AddWithdrawResponse(response);
+                Monitor.Pulse(_bankClientFrontend);
+            }
             Thread.CurrentThread.Interrupt();
+
+            
+            //Thread.CurrentThread.Interrupt();
+            Logger.LogDebug($"end of Withdraw");
             return Task.FromResult(new AckResp() { });
         }
 
         public override Task<AckResp> AckReadBalance(ReadResp response, ServerCallContext context)
         {
-            Console.WriteLine($"Read ack received | Balance read: {response.Balance}");
-            Monitor.Pulse(_bankClientFrontend);
-            Thread.CurrentThread.Interrupt();
+            Logger.LogDebug($"Read ack received | Balance read: {response.Balance}");
+            lock (_bankClientFrontend)
+            {
+                _bankClientFrontend.AddReadBalanceResponse(response);
+                Monitor.Pulse(_bankClientFrontend);
+            }
+            //Thread.CurrentThread.Interrupt();
+            Logger.LogDebug($"end of ReadBalance");
             return Task.FromResult(new AckResp() { });
         }
     }

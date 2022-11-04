@@ -140,5 +140,11 @@ namespace BoneyServer.domain
         {
             _server = server;
         }
+
+        public string GetHostname()
+        {
+            (string hostname, int port) = _config.GetBoneyHostnameAndPortByProcess((int)_processId);
+            return hostname + ":" + port;
+        }
     }
 }

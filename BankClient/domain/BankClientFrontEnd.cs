@@ -7,9 +7,33 @@ namespace BankClient.domain
     {
         ServerConfiguration _config;
         List<GrpcChannel> _channels;
-        public BankClientFrontend(ServerConfiguration config)
+        int _clientId;
+        string _clientHostname;
+        List<DepositResp> _depositResponseReceived = new List<DepositResp>();
+        List<WithdrawResp> _withdrawResponseReceived = new List<WithdrawResp>();
+        List<ReadResp> _readBalanceResponseReceived = new List<ReadResp>();
+
+        public void AddDepoitResponse(DepositResp response)
+        {
+            _depositResponseReceived.Add(response);
+        }
+
+        public void AddWithdrawResponse(WithdrawResp response)
+        {
+            _withdrawResponseReceived.Add(response);
+        }
+
+        public void AddReadBalanceResponse(ReadResp response)
+        {
+            _readBalanceResponseReceived.Add(response);
+        }
+
+        public BankClientFrontend(ServerConfiguration config, int clientId)
         {
             _config = config;
+            _clientId = clientId;
+            (string clienthost, int clientport) = _config.GetClientHostnameAndPortByProcess(_clientId);
+            _clientHostname = clienthost + ":" + clientport;
 
             _channels = new List<GrpcChannel>();
             List<int> bankAdresses = _config.GetBankServerIDs();
@@ -22,37 +46,37 @@ namespace BankClient.domain
         }
 
 
-        public async Task DepositAsync(DepositReq request, ClientService.ClientServiceClient client, List<DepositResp> responseReceived)
+        public async Task DepositAsync(DepositReq request, ClientService.ClientServiceClient client)
         {
 
             DepositResp response = await client.DepositAsync(request);
             lock (this)
             {
-                responseReceived.Add(response);
+                _depositResponseReceived.Add(response);
                 Monitor.Pulse(this);
             }
  
         }
 
-        public async Task WithdrawAsync(WithdrawReq request, ClientService.ClientServiceClient client, List<WithdrawResp> responseReceived)
+        public async Task WithdrawAsync(WithdrawReq request, ClientService.ClientServiceClient client)
         {
 
             WithdrawResp response = await client.WithdrawAsync(request);
             lock(this)
             {
-                responseReceived.Add(response);
+                _withdrawResponseReceived.Add(response);
                 Monitor.Pulse(this);
             }
 
         }
 
-        public async Task ReadAsync(ReadReq request, ClientService.ClientServiceClient client, List<ReadResp> responseReceived)
+        public async Task ReadAsync(ReadReq request, ClientService.ClientServiceClient client)
         {
 
             ReadResp response = await client.ReadBalanceAsync(request);
             lock(this)
             {
-                responseReceived.Add(response);
+                _readBalanceResponseReceived.Add(response);
                 Monitor.Pulse(this);
             }
 
@@ -61,46 +85,46 @@ namespace BankClient.domain
 
         public void Deposit(uint clientID, uint opeSeqNumb,double amount)
         {
-            List<DepositResp> responseReceived = new List<DepositResp>();
+            
             foreach (GrpcChannel channel in _channels)
             {
                 Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
-
                 Client protoClient = new Client { ClientID = (int)clientID, ClientRequestSeqNumb = opeSeqNumb };
-                DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
-                Task ret = DepositAsync(request,client,responseReceived);
+                DepositReq request = new DepositReq { Client = protoClient, Amount = amount , Sender = _clientHostname };
+                Task ret = DepositAsync(request,client);
             }
-            if (!WaitForResponse<DepositResp>(responseReceived))
+            if (!WaitForResponse<DepositResp>(_depositResponseReceived))
             {
                 throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
             }
             else
             {
-                Logger.LogDebug("Deposit Done with: " + responseReceived[0].Response);
+                Logger.LogDebug("Deposit Done with: " + _depositResponseReceived[0].Response);
+                _depositResponseReceived.Clear();
             }
         }
 
         public void Withdraw(uint clientID, uint opeSeqNumb, double amount)
         {
-            List<WithdrawResp> responseReceived = new List<WithdrawResp>();
             foreach (GrpcChannel channel in _channels)
             {
                 Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = (int)clientID, ClientRequestSeqNumb = opeSeqNumb };
-                WithdrawReq request = new WithdrawReq { Client = protoClient, Amount = amount };
-                Task ret = WithdrawAsync(request, client, responseReceived);
+                WithdrawReq request = new WithdrawReq { Client = protoClient, Amount = amount, Sender = _clientHostname };
+                Task ret = WithdrawAsync(request, client);
 
             }
-            if (!WaitForResponse<WithdrawResp>(responseReceived))
+            if (!WaitForResponse<WithdrawResp>(_withdrawResponseReceived))
             {
                 throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
             }
             else
             {
-                Logger.LogDebug("Withdraw Done with: " + responseReceived[0].Response);
+                Logger.LogDebug("Withdraw Done with: " + _withdrawResponseReceived[0].Response);
+                _withdrawResponseReceived.Clear();
             }
             
 
@@ -110,24 +134,24 @@ namespace BankClient.domain
 
         public void ReadBalance(uint clientID, uint opeSeqNumb)
         {
-            List<ReadResp> responseReceived = new List<ReadResp>();
             foreach (GrpcChannel channel in _channels)
             {
                 Logger.LogDebug($"Sending to {channel.Target}");
                 ClientService.ClientServiceClient client = new ClientService.ClientServiceClient(channel);
 
                 Client protoClient = new Client { ClientID = (int)clientID, ClientRequestSeqNumb = opeSeqNumb };
-                ReadReq request = new ReadReq { Client = protoClient,};
-                Task ret = ReadAsync(request, client, responseReceived);
+                ReadReq request = new ReadReq { Client = protoClient, Sender = _clientHostname };
+                Task ret = ReadAsync(request, client);
 
             }
-            if (!WaitForResponse<ReadResp>(responseReceived))
+            if (!WaitForResponse<ReadResp>(_readBalanceResponseReceived))
             {
                 throw new Exception("Timed out. A majority of Bank servers is frozen, please try again later.");
             }
             else
             {
-                Logger.LogDebug("Read Done with Balance: " + responseReceived[0].Balance);
+                Logger.LogDebug("Read Done with Balance: " + _readBalanceResponseReceived[0].Balance);
+                _readBalanceResponseReceived.Clear();
             }
             
             

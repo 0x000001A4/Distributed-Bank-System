@@ -31,7 +31,7 @@ namespace BankClient
 			}
 
 			Logger.LogInfo($"Starting Bank Client {clientID}");
-			BankClientFrontend bankClientFrontend = new BankClientFrontend(globalConfig);
+			BankClientFrontend bankClientFrontend = new BankClientFrontend(globalConfig, (int)clientID);
             ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig, clientID, bankClientFrontend);
 
             (string hostname, int portNum) = globalConfig.GetClientHostnameAndPortByProcess((int)clientID);
@@ -39,7 +39,7 @@ namespace BankClient
 			ClientServiceImpl _clientServiceImpl = new ClientServiceImpl(bankClientFrontend);
 
             ServerPort serverPort;
-            Logger.LogDebug(hostname + ":" + portNum);
+            Logger.LogDebug("Started with hostname " + hostname + ":" + portNum);
             serverPort = new ServerPort(hostname, portNum, ServerCredentials.Insecure);
             Server server = new Server
             {

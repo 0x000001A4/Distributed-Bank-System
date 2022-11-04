@@ -4,11 +4,13 @@ import "CompareAndSwap.proto";
 message PrepareReq {
 	uint32 leaderNumber = 1;
 	uint32 paxosInstance = 2;
+	string sender = 3;
 }
 message AcceptReq {
 	CompareAndSwapReq value = 1;
 	uint32 leaderNumber = 2;
 	uint32 paxosInstance = 3;
+	string sender = 4;
 }
 
 message PromiseResp {

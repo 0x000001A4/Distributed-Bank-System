@@ -71,7 +71,7 @@ namespace BankClient.utils
                         }
                         catch (Exception e)
                         {
-                            Logger.LogError("Please provide clients in the configuration file in the following format: \"P client configFileName\"");
+                            Logger.LogError("Please provide clients in the configuration file in the following format: \"P client configFileName hostname\"");
                             throw;
                         }
 
@@ -148,7 +148,10 @@ namespace BankClient.utils
                 .SetTimeOfFirstSlot(_timeOfFirstSlot)
                 .SetNumberOfSlots(_numberSlots)
                 .SetSlotDuration(_slotDuration);
-
+            foreach (var client in _clientMap)
+            {
+                Logger.LogDebug("serverconfig: " + client.Value.ToString());
+            }
 
             return config;
 
@@ -259,6 +262,7 @@ namespace BankClient.utils
             string hostname = match.Groups["hostname"].Value;
 
             int port = int.Parse(match.Groups["portnumber"].Value);
+            Logger.LogDebug("Serverconfig getclienthost&port: " + hostname + port);
             return (hostname, port);
         }
 

@@ -41,7 +41,7 @@ namespace BoneyServer.services
 			{
 				uint processID = value.ProcessID;
 				uint Slot = value.Slot;
-				CompareAndSwapReq valueToSend = new CompareAndSwapReq() { Leader = processID, Slot = Slot };
+				CompareAndSwapReq valueToSend = new CompareAndSwapReq() { Leader = processID, Slot = Slot , Sender = _state.GetHostname()};
 				Logger.LogDebugAcceptor($"Sending Promise( value: < slot: {valueToSend.Slot} , primary: {valueToSend.Leader}> , w_ts: {writeTS} , instance: {instance} , ACK: {ack} )");
 				return new PromiseResp() { Value = valueToSend, WriteTimeStamp = writeTS, PaxosInstance = instance, PromisseFlag = ack };
 			}

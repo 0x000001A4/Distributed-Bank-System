@@ -10,12 +10,13 @@ service CompareAndSwapService {
 message CompareAndSwapReq {
 	uint32 slot = 1;
 	uint32 leader = 2;
-	string address =3;
+	string sender = 3;
 }
 
 message CompareAndSwapResp {
 	uint32 slot = 1;
 	uint32 primary = 2;
+	string sender = 3;
 }
 
 message HandlePaxosResultResp {

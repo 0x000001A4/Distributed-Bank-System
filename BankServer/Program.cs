@@ -29,50 +29,57 @@ namespace BankServer
 
                 if (_state.IsFrozen())
                 {
+                    Logger.LogDebug("Server is frozen");
                     Type requestType = typeof(TRequest);
                     Message? _msg = null;
-                    string sender = context.Host;
 
                     // Handling Compare And Swap Responses sent by learners
                     if (requestType == typeof(CompareAndSwapResp))
                     {
-                        _msg = new Message((CompareAndSwapResp)(object)request, sender);
+                        CompareAndSwapResp req = (CompareAndSwapResp)(object)request;
+                        _msg = new Message(req , req.Sender);
                     }
 
                     else if (requestType == typeof(DepositReq))
                     {
                         Logger.LogDebug("Interceptor: caught a Deposit message");
-                        _msg = new Message((DepositReq)(object)request, sender);
+                        DepositReq req = (DepositReq)(object)request;
+                        _msg = new Message(req, req.Sender);
                     }
 
                     else if (requestType == typeof(WithdrawReq))
                     {
-                        Logger.LogDebug("Interceptor: caught a Withdraw message");
-                        _msg = new Message((WithdrawReq)(object)request, sender);
+                        WithdrawReq req = (WithdrawReq)(object)request;
+                        _msg = new Message(req, req.Sender);
+                        Logger.LogError($"Interceptor: caught a Withdraw message from {req.Sender}");
                     }
 
                     else if (requestType == typeof(ReadReq))
                     {
                         Logger.LogDebug("Interceptor: caught a Read message");
-                        _msg = new Message((ReadReq)(object)request, sender);
+                        ReadReq req = (ReadReq)(object)request;
+                        _msg = new Message(req, req.Sender);
                     }
 
                     else if (requestType == typeof(ListPendingRequestsReq))
                     {
                         Logger.LogDebug("Interceptor: caught a ListPendingRequestReq message");
-                        _msg = new Message((ListPendingRequestsReq)(object)request, sender);
+                        ListPendingRequestsReq req = (ListPendingRequestsReq)(object)request;
+                        _msg = new Message(req, req.Sender);
                     }
 
                     else if (requestType == typeof(ProposeReq))
                     {
                         Logger.LogDebug("Interceptor: caught a ProposeReq message");
-                        _msg = new Message((ProposeReq)(object)request, sender);
+                        ProposeReq req = (ProposeReq)(object)request;
+                        _msg = new Message(req, req.Sender);
                     }
 
                     else if (requestType == typeof(CommitReq))
                     {
                         Logger.LogDebug("Interceptor: caught a CommitReq message");
-                        _msg = new Message((CommitReq)(object)request, sender);
+                        CommitReq req = (CommitReq)(object)request;
+                        _msg = new Message(req, req.Sender);
                     }
 
                     if (_msg != null) _state.Enqueue(_msg);

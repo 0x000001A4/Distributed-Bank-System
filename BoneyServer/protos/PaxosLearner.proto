@@ -10,6 +10,7 @@ message LearnCommandReq {
 	CompareAndSwapReq value = 1;
 	uint32 leaderNumber = 2;
 	uint32 paxosInstance = 3;
+	string sender = 4;
 }
 
 message LearnCommandResp {

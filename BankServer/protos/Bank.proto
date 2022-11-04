@@ -12,6 +12,7 @@ service BankService {
 /* ListPendingRequests */
 message ListPendingRequestsReq {
 	uint32 lastKnownSeqNumber = 1;
+	string sender = 2;
 }
 
 message ListPendingRequestsResp {
@@ -29,6 +30,7 @@ message ProposeReq {
 	uint32 slot = 1;
 	uint32 seqNumber = 2;
 	uint32 primaryBankID = 3;
+	string sender = 4;
 }
 
 message ProposeResp {
@@ -41,6 +43,7 @@ message ProposeResp {
 message CommitReq {
 	int32 clientID = 1;
 	uint32 seqNumber = 2;
+	string sender = 3;
 	
 }
 
