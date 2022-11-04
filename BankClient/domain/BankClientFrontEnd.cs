@@ -22,27 +22,39 @@ namespace BankClient.domain
         }
 
 
-        public static async Task DepositAsync(DepositReq request, ClientService.ClientServiceClient client, List<DepositResp> responseReceived)
+        public async Task DepositAsync(DepositReq request, ClientService.ClientServiceClient client, List<DepositResp> responseReceived)
         {
 
             DepositResp response = await client.DepositAsync(request);
-            responseReceived.Add(response);
+            lock (this)
+            {
+                responseReceived.Add(response);
+                Monitor.Pulse(this);
+            }
  
         }
 
-        public static async Task WithdrawAsync(WithdrawReq request, ClientService.ClientServiceClient client, List<WithdrawResp> responseReceived)
+        public async Task WithdrawAsync(WithdrawReq request, ClientService.ClientServiceClient client, List<WithdrawResp> responseReceived)
         {
 
             WithdrawResp response = await client.WithdrawAsync(request);
-            responseReceived.Add(response);
+            lock(this)
+            {
+                responseReceived.Add(response);
+                Monitor.Pulse(this);
+            }
 
         }
 
-        public static async Task ReadAsync(ReadReq request, ClientService.ClientServiceClient client, List<ReadResp> responseReceived)
+        public async Task ReadAsync(ReadReq request, ClientService.ClientServiceClient client, List<ReadResp> responseReceived)
         {
 
             ReadResp response = await client.ReadBalanceAsync(request);
-            responseReceived.Add(response);
+            lock(this)
+            {
+                responseReceived.Add(response);
+                Monitor.Pulse(this);
+            }
 
         }
 
@@ -59,7 +71,7 @@ namespace BankClient.domain
                 DepositReq request = new DepositReq { Client = protoClient, Amount = amount };
                 Task ret = DepositAsync(request,client,responseReceived);
             }
-            if (!WaitForDeposit(responseReceived))
+            if (!WaitForResponse<DepositResp>(responseReceived))
             {
                 throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
             }
@@ -67,17 +79,6 @@ namespace BankClient.domain
             {
                 Logger.LogDebug("Deposit Done with: " + responseReceived[0].Response);
             }
-        }
-        private static bool WaitForDeposit(List<DepositResp> responseReceived)
-        {
-            //TimeoutTimer timeout = new TimeoutTimer();
-            //timeout.Start();
-            while (responseReceived.Count() == 0)
-            {
-               // if (timeout.TimedOut()) return false;
-                
-            }
-            return true;
         }
 
         public void Withdraw(uint clientID, uint opeSeqNumb, double amount)
@@ -93,7 +94,7 @@ namespace BankClient.domain
                 Task ret = WithdrawAsync(request, client, responseReceived);
 
             }
-            if (!WaitForWithdraw(responseReceived))
+            if (!WaitForResponse<WithdrawResp>(responseReceived))
             {
                 throw new Exception("Timed out. A majority of Boney servers is frozen, please try again later.");
             }
@@ -105,16 +106,7 @@ namespace BankClient.domain
 
         }
 
-        private static bool WaitForWithdraw(List<WithdrawResp> responseReceived)
-        {
-            //TimeoutTimer timeout = new TimeoutTimer();
-            //timeout.Start();
-            while (responseReceived.Count() == 0)
-            {
-                //if (timeout.TimedOut()) return false;
-            }
-            return true;
-        }
+
 
         public void ReadBalance(uint clientID, uint opeSeqNumb)
         {
@@ -129,7 +121,7 @@ namespace BankClient.domain
                 Task ret = ReadAsync(request, client, responseReceived);
 
             }
-            if (!WaitForRead(responseReceived))
+            if (!WaitForResponse<ReadResp>(responseReceived))
             {
                 throw new Exception("Timed out. A majority of Bank servers is frozen, please try again later.");
             }
@@ -141,15 +133,16 @@ namespace BankClient.domain
             
         }
 
-        private static bool WaitForRead(List<ReadResp> responseReceived)
+        private bool WaitForResponse<TResponse>(List<TResponse> responseReceived)
         {
-            //TimeoutTimer timeout = new TimeoutTimer();
-            //timeout.Start();
-            while (responseReceived.Count() == 0)
+            lock (this)
             {
-                //if (timeout.TimedOut()) return false;
+                while (responseReceived.Count() == 0)
+                {
+                    Monitor.Wait(this);
+                }
+                return true;
             }
-            return true;
         }
     }
 }

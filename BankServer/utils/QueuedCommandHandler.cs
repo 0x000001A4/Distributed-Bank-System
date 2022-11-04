@@ -47,11 +47,12 @@ namespace BankServer.utils
             Thread thread = new Thread(() => doDeposit(request, sender));
             thread.Start();
         }
+
         private void doDeposit(DepositReq request, string sender)
         {
             DepositResp response = _clientService.doDeposit(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            //_client.AckDeposit(response);
+            _client.AckDeposit(response);
         }
 
         public void handleWithdrawReq(WithdrawReq request, string sender)
@@ -69,7 +70,7 @@ namespace BankServer.utils
         {
             WithdrawResp response = _clientService.doWithdraw(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            //_client.AckWithdraw(response);
+            _client.AckWithdraw(response);
         }
 
         public void handleReadReq(ReadReq request, string sender)
@@ -86,43 +87,43 @@ namespace BankServer.utils
         {
             ReadResp response = _clientService.doRead(request);
             ClientService.ClientServiceClient _client = new ClientService.ClientServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            //_client.AckReadBalance(response);
+            _client.AckReadBalance(response);
         }
 
         public void handleListPendingRequestsReq(ListPendingRequestsReq request, string sender)
         {
-            if (_clientService == null)
+            if (_bankService == null)
             {
                 Console.WriteLine("Unexpected behaviour");
                 throw new Exception();
             }
             ListPendingRequestsResp response = _bankService.doListPendingRequests(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            //_client.AckListPendingRequests(response);
+            _client.AckListPendingRequests(response);
         }
 
         public void handleProposeReq(ProposeReq request, string sender)
         {
-            if (_clientService == null)
+            if (_bankService == null)
             {
                 Console.WriteLine("Unexpected behaviour");
                 throw new Exception();
             }
             ProposeResp response = _bankService.doPropose(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            //_client.AckPropose(response);
+            _client.AckPropose(response);
         }
 
         public void handleCommitReq(CommitReq request, string sender)
         {
-            if (_clientService == null)
+            if (_bankService == null)
             {
                 Console.WriteLine("Unexpected behaviour");
                 throw new Exception();
             }
             CommitResp response = _bankService.doCommit(request);
             BankService.BankServiceClient _client = new BankService.BankServiceClient(GrpcChannel.ForAddress("http://" + sender));
-            //_client.AckCommit(response);
+            _client.AckCommit(response);
         }
     }
 }

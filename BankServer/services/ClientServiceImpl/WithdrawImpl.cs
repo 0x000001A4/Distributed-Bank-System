@@ -24,7 +24,7 @@ namespace BankServer.services
         {
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
             Logger.LogDebug($"Withdraw: slot is {currentSlot}");
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 && !_state.isQueueEmpty()) ;
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 || !_state.isQueueEmpty()) ;
             Logger.LogDebug($"Withdraw: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId()) {

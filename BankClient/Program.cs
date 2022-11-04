@@ -31,12 +31,12 @@ namespace BankClient
 			}
 
 			Logger.LogInfo($"Starting Bank Client {clientID}");
-			//TimeoutTimer.SetTimeout(globalConfig.GetSlotDuration());
-			ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig, clientID);
+			BankClientFrontend bankClientFrontend = new BankClientFrontend(globalConfig);
+            ClientLogic clientLogic = new ClientLogic(clientConfig.Commands, globalConfig, clientID, bankClientFrontend);
 
             (string hostname, int portNum) = globalConfig.GetClientHostnameAndPortByProcess((int)clientID);
 
-			ClientServiceImpl _clientServiceImpl = new ClientServiceImpl();
+			ClientServiceImpl _clientServiceImpl = new ClientServiceImpl(bankClientFrontend);
 
             ServerPort serverPort;
             Logger.LogDebug(hostname + ":" + portNum);
@@ -62,10 +62,10 @@ namespace BankClient
     {
 		private List<ICommand> _commands;
 		private int _timeToSleep;
-		public ClientLogic(List<ICommand> commands, ServerConfiguration globalConfig, uint clientID)
+		public ClientLogic(List<ICommand> commands, ServerConfiguration globalConfig, uint clientID, BankClientFrontend bankClientFrontend)
         {
 			_commands = commands;
-			FrontendCommandContext.Frontend = new BankClientFrontend(globalConfig);
+			FrontendCommandContext.Frontend = bankClientFrontend;
 			FrontendCommandContext.ClientID = clientID;
 
 			DateTime dateTime = DateTime.ParseExact(globalConfig.GetSlotFisrtTime(), "HH:mm:ss",

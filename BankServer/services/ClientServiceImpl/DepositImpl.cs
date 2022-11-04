@@ -11,7 +11,7 @@ namespace BankServer.services
             Logger.LogDebug("DepositImpl: Deposit received");
             Logger.LogDebug($"DepositImpl: server is frozen: {_state.IsFrozen()}");
             if (!_state.IsFrozen()) {
-                DepositResp response = doDeposit(request);
+                DepositResp response = doDeposit(request);                          
                 Logger.LogDebug("End of Deposit not frozen");
                 return Task.FromResult(response);
             }
@@ -25,7 +25,7 @@ namespace BankServer.services
             uint currentSlot = _state.GetSlotManager().GetCurrentSlot();
 
             Logger.LogDebug($"Deposit: slot is {currentSlot}");
-            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 && !_state.isQueueEmpty());
+            while (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == 0 || !_state.isQueueEmpty());
             Logger.LogDebug($"Deposit: primary is {_state.GetSlotManager().GetPrimaryOnSlot(currentSlot)}");
 
             if (_state.GetSlotManager().GetPrimaryOnSlot(currentSlot) == _state.GetProcessId())
